@@ -7,6 +7,9 @@ AppendProgramInfo <- function(org_code){
 	.ret <- c()
 	
 	if(nrow(.prog)>0){
+	
+		.prog$program_string <- gsub( '"', "'",.prog$program_string)
+		
 		for(i in 1:nrow(.prog)){
 			.ret <- c(.ret, '"'%+%.prog$program_string[i]%+%'"')
 		}
@@ -723,7 +726,7 @@ WriteSPED <- function(.casdat_mr, year, level){
 	for(a in 1:2){
 		for(b in 1:4){
 			soutput <- "All SPED Students"
-			
+			.tmp <- .casdat_mr
 			if(b == 2){
 				.tmp <- subset(.casdat_mr, sped_acc == 'YES')
 				soutput <- "With Accomodations"
