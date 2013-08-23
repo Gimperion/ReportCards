@@ -1,11 +1,13 @@
 ## Generate State File ## 
 ## Detail Data File Build ##
-source("http://www.straydots.com/code/tomkit.R")
-source("http://www.straydots.com/code/ODBC.R")
+setwd("C:\\Users\\tommy.shen\\Documents\\GitHub\\ReportCards")
+source("./imports/tomkit.R")
+source("./imports/ODBC.R")
+source("./school_functions.R")
+source("./state_functions.R")
 
 setwd("C:\\test_repcard\\school_report_v1.0")
-source("F:\\reportcard\\LearnDC\\ex_cas_chunk_v2.R")
-source("F:\\reportcard\\LearnDC\\state_functions.R")
+
 
 checkna <- function(x){
 	if(is.na(x)){
@@ -25,7 +27,7 @@ checkna_str <- function(x){
 org_type <- "state"
 org_code <- "STATE"
 
-newfile <- file("state_v0.8.JSON", encoding="UTF-8")
+newfile <- file("state_v0.9.JSON", encoding="UTF-8")
 sink(newfile)
 cat('{', fill=TRUE)
 
@@ -166,6 +168,19 @@ up(level)
 	down(level)
 	cat(indent(level),'}', sep="", fill=TRUE)
 }
+
+{
+	## PreK Testing##
+	cat(indent(level),'{', sep="", fill=TRUE)
+	up(level)
+	cat(indent(level), '"id": "prek_cas_results",', sep="", fill=TRUE)
+	cat(indent(level), '"data": [', sep="", fill=TRUE)
+	cat(ExStatePreKCAS(level+1), fill=TRUE)
+	cat(indent(level), ']', sep="", fill=TRUE)
+	down(level)
+	cat(indent(level),'}', sep="", fill=TRUE)
+}
+
 
 {
 	#AMAO

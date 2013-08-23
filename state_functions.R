@@ -1,4 +1,90 @@
 ## 
+ExStatePreKCAS <- function(level){
+	.qry <- "SELECT A.*,
+				CASE
+					WHEN A.[usi] in (SELECT [usi] from [dbo].[historical_prek_static]) THEN 1
+					ELSE 0
+				END as [prek_participant]		
+			FROM [dbo].[assessment_sy1213] A
+			WHERE A.[tested_grade] = '3'"
+	
+	.prekcas13 <- sqlQuery(dbrepcard, .qry)
+	.ret <- c()
+	
+	.ret <- c(.ret, WritePreKCAS(.prekcas13, level))
+	
+	.qry <- "SELECT A.*,
+			CASE
+				WHEN A.[usi] in (SELECT [usi] from [dbo].[historical_prek_static]) THEN 1
+				ELSE 0
+			END as [prek_participant]		
+		FROM [dbo].[assessment_sy1112] A
+		WHERE A.[tested_grade] = '3'"
+	
+	.prekcas12 <- sqlQuery(dbrepcard, .qry)
+	
+	.ret <- c(.ret, WritePreKCAS(.prekcas12, level))
+	return(paste(.ret, collapse=',\n'))	
+}
+
+WritePreKCAS <- function(.prekcas, level){
+	.lv <- level
+	.ret <- c()
+	
+	.group <- c("PreK Participant", "Non-PreK Participant")
+	.year <- .prekcas$year[1]
+	.subject <- c("Math", "Reading")
+	.plevels <- c("Below Basic", "Basic", "Proficient", "Advanced")
+	
+	for(i in 1:2){
+		if(i == 1){
+			.tmp <- subset(.prekcas, prek_participant==1)
+		} else{
+			.tmp <- subset(.prekcas, prek_participant!=1)
+		}
+		for(a in 1:2){
+			if(a ==1){
+				.profs <- .tmp$math_level
+			} else if(a == 2){
+				.profs <- .tmp$read_level
+			}
+		
+			.add <- indent(.lv) %+% '{\n'
+			up(.lv)
+			.add <- .add %+% paste(indent(.lv), '"key": {\n', sep="")
+			up(.lv)
+			.add <- .add %+% paste(indent(.lv), '"year": "', .year, '",\n', sep="")
+			.add <- .add %+% paste(indent(.lv), '"grade": "grade 3",\n', sep="")
+			.add <- .add %+% paste(indent(.lv), '"subject": "',.subject[a], '",\n', sep="")
+			.add <- .add %+% paste(indent(.lv), '"subgroup": "', .group[i], '"\n', sep="")
+			
+			down(.lv)
+			.add <- .add %+% paste(indent(.lv), '},\n', sep="")
+			down(.lv)
+			
+			up(.lv)
+			.add <- .add %+% paste(indent(.lv), '"val": {\n', sep="")
+
+			up(.lv)
+			.add <- .add %+% paste(indent(.lv), '"test_takers": ', checkna(length(.profs[.profs %in% .plevels])), ',\n', sep="")
+			.add <- .add %+% paste(indent(.lv), '"below_basic": ', checkna(length(.profs[.profs %in% c("Below Basic")])), ',\n', sep="")
+			.add <- .add %+% paste(indent(.lv), '"basic": ', checkna(length(.profs[.profs %in% c("Basic")])), ',\n', sep="")			
+			.add <- .add %+% paste(indent(.lv), '"proficient": ', checkna(length(.profs[.profs %in% c("Proficient")])), ',\n', sep="")
+			.add <- .add %+% paste(indent(.lv), '"advanced": ', checkna(length(.profs[.profs %in% c("Advanced")])), '\n', sep="")
+			
+			down(.lv)
+			.add <- .add %+% paste(indent(.lv), '}\n', sep="")
+			down(.lv)
+			.add <- .add %+% paste(indent(.lv), '}', sep="")
+			
+			.ret <- c(.ret, .add)
+		}
+	}
+	##print(.naepdat)
+	return(paste(.ret, collapse=',\n'))
+}
+
+
 ExStateCReady <- function(level){
 	.lv <- level
 	
