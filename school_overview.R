@@ -1,11 +1,16 @@
-setwd("C:\\Users\\tommy.shen\\Documents\\GitHub\\ReportCards")
+
+mainDir <- "C:\\Users\\tommy.shen\\Documents\\GitHub\\ReportCards"
+setwd(mainDir)
 
 source("./imports/tomkit.R")
 source("./imports/ODBC.R")
 source("./school_functions.R")
 ##source("./state_functions.R")
 
-setwd("C:\\test_repcard\\")
+subDir <- "overview_v0.6"
+dir.create(file.path(mainDir, subDir), showWarnings = FALSE)
+setwd(file.path(mainDir, subDir))
+
 ## Insert Version Controlled Folder Location Here
 ## setwd("")
 
@@ -72,7 +77,8 @@ GetGrades <- function(org_code){
 	}
 	return(paste(.ret, collapse=','))
 }
-	
+
+
 ## Yay for-loops!!!!!
 for(i in 1:nrow(school_dir)){
 	org_type <- "school"
@@ -83,6 +89,7 @@ for(i in 1:nrow(school_dir)){
 	cat('{', fill=TRUE)
 
 	level <- 1
+	cat(indent(level),'"timestamp": "',date(),'",', sep="", fill=TRUE)
 	cat(indent(level),'"org_type": "school",', sep="", fill=TRUE)
 	cat(indent(level),'"org_name": "',school_dir$profile_name[i],'",', sep="", fill=TRUE)
 	cat(indent(level),'"org_code": "',org_code,'",', sep="", fill=TRUE)
@@ -128,7 +135,7 @@ for(i in 1:nrow(school_dir)){
 	
 	level <- level - 1
 	cat(indent(level), '},', fill=TRUE)
-	
+
 	cat(indent(level) %+% '"transit": "' %+% school_dir$routes[i] %+% '",', fill=TRUE)
 	cat(indent(level) %+% '"website": ' %+% checkna_str(school_dir$website[i]) %+% ',', fill=TRUE)  ## fill ward
 	cat(indent(level),'"facebook": ',checkna_str(school_dir$facebook[i]),',', sep="", fill=TRUE)  ## fill ward
@@ -138,7 +145,7 @@ for(i in 1:nrow(school_dir)){
 	cat(indent(level), '"contact": [', sep="", fill=TRUE)
 	cat(InsertPeople(org_code, level+1))
 	cat('\n', indent(level), ']', sep='', fill=TRUE)
-		
+
 	cat('}', fill=TRUE)
 	sink()
 	close(newfile)
