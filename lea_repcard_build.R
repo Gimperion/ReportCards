@@ -1,9 +1,9 @@
 library(RODBC)
-source("U://R//tomkit.R")
-source("U://REPORT CARD//LEA Report Card Building//lea_cas_chunk_v3.R")
-
-setwd("U://REPORT CARD//LEA Report Card Building//Output JSON")
-
+setwd("C:\\Users\\tommy.shen\\Documents\\GitHub\\ReportCards")
+source("./imports/tomkit.R")
+##source("./imports/ODBC.R")
+source("./lea_cas_chunk_v3.R")
+setwd("./output JSON/")
 
 dbrepcard <- odbcDriverConnect('driver={SQL Server};server=OSSEEDM1;database=reportcard_dev;trusted_connection=true')
 school_dir <- sqlFetch(dbrepcard, 'schooldir_sy1213')
@@ -11,12 +11,12 @@ school_dir <- sqlFetch(dbrepcard, 'schooldir_sy1213')
 charter_dir <- school_dir[school_dir$lea_code != 1,]
 lea_dir <- unique(charter_dir[c("lea_code","lea_name")])
 
-
 # lea codes need to be four digits and in quotes
 lea_dir$lea_code <- sapply(lea_dir$lea_code, leadgr, y=4)
 
 
 for(i in 1:nrow(charter_dir)){
+
 	org_type <- "lea"
 	lea_name <- lea_dir$lea_name[i]
 	lea_code <- lea_dir$lea_code[i]
@@ -25,7 +25,6 @@ for(i in 1:nrow(charter_dir)){
 	
 	sink(newfile)
 	cat('{', fill=TRUE)
-	
 	level <- 1
 	cat(indent(level),'"timestamp": "',date(),'",', sep="", fill=TRUE)
 	cat(indent(level),'"org_type": "',org_type, '",', sep="", fill=TRUE)
@@ -115,8 +114,6 @@ for(i in 1:nrow(charter_dir)){
 		cat(indent(level),'}', sep="", fill=TRUE)	
 	}
 
-
-	
 	cat(indent(level), ']', sep="", fill=TRUE)
 	down(level)
 	cat(indent(level), '}', fill=TRUE)
@@ -125,7 +122,7 @@ for(i in 1:nrow(charter_dir)){
 
 	sink()
 	close(newfile)
-	}
+}
 
 
 
@@ -141,18 +138,5 @@ for(i in 1:nrow(charter_dir)){
 
 
 ## Do not worry about: Accountability, PMF, Early Education, Program Info
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
