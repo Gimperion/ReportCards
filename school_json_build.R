@@ -7,7 +7,7 @@ source("./imports/ODBC.R")
 source("./school_functions.R")
 ##source("./state_functions.R")
 
-setwd("C:\\test_repcard\\school_report_v1.2\\")
+setwd("C:\\test_repcard\\school_report_v1.3\\")
 
 school_dir <- sqlFetch(dbrepcard, 'schooldir_linked')
 school_dir$school_code <- sapply(school_dir$school_code, leadgr, 4)

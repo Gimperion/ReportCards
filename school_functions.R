@@ -134,7 +134,6 @@ EncodeCReady <- function(.dat, level){
 			up(.lv)
 			.add <- .add %+% paste(indent(.lv), '"key": {\n', sep="")
 			up(.lv)			
-			.profs <- .tmp$comp_level
 			.add <- .add %+% paste(indent(.lv), '"subgroup": "', .slice,'", \n', sep="")
 			.add <- .add %+% paste(indent(.lv), '"year": "',.tmp$year[1],'" \n', sep="")
 			down(.lv)
@@ -175,10 +174,6 @@ ExGraduation <- function(org_code, level){
 		WHERE [fy13_entity_code] = '" %+% org_code %+% "'
 		AND [cohort_status] = 'TRUE'"
 	.grad12 <- sqlQuery(dbrepcard, .qry)
-	
-	if(nrow(.grad11) > 10){
-		.ret <- c(.ret, WriteGraduation(.grad11, .lv, 2011))
-	}
 	
 	if(nrow(.grad12) > 10){
 		.ret <- c(.ret, WriteGraduation(.grad12, .lv, 2012))
@@ -240,7 +235,6 @@ WriteGraduation <- function(gdata, level, year){
 			.add <- .add %+% paste(indent(.lv), '"key": {\n', sep="")
 			up(.lv)
 			
-			.profs <- .tmp$comp_level
 			.add <- .add %+% paste(indent(.lv), '"subgroup": "', soutput,'", \n', sep="")
 			.add <- .add %+% paste(indent(.lv), '"year": "',year,'" \n', sep="")
 			down(.lv)				
@@ -915,8 +909,6 @@ WriteEnroll <- function(.edat, year, level){
 				.add <- .add %+% paste(indent(.lv), '"key": {\n', sep="")
 				up(.lv)
 				
-				.profs <- .tmp$comp_level
-						
 				.add <- .add %+% paste(indent(.lv), '"grade": "',goutput,'", \n', sep="")
 				.add <- .add %+% paste(indent(.lv), '"subgroup": "', soutput,'", \n', sep="")
 				.add <- .add %+% paste(indent(.lv), '"year": "',year,'" \n', sep="")

@@ -6,7 +6,7 @@ source("./imports/ODBC.R")
 source("./school_functions.R")
 source("./state_functions.R")
 
-setwd("C:\\test_repcard\\school_report_v1.0")
+setwd("C:\\test_repcard\\school_report_v1.1")
 
 
 checkna <- function(x){
@@ -166,7 +166,7 @@ up(level)
 	cat(ExStateSPEDChunk(level+1), fill=TRUE)
 	cat(indent(level), ']', sep="", fill=TRUE)
 	down(level)
-	cat(indent(level),'}', sep="", fill=TRUE)
+	cat(indent(level),'},', sep="", fill=TRUE)
 }
 
 {
@@ -178,7 +178,7 @@ up(level)
 	cat(ExStatePreKCAS(level+1), fill=TRUE)
 	cat(indent(level), ']', sep="", fill=TRUE)
 	down(level)
-	cat(indent(level),'}', sep="", fill=TRUE)
+	cat(indent(level),'},', sep="", fill=TRUE)
 }
 
 
