@@ -1,13 +1,14 @@
 ## Generate School File ## 
 ## Detail Data File Build ##
-setwd("C:\\Users\\tommy.shen\\Documents\\GitHub\\ReportCards")
+setwd("U:\\REPORT CARD\\GIT Report Cards\\ReportCards")
 
 source("./imports/tomkit.R")
 source("./imports/ODBC.R")
 source("./school_functions.R")
 ##source("./state_functions.R")
 
-setwd("C:\\test_repcard\\school_report_v1.3\\")
+setwd("C:\\test_repcard\\school_report_v1.2\\")
+setwd("U:\\REPORT CARD\\GIT Report Cards\\ReportCards\\JSON Output")
 
 school_dir <- sqlFetch(dbrepcard, 'schooldir_linked')
 school_dir$school_code <- sapply(school_dir$school_code, leadgr, 4)
@@ -64,13 +65,10 @@ for(i in 1:nrow(school_dir)){
 		up(level)
 		cat(indent(level), '"id": "hqt_status",', sep="", fill=TRUE)
 		
-		cat(indent(level), '"data": ',runif(1), sep="", fill=TRUE)
-		
-		##cat(ExHQTStatus(org_code, level+1), fill=TRUE)		
-		##cat(indent(level), ']', sep="", fill=TRUE)
+		cat(indent(level), '"data": [ ', ExHQTStatus(org_code), sep="", fill=TRUE)	
+		cat('\n',indent(level), ']', sep="", fill=TRUE)
 		down(level)
 		cat(indent(level),'},', sep="", fill=TRUE)
-	
 	}
 	{
 		## Early Childhood
@@ -84,7 +82,6 @@ for(i in 1:nrow(school_dir)){
 		cat(indent(level), ']', sep="", fill=TRUE)
 		down(level)
 		cat(indent(level),'},', sep="", fill=TRUE)
-	
 	}
 	{
 		#College Enrollment
@@ -143,7 +140,18 @@ for(i in 1:nrow(school_dir)){
 		down(level)
 		cat(indent(level),'},', sep="", fill=TRUE)
 	}
-	
+	{
+		## Profile URL
+		cat(indent(level),'{', sep="", fill=TRUE)
+		up(level)
+		cat(indent(level), '"id": "profile_url",', sep="", fill=TRUE)
+
+		cat(indent(level), '"data": ["',ExProfileURL(org_code), '"', sep="", fill=TRUE)
+
+		cat(indent(level), ']', sep="", fill=TRUE)
+		down(level)
+		cat(indent(level),'},', sep="", fill=TRUE)
+	}
 	{
 		#Enrollment
 		cat(indent(level),'{', sep="", fill=TRUE)
@@ -178,8 +186,6 @@ for(i in 1:nrow(school_dir)){
 		down(level)
 		cat(indent(level),'},', sep="", fill=TRUE)
 	}
-	
-
 	{
 		## SPED Testing##
 		cat(indent(level),'{', sep="", fill=TRUE)
@@ -196,6 +202,8 @@ for(i in 1:nrow(school_dir)){
 		## ELL/AMAO Stuff ##	
 	}
 	
+
+
 	down(level)
 	cat(indent(level), ']', sep="", fill=TRUE)
 	

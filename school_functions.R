@@ -1,3 +1,31 @@
+ExHQTStatus <- function(org_code){
+	.qry <- "SELECT * FROM [dbo].[hqt_status_sy1112]
+		WHERE [school_code] = '" %+% org_code %+% "'"
+	.prog <- sqlQuery(dbrepcard, .qry)
+
+	if(nrow(.prog)>0){
+		.ret <- .prog$percent_hqt_classes
+		return(.ret)
+		}
+	else{
+		return('')
+		}
+}
+
+ExProfileURL <- function(org_code){
+	.qry <- "SELECT * FROM [dbo].[profile_urls_13]
+		WHERE [school_code] = '" %+% org_code %+% "'"
+	.prog <- sqlQuery(dbrepcard, .qry)
+	
+	if(nrow(.prog)>0){
+		.ret <- .prog$url
+		return(.ret)
+		} 
+	else{
+		return('')
+		}
+}
+
 ##"subgroup": ("All","African American","White","Hispanic","Asian","Special Education","English Learner","Economically Disadvantaged","Homeless Students"),
 AppendProgramInfo <- function(org_code){
 	.qry <- "SELECT * FROM [dbo].[school_programs]
@@ -69,7 +97,6 @@ ExMGPResult <- function(org_code, level){
 				up(.lv)
 				.add <- .add %+% paste(indent(.lv), '"key": {\n', sep="")
 				up(.lv)			
-				.profs <- .tmp$comp_level
 				.add <- .add %+% paste(indent(.lv), '"subject": "',.mgp$subject[i] ,'", \n', sep="")
 				.add <- .add %+% paste(indent(.lv), '"subgroup": "',RetMGPGroup(.mgp$group[i]),'", \n', sep="")
 				.add <- .add %+% paste(indent(.lv), '"year": "',.mgp$year[i],'" \n', sep="")
