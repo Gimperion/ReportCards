@@ -65,8 +65,7 @@ for(i in 1:nrow(school_dir)){
 		up(level)
 		cat(indent(level), '"id": "hqt_status",', sep="", fill=TRUE)
 		
-		cat(indent(level), '"data": [ ', ExHQTStatus(org_code), sep="", fill=TRUE)	
-		cat('\n',indent(level), ']', sep="", fill=TRUE)
+		cat(indent(level), '"data":', ExHQTStatus(org_code), sep="", fill=TRUE)	
 		down(level)
 		cat(indent(level),'},', sep="", fill=TRUE)
 	}
@@ -141,18 +140,6 @@ for(i in 1:nrow(school_dir)){
 		cat(indent(level),'},', sep="", fill=TRUE)
 	}
 	{
-		## Profile URL
-		cat(indent(level),'{', sep="", fill=TRUE)
-		up(level)
-		cat(indent(level), '"id": "profile_url",', sep="", fill=TRUE)
-
-		cat(indent(level), '"data": ["',ExProfileURL(org_code), '"', sep="", fill=TRUE)
-
-		cat(indent(level), ']', sep="", fill=TRUE)
-		down(level)
-		cat(indent(level),'},', sep="", fill=TRUE)
-	}
-	{
 		#Enrollment
 		cat(indent(level),'{', sep="", fill=TRUE)
 		up(level)
@@ -202,8 +189,6 @@ for(i in 1:nrow(school_dir)){
 		## ELL/AMAO Stuff ##	
 	}
 	
-
-
 	down(level)
 	cat(indent(level), ']', sep="", fill=TRUE)
 	

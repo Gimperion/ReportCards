@@ -8,21 +8,7 @@ ExHQTStatus <- function(org_code){
 		return(.ret)
 		}
 	else{
-		return('')
-		}
-}
-
-ExProfileURL <- function(org_code){
-	.qry <- "SELECT * FROM [dbo].[profile_urls_13]
-		WHERE [school_code] = '" %+% org_code %+% "'"
-	.prog <- sqlQuery(dbrepcard, .qry)
-	
-	if(nrow(.prog)>0){
-		.ret <- .prog$url
-		return(.ret)
-		} 
-	else{
-		return('')
+		return('null')
 		}
 }
 
@@ -293,6 +279,18 @@ ExPMF <- function(org_code, level){
 		WHERE [school_code] = '" %+% org_code %+% "'"
 	.pmf11 <- sqlQuery(dbrepcard, .qry)
 	.ret <- c()
+
+	.qry_profile <- "SELECT * FROM [dbo].[profile_urls_13]
+		WHERE [school_code] = '" %+% org_code %+% "'"
+	.prog_profile <- sqlQuery(dbrepcard, .qry_profile)
+
+	if(nrow(.prog_profile)>0){ 
+		.profile <- indent(.lv+2) %+% '"profile_url": "' %+% .prog_profile$url %+% '"\n'
+	}
+	else{
+		.profile <- indent(.lv+2) %+% '"profile_url": null\n'
+	}
+
 	
 	if(nrow(.pmf11)>0){
 		if(!is.na(.pmf11$esms_score[1]) | !is.na(.pmf11$esms_tier[1])){
@@ -307,7 +305,8 @@ ExPMF <- function(org_code, level){
 			.add <- .add %+% indent(.lv) %+% '"val": {\n'
 			up(.lv)
 			.add <- .add %+% indent(.lv) %+% '"score": "'%+% .pmf11$esms_score[1]%+%'",\n'
-			.add <- .add %+% indent(.lv) %+% '"tier": "'%+% .pmf11$esms_tier[1]%+%'"\n'
+			.add <- .add %+% indent(.lv) %+% '"tier": "'%+% .pmf11$esms_tier[1]%+%'",\n'
+			.add <- .add %+% .profile
 			down(.lv)
 			.add <- .add %+% indent(.lv) %+% '}\n'
 			down(.lv)
@@ -327,7 +326,8 @@ ExPMF <- function(org_code, level){
 			.add <- .add %+% indent(.lv) %+% '"val": {\n'
 			up(.lv)
 			.add <- .add %+% indent(.lv) %+% '"score": "'%+% .pmf11$hs_score[1]%+%'",\n'
-			.add <- .add %+% indent(.lv) %+% '"tier": "'%+% .pmf11$hs_tier[1]%+%'"\n'
+			.add <- .add %+% indent(.lv) %+% '"tier": "'%+% .pmf11$hs_tier[1]%+%'",\n'
+			.add <- .add %+% .profile
 			down(.lv)
 			.add <- .add %+% indent(.lv) %+% '}\n'
 			down(.lv)
@@ -354,7 +354,8 @@ ExPMF <- function(org_code, level){
 			.add <- .add %+% indent(.lv) %+% '"val": {\n'
 			up(.lv)
 			.add <- .add %+% indent(.lv) %+% '"score": "'%+% .pmf12$esms_score[1]%+%'",\n'
-			.add <- .add %+% indent(.lv) %+% '"tier": "'%+% .pmf12$esms_tier[1]%+%'"\n'
+			.add <- .add %+% indent(.lv) %+% '"tier": "'%+% .pmf12$esms_tier[1]%+%'",\n'
+			.add <- .add %+% .profile
 			down(.lv)
 			.add <- .add %+% indent(.lv) %+% '}\n'
 			down(.lv)
@@ -374,7 +375,8 @@ ExPMF <- function(org_code, level){
 			.add <- .add %+% indent(.lv) %+% '"val": {\n'
 			up(.lv)
 			.add <- .add %+% indent(.lv) %+% '"score": "'%+% .pmf12$hs_score[1]%+%'",\n'
-			.add <- .add %+% indent(.lv) %+% '"tier": "'%+% .pmf12$hs_tier[1]%+%'"\n'
+			.add <- .add %+% indent(.lv) %+% '"tier": "'%+% .pmf12$hs_tier[1]%+%'",\n'
+			.add <- .add %+% .profile
 			down(.lv)
 			.add <- .add %+% indent(.lv) %+% '}\n'
 			down(.lv)
