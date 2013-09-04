@@ -1,9 +1,10 @@
 library(RODBC)
-setwd("C:\\Users\\tommy.shen\\Documents\\GitHub\\ReportCards")
+# setwd("C:\\Users\\tommy.shen\\Documents\\GitHub\\ReportCards")
+setwd("U:\\REPORT CARD\\GIT Report Cards\\ReportCards")
 source("./imports/tomkit.R")
 ##source("./imports/ODBC.R")
-source("./lea_cas_chunk_v3.R")
-setwd("./output JSON/")
+source("./lea_functions.R")
+setwd("./JSON Output")
 
 dbrepcard <- odbcDriverConnect('driver={SQL Server};server=OSSEEDM1;database=reportcard_dev;trusted_connection=true')
 school_dir <- sqlFetch(dbrepcard, 'schooldir_sy1213')
@@ -13,7 +14,6 @@ lea_dir <- unique(charter_dir[c("lea_code","lea_name")])
 
 # lea codes need to be four digits and in quotes
 lea_dir$lea_code <- sapply(lea_dir$lea_code, leadgr, y=4)
-
 
 for(i in 1:nrow(charter_dir)){
 
@@ -48,6 +48,16 @@ for(i in 1:nrow(charter_dir)){
 		cat(indent(level),'},', sep="", fill=TRUE)
 	}	
 	{
+		## Highly Qualified Teacher Status
+		cat(indent(level),'{', sep="", fill=TRUE)
+		up(level)
+		cat(indent(level), '"id": "hqt_status",', sep="", fill=TRUE)
+		
+		cat(indent(level), '"data":', LeaHQTStatus(lea_code), sep="", fill=TRUE)	
+		down(level)
+		cat(indent(level),'},', sep="", fill=TRUE)
+	}
+	{
 		## Graduation
 		cat(indent(level),'{', sep="", fill=TRUE)
 		up(level)
@@ -58,39 +68,6 @@ for(i in 1:nrow(charter_dir)){
 		down(level)
 		cat(indent(level),'},', sep="", fill=TRUE)
 	}
-    {
-        ## College Readiness##
-        cat(indent(level),'{', sep="", fill=TRUE)
-        up(level)
-        cat(indent(level), '"id": "college_readiness",', sep="", fill=TRUE)
-        cat(indent(level), '"data": [', sep="", fill=TRUE)
-        cat(LeaCollegeReadiness(lea_code, level+1), fill=TRUE)
-        cat(indent(level), ']', sep="", fill=TRUE)
-        down(level)
-        cat(indent(level),'},', sep="", fill=TRUE)
-    }
-	{
-		#Enrollment
-		cat(indent(level),'{', sep="", fill=TRUE)
-		up(level)
-		cat(indent(level), '"id": "enrollment",', sep="", fill=TRUE)
-		cat(indent(level), '"data": [', sep="", fill=TRUE)
-		cat(LeaEnrollChunk(lea_code, level+1), fill=TRUE)
-		cat(indent(level), ']', sep="", fill=TRUE)
-		down(level)
-		cat(indent(level),'},', sep="", fill=TRUE)
-	}
-	{
-		## SPED Testing
-		cat(indent(level),'{', sep="", fill=TRUE)
-		up(level)
-		cat(indent(level), '"id": "special_ed",', sep="", fill=TRUE)
-		cat(indent(level), '"data": [', sep="", fill=TRUE)
-		cat(LeaSPEDChunk(lea_code, level+1), fill=TRUE)
-		cat(indent(level), ']', sep="", fill=TRUE)
-		down(level)
-		cat(indent(level),'},', sep="", fill=TRUE)
-	}
 	{
 		#College Enrollment
 		cat(indent(level),'{', sep="", fill=TRUE)
@@ -98,6 +75,30 @@ for(i in 1:nrow(charter_dir)){
 		cat(indent(level), '"id": "college_enroll",', sep="", fill=TRUE)
 		cat(indent(level), '"data": [', sep="", fill=TRUE)
 		cat(LeaCollegeEnroll(lea_code, level+1), fill=TRUE)		
+		cat(indent(level), ']', sep="", fill=TRUE)
+		down(level)
+		cat(indent(level),'}', sep="", fill=TRUE)
+	}
+	down(level)
+	cat(indent(level),']', sep="", fill=TRUE)
+	down(level)
+
+	cat(indent(level), '},', fill=TRUE)
+	cat('\n', fill=TRUE)
+
+	## END OF REPORT CARD PAGE
+
+	cat(indent(level),'"profile": {', sep="", fill=TRUE)
+	up(level)
+	cat(indent(level), '"sections": [', sep="", fill=TRUE)
+	up(level)
+	{
+		#Enrollment
+		cat(indent(level),'{', sep="", fill=TRUE)
+		up(level)
+		cat(indent(level), '"id": "enrollment",', sep="", fill=TRUE)
+		cat(indent(level), '"data": [', sep="", fill=TRUE)
+		cat(LeaEnrollChunk(lea_code, level+1), fill=TRUE)
 		cat(indent(level), ']', sep="", fill=TRUE)
 		down(level)
 		cat(indent(level),'},', sep="", fill=TRUE)
@@ -111,9 +112,31 @@ for(i in 1:nrow(charter_dir)){
 		cat(LeaMGPResult(lea_code, level+1), fill=TRUE)
 		cat(indent(level), ']', sep="", fill=TRUE)
 		down(level)
-		cat(indent(level),'}', sep="", fill=TRUE)	
+		cat(indent(level),'},', sep="", fill=TRUE)	
 	}
-
+	{
+        ## College Readiness##
+        cat(indent(level),'{', sep="", fill=TRUE)
+        up(level)
+        cat(indent(level), '"id": "college_readiness",', sep="", fill=TRUE)
+        cat(indent(level), '"data": [', sep="", fill=TRUE)
+        cat(LeaCollegeReadiness(lea_code, level+1), fill=TRUE)
+        cat(indent(level), ']', sep="", fill=TRUE)
+        down(level)
+        cat(indent(level),'},', sep="", fill=TRUE)
+    }
+	{
+		## SPED Testing
+		cat(indent(level),'{', sep="", fill=TRUE)
+		up(level)
+		cat(indent(level), '"id": "special_ed",', sep="", fill=TRUE)
+		cat(indent(level), '"data": [', sep="", fill=TRUE)
+		cat(LeaSPEDChunk(lea_code, level+1), fill=TRUE)
+		cat(indent(level), ']', sep="", fill=TRUE)
+		down(level)
+		cat(indent(level),'}', sep="", fill=TRUE)
+	}
+	down(level)
 	cat(indent(level), ']', sep="", fill=TRUE)
 	down(level)
 	cat(indent(level), '}', fill=TRUE)
@@ -123,20 +146,3 @@ for(i in 1:nrow(charter_dir)){
 	sink()
 	close(newfile)
 }
-
-
-
-### CAS Scores - there
-### Graduation - there
-### College Readiness - there
-### Enrollment - there
-### Special Ed - there
-### College Enrollment - there
-### MGP - there
-### HQT
-### ELL /AMAO Stuff
-
-
-## Do not worry about: Accountability, PMF, Early Education, Program Info
-
-

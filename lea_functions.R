@@ -1,6 +1,16 @@
+LeaHQTStatus <- function(lea_code){
+	.qry <- "SELECT * FROM [dbo].[hqt_status_lea_sy1112]
+		WHERE [lea_code] = '" %+% lea_code %+% "'"
+	.prog <- sqlQuery(dbrepcard, .qry)
 
-
-
+	if(nrow(.prog)>0){
+		.ret <- .prog$percent_hqt_classes
+		return(.ret)
+		}
+	else{
+		return('null')
+		}
+}
 
 LeaCasChunk <- function(lea_code, level){
 	.lv <- level
