@@ -554,3 +554,265 @@ ExStateEnroll <- function(level){
 	return(paste(.ret, collapse=',\n'))	
 }
 
+hard_code_apr <- c('{
+				"id": "apr",
+				"data": [
+					{
+						"year": 2012,
+						"indicators": {
+							"1": {
+								"on_target": false,
+								"weight": 1,
+								"val": 0.39,
+								"target": 0.85,
+								"target_dir": "up"
+							},
+							"2": {
+								"on_target": false,
+								"weight": 1,
+								"val": 0.39,
+								"target": 0.06,
+								"target_dir": "down"
+							},
+							"3a": {
+								"on_target": false,
+								"weight": 0.3333,
+								"val": 0.11,
+								"target": 0.5,
+								"target_dir": "up"
+							},
+							"3b_reading": {
+								"on_target": true,
+								"weight": 0.1667,
+								"val": 0.95,
+								"target": 0.95,
+								"target_dir": "up"
+							},
+							"3b_math": {
+								"on_target": true,
+								"weight": 0.1667,
+								"val": 0.95,
+								"target": 0.95,
+								"target_dir": "up"
+							},
+							"3c_elem-reading": {
+								"on_target": false,
+								"weight": 0.0833,
+								"val": 0.15,
+								"target": 0.7369,
+								"target_dir": "up"
+							},
+							"3c_elem-math": {
+								"on_target": false,
+								"weight": 0.0833,
+								"val": 0.18,
+								"target": 0.7014,
+								"target_dir": "up"
+							},
+							"3c_sec-reading": {
+								"on_target": false,
+								"weight": 0.0833,
+								"val": 0.12,
+								"target": 0.7179,
+								"target_dir": "up"
+							},
+							"3c_sec-math": {
+								"on_target": false,
+								"weight": 0.0833,
+								"val": 0.16,
+								"target": 0.7027,
+								"target_dir": "up"
+							},
+							"4a": {
+								"on_target": false,
+								"weight": 0.5,
+								"val": 0.43,
+								"target": 0,
+								"target_dir": "down"
+							},
+							"4b_a": {
+								"on_target": false,
+								"weight": 0.25,
+								"val": 0.43,
+								"target": 0,
+								"target_dir": "down"
+							},
+							"4b_b": {
+								"on_target": false,
+								"weight": 0.25,
+								"val": 0.14,
+								"target": 0,
+								"target_dir": "down"
+							},
+							"5a": {
+								"on_target": true,
+								"weight": 0.3333,
+								"val": 0.46,
+								"target": 0.165,
+								"target_dir": "up"
+							},
+							"5b": {
+								"on_target": true,
+								"weight": 0.3333,
+								"val": 0.13,
+								"target": 0.13,
+								"target_dir": "down"
+							},
+							"5c": {
+								"on_target": true,
+								"weight": 0.3333,
+								"val": 0.2,
+								"target": 0.2,
+								"target_dir": "down"
+							},
+							"6a": {
+								"on_target": false,
+								"weight": 0.5,
+								"val": 0.53,
+								"target": 0.63,
+								"target_dir": "up"
+							},
+							"6b": {
+								"on_target": false,
+								"weight": 0.5,
+								"val": 0.18,
+								"target": 0.15,
+								"target_dir": "down"
+							},
+							"7a_a": {
+								"on_target": true,
+								"weight": 0.1667,
+								"val": 0.64,
+								"target": 0.6,
+								"target_dir": "up"
+							},
+							"7a_b": {
+								"on_target": false,
+								"weight": 0.1667,
+								"val": 0.29,
+								"target": 0.5,
+								"target_dir": "up"
+							},
+							"7b_a": {
+								"on_target": false,
+								"weight": 0.1667,
+								"val": 0.7,
+								"target": 0.85,
+								"target_dir": "up"
+							},
+							"7b_b": {
+								"on_target": false,
+								"weight": 0.1667,
+								"val": 0.42,
+								"target": 0.5,
+								"target_dir": "up"
+							},
+							"7c_a": {
+								"on_target": true,
+								"weight": 0.1667,
+								"val": 0.67,
+								"target": 0.5,
+								"target_dir": "up"
+							},
+							"7c_b": {
+								"on_target": false,
+								"weight": 0.1667,
+								"val": 0.62,
+								"target": 0.7,
+								"target_dir": "up"
+							},
+							"8": {
+								"on_target": false,
+								"weight": 1,
+								"val": 0.68,
+								"target": 0.73,
+								"target_dir": "up"
+							},
+							"9": {
+								"on_target": false,
+								"weight": 1,
+								"val": 0.05,
+								"target": 0,
+								"target_dir": "down"
+							},
+							"10": {
+								"on_target": false,
+								"weight": 1,
+								"val": 0.1,
+								"target": 0,
+								"target_dir": "down"
+							},
+							"11": {
+								"on_target": false,
+								"weight": 1,
+								"val": 0.89,
+								"target": 1,
+								"target_dir": "up"
+							},
+							"12": {
+								"on_target": false,
+								"weight": 1,
+								"val": 0.89,
+								"target": 1,
+								"target_dir": "up"
+							},
+							"13": {
+								"on_target": false,
+								"weight": 1,
+								"val": 0.28,
+								"target": 1,
+								"target_dir": "up"
+							},
+							"14_a": {
+								"on_target": true,
+								"weight": 0.3333,
+								"val": 0.35,
+								"target": 0.26,
+								"target_dir": "up"
+							},
+							"14_b": {
+								"on_target": true,
+								"weight": 0.3333,
+								"val": 0.56,
+								"target": 0.49,
+								"target_dir": "up"
+							},
+							"14_c": {
+								"on_target": true,
+								"weight": 0.3333,
+								"val": 0.68,
+								"target": 0.61,
+								"target_dir": "up"
+							},
+							"15": {
+								"on_target": false,
+								"weight": 1,
+								"val": 0.61,
+								"target": 1,
+								"target_dir": "up"
+							},
+							"18": {
+								"on_target": false,
+								"weight": 1,
+								"val": 0.27,
+								"target": [0.55, 0.7],
+								"target_dir": "btw"
+							},
+							"19": {
+								"on_target": false,
+								"weight": 1,
+								"val": 0.7,
+								"target": [0.45, 0.6],
+								"target_dir": "btw"
+							},
+							"20": {
+								"on_target": false,
+								"weight": 1,
+								"val": 0.9565,
+								"target": 1,
+								"target_dir": "up"
+							},
+						}
+					}
+				]
+			},') 

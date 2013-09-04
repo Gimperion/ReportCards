@@ -1,12 +1,13 @@
 ## Generate State File ## 
 ## Detail Data File Build ##
-setwd("C:\\Users\\tommy.shen\\Documents\\GitHub\\ReportCards")
+# setwd("C:\\Users\\tommy.shen\\Documents\\GitHub\\ReportCards")
+setwd("U:\\REPORT CARD\\GIT Report Cards\\ReportCards")
 source("./imports/tomkit.R")
 source("./imports/ODBC.R")
 source("./school_functions.R")
 source("./state_functions.R")
 
-setwd("C:\\test_repcard\\school_report_v1.1")
+# setwd("C:\\test_repcard\\school_report_v1.1")
 
 
 checkna <- function(x){
@@ -71,8 +72,7 @@ up(level)
 	cat(indent(level),'{', sep="", fill=TRUE)
 	up(level)
 	cat(indent(level), '"id": "hqt_status",', sep="", fill=TRUE)
-	
-	cat(indent(level), '"data": ',runif(1), sep="", fill=TRUE)
+	cat(indent(level), '"data":0.824', sep="", fill=TRUE)
 	
 	##cat(ExHQTStatus(org_code, level+1), fill=TRUE)		
 	##cat(indent(level), ']', sep="", fill=TRUE)
@@ -168,7 +168,6 @@ up(level)
 	down(level)
 	cat(indent(level),'},', sep="", fill=TRUE)
 }
-
 {
 	## PreK Testing##
 	cat(indent(level),'{', sep="", fill=TRUE)
