@@ -1,5 +1,5 @@
-
-mainDir <- "C:\\Users\\tommy.shen\\Documents\\GitHub\\ReportCards"
+mainDir <- "U:\\REPORT CARD\\GIT Report Cards\\ReportCards"
+# mainDir <- "C:\\Users\\tommy.shen\\Documents\\GitHub\\ReportCards"
 setwd(mainDir)
 
 source("./imports/tomkit.R")
@@ -78,6 +78,13 @@ GetGrades <- function(org_code){
 	return(paste(.ret, collapse=','))
 }
 
+WriteProfile <- function(org_code){
+	.qry_profile <- "SELECT * FROM [dbo].[profile_urls_13]
+		WHERE [school_code] = '" %+% org_code %+% "'"
+	.prog_profile <- sqlQuery(dbrepcard, .qry_profile)
+	x <- .prog_profile$url
+	return(x)
+	}
 
 ## Yay for-loops!!!!!
 for(i in 1:nrow(school_dir)){
@@ -140,8 +147,8 @@ for(i in 1:nrow(school_dir)){
 	cat(indent(level) %+% '"website": ' %+% checkna_str(school_dir$website[i]) %+% ',', fill=TRUE)  ## fill ward
 	cat(indent(level),'"facebook": ',checkna_str(school_dir$facebook[i]),',', sep="", fill=TRUE)  ## fill ward
 	cat(indent(level),'"twitter": ',checkna_str(school_dir$twitter[i]),',', sep="", fill=TRUE)  ## fill ward
-	cat(indent(level),'"external_report_card": ',checkna_str(school_dir$twitter[i]),',', sep="", fill=TRUE)  ## fill ward
-	
+	cat(indent(level),'"external_report_card": ',checkna_str(WriteProfile(org_code)),',', sep="", fill=TRUE)  ## fill ward
+
 	cat(indent(level), '"contact": [', sep="", fill=TRUE)
 	cat(InsertPeople(org_code, level+1))
 	cat('\n', indent(level), ']', sep='', fill=TRUE)
