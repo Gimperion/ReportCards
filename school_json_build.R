@@ -7,7 +7,7 @@ source("./imports/ODBC.R")
 source("./school_functions.R")
 ##source("./state_functions.R")
 
-setwd("C:\\test_repcard\\school_report_v1.2\\")
+# setwd("C:\\test_repcard\\school_report_v1.2\\")
 setwd("U:\\REPORT CARD\\GIT Report Cards\\ReportCards\\JSON Output")
 
 school_dir <- sqlFetch(dbrepcard, 'schooldir_linked')
@@ -160,7 +160,6 @@ for(i in 1:nrow(school_dir)){
 		cat(indent(level), ']', sep="", fill=TRUE)
 		down(level)
 		cat(indent(level),'},', sep="", fill=TRUE)
-		
 	}
 	{
 		## College Readiness##
