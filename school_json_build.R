@@ -1,6 +1,6 @@
 ## Generate School File ## 
 ## Detail Data File Build ##
-setwd("U:\\REPORT CARD\\GIT Report Cards\\ReportCards")
+setwd("C:\\Users\\tommy.shen\\Documents\\GitHub\\ReportCards")
 
 source("./imports/tomkit.R")
 source("./imports/ODBC.R")
@@ -8,7 +8,7 @@ source("./school_functions.R")
 ##source("./state_functions.R")
 
 # setwd("C:\\test_repcard\\school_report_v1.2\\")
-setwd("U:\\REPORT CARD\\GIT Report Cards\\ReportCards\\JSON Output")
+setwd("C:\\test_repcard\\school_report_v1.5")
 
 school_dir <- sqlFetch(dbrepcard, 'schooldir_linked')
 school_dir$school_code <- sapply(school_dir$school_code, leadgr, 4)

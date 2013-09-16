@@ -910,6 +910,8 @@ WriteEnroll <- function(.edat, year, level){
 	.ret <- c()
 	.lv <- level
 	
+	.edat$grade <- sapply(.edat$grade, leadgr, 2)
+	
 	.glist <- unique(.edat$grade)
 	
 	.subgroups <- c("African American","White","Hispanic","Asian","American Indian", "Pacific Islander", "Multi Racial","Special Education","English Learner","Economically Disadvantaged","Male", "Female")
