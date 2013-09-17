@@ -45,7 +45,7 @@ RetMGPGroup <- function(.ingrp){
 		return('Not Special Education')
 	} else if(.ingrp == 'SpEd'){
 		return('Special Education')
-	} else if (.ingrp == 'Not-ELP'){
+	} else if (.ingrp == 'Not-LEP'){
 		return('Not English Learner')
 	} else if (.ingrp == 'Not-FARMS'){
 		return('Not Economically Disadvantaged')

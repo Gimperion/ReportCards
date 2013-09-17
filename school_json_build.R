@@ -1,14 +1,18 @@
 ## Generate School File ## 
 ## Detail Data File Build ##
-setwd("C:\\Users\\tommy.shen\\Documents\\GitHub\\ReportCards")
+##setwd("C:\\Users\\tommy.shen\\Documents\\GitHub\\ReportCards")
+
+active <- shell('echo %HOMEPATH%', intern=TRUE)
+active <- gsub('\\\\', '/', active)
+setwd(paste0('C:', active, '/Documents/Github/ReportCards'))
 
 source("./imports/tomkit.R")
-source("./imports/ODBC.R")
+source("http://www.straydots.com/code/ODBC.R")
 source("./school_functions.R")
 ##source("./state_functions.R")
 
 # setwd("C:\\test_repcard\\school_report_v1.2\\")
-setwd("C:\\test_repcard\\school_report_v1.5")
+setwd("C:\\test_repcard\\school_report_v1.7")
 
 school_dir <- sqlFetch(dbrepcard, 'schooldir_linked')
 school_dir$school_code <- sapply(school_dir$school_code, leadgr, 4)

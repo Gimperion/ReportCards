@@ -1,13 +1,15 @@
-mainDir <- "U:\\REPORT CARD\\GIT Report Cards\\ReportCards"
-# mainDir <- "C:\\Users\\tommy.shen\\Documents\\GitHub\\ReportCards"
+active <- shell('echo %HOMEPATH%', intern=TRUE)
+active <- gsub('\\\\', '/', active)
+mainDir <- paste0('C:', active, '/Documents/Github/ReportCards')
+
 setwd(mainDir)
 
 source("./imports/tomkit.R")
-source("./imports/ODBC.R")
+source("http://www.straydots.com/code/ODBC.R")
 source("./school_functions.R")
 ##source("./state_functions.R")
 
-subDir <- "overview_v0.6"
+subDir <- "overview_v0.7"
 dir.create(file.path(mainDir, subDir), showWarnings = FALSE)
 setwd(file.path(mainDir, subDir))
 
