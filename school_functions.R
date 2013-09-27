@@ -65,6 +65,8 @@ RetMGPGroup <- function(.ingrp){
 		return('English Learner')
 	} else if (.ingrp == 'PI7'){
 		return('Pacific Islander')
+	} else{
+		return(.ingrp)
 	}
 }
 
@@ -72,8 +74,7 @@ RetMGPGroup <- function(.ingrp){
 ExMGPResult <- function(org_code, level){
 	.lv <- level
 	.qry <- "SELECT * FROM [dbo].[mgp_summary]
-		WHERE [fy13_entity_code] = '" %+% org_code %+% "'
-		AND [group] not like 'Grade%'"
+		WHERE [fy13_entity_code] = '" %+% org_code %+% "'"
 	.mgp <- sqlQuery(dbrepcard, .qry)	
 	.ret <- c()	
 	if(nrow(.mgp)>0){
