@@ -9,7 +9,8 @@ source("http://www.straydots.com/code/ODBC.R")
 source("./school_functions.R")
 ##source("./state_functions.R")
 
-subDir <- "overview_v0.7"
+subDir <- "school_report_v2.0"
+mainDir <- "C:\\test_repcard\\"
 dir.create(file.path(mainDir, subDir), showWarnings = FALSE)
 setwd(file.path(mainDir, subDir))
 
@@ -86,7 +87,19 @@ WriteProfile <- function(org_code){
 	.prog_profile <- sqlQuery(dbrepcard, .qry_profile)
 	x <- .prog_profile$url
 	return(x)
+}
+
+GSUrl <- function(org_code){
+	.qry_gsurl <- "SELECT * FROM [dbo].[gs_url]
+		WHERE [school_code] = '" %+% org_code %+% "'"
+	.gs_dat <- sqlQuery(dbrepcard, .qry_gsurl)
+	
+	if(nrow(.gs_dat)>0){
+		return(trimall(.gs_dat$gs_url[1]))
+	} else{
+		return(NA)
 	}
+}
 
 ## Yay for-loops!!!!!
 for(i in 1:nrow(school_dir)){
@@ -122,6 +135,15 @@ for(i in 1:nrow(school_dir)){
 		cat(indent(level), '"data": [', sep="", fill=TRUE)
 		cat(ExPMF(org_code, level+1), fill=TRUE)		
 		cat(indent(level), ']', sep="", fill=TRUE)
+		down(level)
+		cat(indent(level),'},', sep="", fill=TRUE)
+	}
+	
+	{
+		#Great Schools PMF
+		cat(indent(level),'"great_schools": {', sep="", fill=TRUE)
+		up(level)
+		cat(indent(level), '"gs_url": ', checkna_str(GSUrl(org_code)), sep="", fill=TRUE)
 		down(level)
 		cat(indent(level),'},', sep="", fill=TRUE)
 	}

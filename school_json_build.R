@@ -12,7 +12,8 @@ source("./school_functions.R")
 ##source("./state_functions.R")
 
 # setwd("C:\\test_repcard\\school_report_v1.2\\")
-setwd("C:\\test_repcard\\school_report_v1.7")
+dir.create("C:\\test_repcard\\school_report_v2.0", showWarnings = FALSE)
+setwd("C:\\test_repcard\\school_report_v2.0")
 
 school_dir <- sqlFetch(dbrepcard, 'schooldir_linked')
 school_dir$school_code <- sapply(school_dir$school_code, leadgr, 4)
@@ -92,7 +93,7 @@ for(i in 1:nrow(school_dir)){
 		up(level)
 		cat(indent(level), '"id": "college_enroll",', sep="", fill=TRUE)
 		cat(indent(level), '"data": [', sep="", fill=TRUE)
-		cat(ExCollegeEnroll(org_code, level+1), fill=TRUE)		
+		##cat(ExCollegeEnroll(org_code, level+1), fill=TRUE)		
 		cat(indent(level), ']', sep="", fill=TRUE)
 		down(level)
 		cat(indent(level),'},', sep="", fill=TRUE)

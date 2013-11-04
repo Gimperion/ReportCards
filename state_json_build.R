@@ -1,13 +1,13 @@
 ## Generate State File ## 
 ## Detail Data File Build ##
-# setwd("C:\\Users\\tommy.shen\\Documents\\GitHub\\ReportCards")
-setwd("U:\\REPORT CARD\\GIT Report Cards\\ReportCards")
+setwd("C:\\Users\\tommy.shen\\Documents\\GitHub\\ReportCards")
+##setwd("U:\\REPORT CARD\\GIT Report Cards\\ReportCards")
 source("./imports/tomkit.R")
 source("./imports/ODBC.R")
 source("./school_functions.R")
 source("./state_functions.R")
 
-# setwd("C:\\test_repcard\\school_report_v1.1")
+##setwd("C:\\test_repcard\\school_report_v1.1")
 
 
 checkna <- function(x){

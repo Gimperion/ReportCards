@@ -256,7 +256,7 @@ WriteGraduation <- function(gdata, level, year){
 				
 			.add <- .add %+% paste(indent(.lv), '"val": {\n', sep="")
 			up(.lv)
-			.add <- .add %+% paste(indent(.lv), '"graduates": ', nrow(subset(.tmps, grad_y4==TRUE)),',\n', sep="")
+			.add <- .add %+% paste(indent(.lv), '"graduates": ', nrow(subset(.tmps, graduated==1)),',\n', sep="")
 			.add <- .add %+% paste(indent(.lv), '"cohort_size": ', nrow(.tmps),'\n', sep="")
 			
 			down(.lv)

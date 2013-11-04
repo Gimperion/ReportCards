@@ -235,7 +235,7 @@ SubNAEP <- function(subgroup){
 
 ExNaepResult <- function(level){
 	.qry <- "SELECT * FROM [dbo].[naep_state_report]
-		WHERE [Group] not in ('FRL Information not available',
+		WHERE [subgroup] not in ('FRL Information not available',
 			'Information not available (FRL)',
 			'Parents  Education: Unknown',
 			'Parents Education: Did not finish high school',
@@ -246,6 +246,8 @@ ExNaepResult <- function(level){
 			'Race: Unclassified')"
 	.naepdat <- sqlQuery(dbrepcard, .qry)
 	names(.naepdat) <- c("subject", "grade", "subgroup", "year", "state", "avg_scale_score", "below_basic", "at_or_above_basic", "at_or_above_proficient", "at_advanced")
+	
+	print(.naepdat)
 	
 	.lv <- level
 	.ret <- c()
