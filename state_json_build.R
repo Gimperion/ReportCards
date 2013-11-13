@@ -28,7 +28,7 @@ checkna_str <- function(x){
 org_type <- "state"
 org_code <- "STATE"
 
-newfile <- file("state_v0.9.JSON", encoding="UTF-8")
+newfile <- file("state_v1.3.JSON", encoding="UTF-8")
 sink(newfile)
 cat('{', fill=TRUE)
 

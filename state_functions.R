@@ -247,8 +247,6 @@ ExNaepResult <- function(level){
 	.naepdat <- sqlQuery(dbrepcard, .qry)
 	names(.naepdat) <- c("subject", "grade", "subgroup", "year", "state", "avg_scale_score", "below_basic", "at_or_above_basic", "at_or_above_proficient", "at_advanced")
 	
-	print(.naepdat)
-	
 	.lv <- level
 	.ret <- c()
 	
