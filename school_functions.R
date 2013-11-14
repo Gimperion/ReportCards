@@ -292,42 +292,20 @@ ExPMF <- function(org_code, level){
 		.profile <- indent(.lv+2) %+% '"profile_url": null\n'
 	}
 
-	
 	if(nrow(.pmf11)>0){
-		if(!is.na(.pmf11$esms_score[1]) | !is.na(.pmf11$esms_tier[1])){
+		for(i in 1:nrow(.pmf11)){
 			.add <- indent(.lv) %+% '{\n'
 			up(.lv)
 			.add <- .add %+% indent(.lv) %+% '"key": {\n'
 			up(.lv)
 			.add <- .add %+% indent(.lv) %+% '"year": "2011",\n'
-			.add <- .add %+% indent(.lv) %+% '"category": "esms"\n'
+			.add <- .add %+% indent(.lv) %+% '"category": "'%+% .pmf11$framework[i]%+%'"\n'
 			down(.lv)
 			.add <- .add %+% indent(.lv) %+% '},\n'
 			.add <- .add %+% indent(.lv) %+% '"val": {\n'
 			up(.lv)
-			.add <- .add %+% indent(.lv) %+% '"score": "'%+% .pmf11$esms_score[1]%+%'",\n'
-			.add <- .add %+% indent(.lv) %+% '"tier": "'%+% .pmf11$esms_tier[1]%+%'",\n'
-			.add <- .add %+% .profile
-			down(.lv)
-			.add <- .add %+% indent(.lv) %+% '}\n'
-			down(.lv)
-			.add <- .add %+% indent(.lv) %+% '}'
-			.ret <- c(.ret, .add)
-		}
-		
-		if(!is.na(.pmf11$hs_score[1]) | !is.na(.pmf11$hs_tier[1])){
-			.add <- indent(.lv) %+% '{\n'
-			up(.lv)
-			.add <- .add %+% indent(.lv) %+% '"key": {\n'
-			up(.lv)
-			.add <- .add %+% indent(.lv) %+% '"year": "2011",\n'
-			.add <- .add %+% indent(.lv) %+% '"category": "hs"\n'
-			down(.lv)
-			.add <- .add %+% indent(.lv) %+% '},\n'
-			.add <- .add %+% indent(.lv) %+% '"val": {\n'
-			up(.lv)
-			.add <- .add %+% indent(.lv) %+% '"score": "'%+% .pmf11$hs_score[1]%+%'",\n'
-			.add <- .add %+% indent(.lv) %+% '"tier": "'%+% .pmf11$hs_tier[1]%+%'",\n'
+			.add <- .add %+% indent(.lv) %+% '"score": '%+% .pmf11$score[i]%+%',\n'
+			.add <- .add %+% indent(.lv) %+% '"tier": "'%+% .pmf11$tier[i]%+%'",\n'
 			.add <- .add %+% .profile
 			down(.lv)
 			.add <- .add %+% indent(.lv) %+% '}\n'
@@ -341,42 +319,20 @@ ExPMF <- function(org_code, level){
 		WHERE [school_code] = '" %+% org_code %+% "'"
 	.pmf12 <- sqlQuery(dbrepcard, .qry)
 	
-	if(nrow(.pmf12)>0){
-
-		if(!is.na(.pmf12$esms_score[1]) | !is.na(.pmf12$esms_tier[1])){
+	if(nrow(.pmf11)>0){
+		for(i in 1:nrow(.pmf12)){
 			.add <- indent(.lv) %+% '{\n'
 			up(.lv)
 			.add <- .add %+% indent(.lv) %+% '"key": {\n'
 			up(.lv)
 			.add <- .add %+% indent(.lv) %+% '"year": "2012",\n'
-			.add <- .add %+% indent(.lv) %+% '"category": "esms"\n'
+			.add <- .add %+% indent(.lv) %+% '"category": "'%+% .pmf12$framework[i]%+%'"\n'
 			down(.lv)
 			.add <- .add %+% indent(.lv) %+% '},\n'
 			.add <- .add %+% indent(.lv) %+% '"val": {\n'
 			up(.lv)
-			.add <- .add %+% indent(.lv) %+% '"score": "'%+% .pmf12$esms_score[1]%+%'",\n'
-			.add <- .add %+% indent(.lv) %+% '"tier": "'%+% .pmf12$esms_tier[1]%+%'",\n'
-			.add <- .add %+% .profile
-			down(.lv)
-			.add <- .add %+% indent(.lv) %+% '}\n'
-			down(.lv)
-			.add <- .add %+% indent(.lv) %+% '}'
-			.ret <- c(.ret, .add)
-		}
-		
-		if(!is.na(.pmf12$hs_score[1]) | !is.na(.pmf12$hs_tier[1])){
-			.add <- indent(.lv) %+% '{\n'
-			up(.lv)
-			.add <- .add %+% indent(.lv) %+% '"key": {\n'
-			up(.lv)
-			.add <- .add %+% indent(.lv) %+% '"year": "2012",\n'
-			.add <- .add %+% indent(.lv) %+% '"category": "hs"\n'
-			down(.lv)
-			.add <- .add %+% indent(.lv) %+% '},\n'
-			.add <- .add %+% indent(.lv) %+% '"val": {\n'
-			up(.lv)
-			.add <- .add %+% indent(.lv) %+% '"score": "'%+% .pmf12$hs_score[1]%+%'",\n'
-			.add <- .add %+% indent(.lv) %+% '"tier": "'%+% .pmf12$hs_tier[1]%+%'",\n'
+			.add <- .add %+% indent(.lv) %+% '"score": '%+% .pmf12$score[i]%+%',\n'
+			.add <- .add %+% indent(.lv) %+% '"tier": "'%+% .pmf12$tier[i]%+%'",\n'
 			.add <- .add %+% .profile
 			down(.lv)
 			.add <- .add %+% indent(.lv) %+% '}\n'
@@ -385,7 +341,34 @@ ExPMF <- function(org_code, level){
 			.ret <- c(.ret, .add)
 		}
 	}
-	
+
+	.qry <- "SELECT * FROM [dbo].[pmf_sy1213]
+		WHERE [school_code] = '" %+% org_code %+% "'"
+	.pmf13 <- sqlQuery(dbrepcard, .qry)
+
+	if(nrow(.pmf13)>0){
+		for(i in 1:nrow(.pmf13)){
+			.add <- indent(.lv) %+% '{\n'
+			up(.lv)
+			.add <- .add %+% indent(.lv) %+% '"key": {\n'
+			up(.lv)
+			.add <- .add %+% indent(.lv) %+% '"year": "2013",\n'
+			.add <- .add %+% indent(.lv) %+% '"category": "'%+% .pmf13$framework[i]%+%'"\n'
+			down(.lv)
+			.add <- .add %+% indent(.lv) %+% '},\n'
+			.add <- .add %+% indent(.lv) %+% '"val": {\n'
+			up(.lv)
+			.add <- .add %+% indent(.lv) %+% '"score": '%+% .pmf13$score[i]%+%',\n'
+			.add <- .add %+% indent(.lv) %+% '"tier": "'%+% .pmf13$tier[i]%+%'",\n'
+			.add <- .add %+% .profile
+			down(.lv)
+			.add <- .add %+% indent(.lv) %+% '}\n'
+			down(.lv)
+			.add <- .add %+% indent(.lv) %+% '}'
+			.ret <- c(.ret, .add)
+		}
+	}
+
 	return(paste(.ret, collapse=',\n'))
 }
 
