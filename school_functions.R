@@ -984,6 +984,10 @@ SubProc <- function(.dat, lv, b=0){
 	} else if(lv==4){
 		return(subset(.dat, race=="AS7"))
 	} else if(lv==5){
+		return(subset(.dat, race=="PI7"))
+	} else if(lv==6){
+		return(subset(.dat, race=="MU7"))
+	} else if(lv==7){
 		if(b==1){
 			return(subset(.dat, special_ed=='YES' | sped_monitored=='YES'))
 		} else{
@@ -994,7 +998,7 @@ SubProc <- function(.dat, lv, b=0){
 				return(subset(.dat, special_ed=='YES' | sped_monitored=='YES'))
 			}
 		}
-	} else if(lv==6){
+	} else if(lv==8){
 		if(b==1){
 			return(subset(.dat, ell_prog=='YES' | ell_monitored=='YES'))
 		} else{
@@ -1005,11 +1009,11 @@ SubProc <- function(.dat, lv, b=0){
 				return(subset(.dat, ell_prog=='YES' | ell_monitored=='YES'))
 			}
 		}
-	} else if(lv==7){
-		return(subset(.dat, economy=="YES"))
-	} else if(lv==8){
-		return(subset(.dat, gender %in% c("M", "MALE")))
 	} else if(lv==9){
+		return(subset(.dat, economy=="YES"))
+	} else if(lv==10){
+		return(subset(.dat, gender %in% c("M", "MALE")))
+	} else if(lv==11){
 		return(subset(.dat, gender %in% c("F", "FEMALE")))
 	}
 	return(0)
@@ -1181,7 +1185,7 @@ WriteCAS <- function(.casdat_mr, year, level){
 					.tmp <- subset(.tmp, school_grade==tested_grade | alt_tested=="YES")
 				}
 				
-				.subgroups <- c("African American","White","Hispanic","Asian","Special Education","English Learner","Economically Disadvantaged","Male", "Female")
+				.subgroups <- c("African American","White","Hispanic","Asian", "Pacific Islander", "Multiracial","Special Education","English Learner","Economically Disadvantaged","Male", "Female")
 				
 				for(h in 0:9){
 					.tmps <- SubProc(.tmp, h, b)
@@ -1241,6 +1245,5 @@ WriteCAS <- function(.casdat_mr, year, level){
 	}
 	return(paste(.ret, collapse=',\n'))
 }
-
 
 ##cat(ExCasChunk('0210', 2))

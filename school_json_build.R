@@ -12,8 +12,21 @@ source("./school_functions.R")
 ##source("./state_functions.R")
 
 # setwd("C:\\test_repcard\\school_report_v1.2\\")
-dir.create("C:\\test_repcard\\school_report_v2.0", showWarnings = FALSE)
-setwd("C:\\test_repcard\\school_report_v2.0")
+
+
+
+sfile_version <- sqlQuery(dbrepcard, "SELECT TOP 1 
+			[version_number],
+			[timestamp]
+		FROM [dbo].[ver_control_schoolfile]
+		ORDER BY [version_number] DESC")
+		
+next_version <- sfile_version$version_number + 0.1
+
+subDir <- paste0("school_report_v", round(next_version, 1))
+mainDir <- "C:\\test_repcard\\"
+dir.create(file.path(mainDir, subDir), showWarnings = FALSE)
+setwd(file.path(mainDir, subDir))
 
 school_dir <- sqlFetch(dbrepcard, 'schooldir_linked')
 school_dir$school_code <- sapply(school_dir$school_code, leadgr, 4)
@@ -203,4 +216,14 @@ for(i in 1:nrow(school_dir)){
 	sink()
 	close(newfile)
 }
+
+
+
+
+## SUCCESSFUL PUSH!  
+update_vcontrol <- sfile_version
+update_vcontrol$version_number <- next_version
+update_vcontrol$timestamp <- Sys.time()
+
+sqlSave(dbrepcard, update_vcontrol, tablename="ver_control_schoolfile", append=TRUE, safer=TRUE, rownames=FALSE, varType=c(timestamp="datetime"))
 

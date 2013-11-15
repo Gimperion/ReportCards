@@ -1,6 +1,10 @@
 ## Generate State File ## 
 ## Detail Data File Build ##
-setwd("C:\\Users\\tommy.shen\\Documents\\GitHub\\ReportCards")
+active <- shell('echo %HOMEPATH%', intern=TRUE)
+active <- gsub('\\\\', '/', active)
+setwd(paste0('C:', active, '/Documents/Github/ReportCards'))
+
+
 ##setwd("U:\\REPORT CARD\\GIT Report Cards\\ReportCards")
 source("./imports/tomkit.R")
 source("./imports/ODBC.R")
@@ -24,11 +28,19 @@ checkna_str <- function(x){
 	return('"' %+% x %+%'"')
 }
 
-
 org_type <- "state"
 org_code <- "STATE"
 
-newfile <- file("state_v1.3.JSON", encoding="UTF-8")
+state_version <- sqlQuery(dbrepcard, "SELECT TOP 1 
+			[version_number],
+			[timestamp]
+		FROM [dbo].[ver_control_statefile]
+		ORDER BY [version_number] DESC")
+		
+next_version <- state_version$version_number + 0.1
+
+newfile <- file(paste0("state_v", next_version, ".JSON"), , encoding="UTF-8")
+
 sink(newfile)
 cat('{', fill=TRUE)
 
@@ -208,4 +220,11 @@ cat(indent(level), '}', fill=TRUE)
 
 cat('}', fill=TRUE)
 sink()
+
+## SUCCESSFUL PUSH!  
+update_vcontrol <- state_version
+update_vcontrol$version_number <- next_version
+update_vcontrol$timestamp <- Sys.time()
+
+sqlSave(dbrepcard, update_vcontrol, tablename="ver_control_statefile", append=TRUE, safer=TRUE, rownames=FALSE, varType=c(timestamp="datetime"))
 

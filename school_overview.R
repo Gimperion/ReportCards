@@ -9,7 +9,18 @@ source("http://www.straydots.com/code/ODBC.R")
 source("./school_functions.R")
 ##source("./state_functions.R")
 
-subDir <- "school_report_v2.0"
+
+
+overview_version <- sqlQuery(dbrepcard, "SELECT TOP 1 
+			[version_number],
+			[timestamp]
+		FROM [dbo].[ver_control_soverview]
+		ORDER BY [version_number] DESC")
+		
+next_version <- overview_version$version_number + 0.1
+
+
+subDir <- paste0("school_overview_v", round(next_version, 1))
 mainDir <- "C:\\test_repcard\\"
 dir.create(file.path(mainDir, subDir), showWarnings = FALSE)
 setwd(file.path(mainDir, subDir))
@@ -181,3 +192,11 @@ for(i in 1:nrow(school_dir)){
 	sink()
 	close(newfile)
 }
+
+## SUCCESSFUL PUSH!  
+update_vcontrol <- overview_version
+update_vcontrol$version_number <- next_version
+update_vcontrol$timestamp <- Sys.time()
+
+sqlSave(dbrepcard, update_vcontrol, tablename="ver_control_soverview", append=TRUE, safer=TRUE, rownames=FALSE, varType=c(timestamp="datetime"))
+

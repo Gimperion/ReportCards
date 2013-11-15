@@ -343,9 +343,9 @@ WriteCASST <- function(.casdat_mr, year, level){
 					.tmp <- subset(.tmp, school_grade==tested_grade | alt_tested=="YES")
 				}
 				
-				.subgroups <- c("African American","White","Hispanic","Asian","Special Education","English Learner","Economically Disadvantaged","Male", "Female")
+				.subgroups <- c("African American","White","Hispanic","Asian", "Pacific Islander", "Multiracial","Special Education","English Learner","Economically Disadvantaged","Male", "Female")
 				
-				for(h in 0:9){
+				for(h in 0:11){
 					.tmps <- SubProc(.tmp, h, b)
 					
 					if(h == 0){
