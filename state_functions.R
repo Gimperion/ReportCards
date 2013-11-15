@@ -245,7 +245,7 @@ ExNaepResult <- function(level){
 			'Parents Education: Unknown',
 			'Race: Unclassified')"
 	.naepdat <- sqlQuery(dbrepcard, .qry)
-	names(.naepdat) <- c("subject", "grade", "subgroup", "year", "state", "avg_scale_score", "below_basic", "at_or_above_basic", "at_or_above_proficient", "at_advanced")
+	names(.naepdat) <- c("subject", "grade", "subgroup", "year", "state", "avg_scale_score", "below_basic", "at_or_above_basic", "at_or_above_proficient", "at_advanced","national_avg_scale_score", "national_below_basic", "national_at_or_above_basic", "national_at_or_above_proficient", "national_at_advanced")
 	
 	.lv <- level
 	.ret <- c()
@@ -273,7 +273,12 @@ ExNaepResult <- function(level){
 			.add <- .add %+% paste(indent(.lv), '"at_below_basic": ', checkna(.naepdat$below_basic[i]), ',\n', sep="")
 			.add <- .add %+% paste(indent(.lv), '"at_or_above_basic": ', checkna(.naepdat$at_or_above_basic[i]), ',\n', sep="")			
 			.add <- .add %+% paste(indent(.lv), '"at_or_above_proficient": ', checkna(.naepdat$at_or_above_proficient[i]), ',\n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"at_advanced": ', checkna(.naepdat$at_advanced[i]), '\n', sep="")
+			.add <- .add %+% paste(indent(.lv), '"at_advanced": ', checkna(.naepdat$at_advanced[i]), ',\n', sep="")
+			.add <- .add %+% paste(indent(.lv), '"national_avg_scale_score": ', checkna(.naepdat$national_avg_scale_score[i]), ',\n', sep="")
+			.add <- .add %+% paste(indent(.lv), '"national_below_basic": ', checkna(.naepdat$national_below_basic[i]), ',\n', sep="")
+			.add <- .add %+% paste(indent(.lv), '"national_at_or_above_basic": ', checkna(.naepdat$national_at_or_above_basic[i]), ',\n', sep="")
+			.add <- .add %+% paste(indent(.lv), '"national_at_or_above_proficient": ', checkna(.naepdat$national_at_or_above_proficient[i]), ',\n', sep="")
+			.add <- .add %+% paste(indent(.lv), '"national_at_advanced": ', checkna(.naepdat$national_at_advanced[i]), '\n', sep="")
 			
 			down(.lv)
 			.add <- .add %+% paste(indent(.lv), '}\n', sep="")
@@ -554,7 +559,7 @@ ExStateEnroll <- function(level){
 	return(paste(.ret, collapse=',\n'))	
 }
 
-hard_code_apr <- c('{
+hard_code_apr <- '{
 				"id": "apr",
 				"data": [
 					{
@@ -815,4 +820,4 @@ hard_code_apr <- c('{
 						}
 					}
 				]
-			},') 
+			},'

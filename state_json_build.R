@@ -191,8 +191,9 @@ up(level)
 	down(level)
 	cat(indent(level),'},', sep="", fill=TRUE)
 }
-
-
+{
+	cat(indent(level),hard_code_apr, fill=TRUE)
+}
 {
 	#AMAO
 	cat(indent(level),'{', sep="", fill=TRUE)
