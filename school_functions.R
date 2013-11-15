@@ -736,10 +736,10 @@ WriteSPED <- function(.casdat_mr, year, level){
 			.tmp <- .casdat_mr
 			if(b == 2){
 				.tmp <- subset(.casdat_mr, sped_acc == 'YES')
-				soutput <- "With Accomodations"
+				soutput <- "With Accommodations"
 			} else if(b == 3){
 				.tmp <- subset(.casdat_mr, sped_acc != 'YES')
-				soutput <- "No Accomodations"
+				soutput <- "No Accommodations"
 			} else if(b==4){
 				.tmp <- subset(.casdat_mr, alt_tested=='YES')
 				soutput <- "ALT Test Takers"
