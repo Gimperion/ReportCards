@@ -4,18 +4,17 @@ setwd("U:\\REPORT CARD\\GIT Report Cards\\ReportCards")
 source("./imports/tomkit.R")
 ##source("./imports/ODBC.R")
 source("./lea_functions.R")
-setwd("./JSON Output")
+setwd("./LEA JSON Output")
 
 dbrepcard <- odbcDriverConnect('driver={SQL Server};server=OSSEEDM1;database=reportcard_dev;trusted_connection=true')
 school_dir <- sqlFetch(dbrepcard, 'schooldir_sy1213')
 
-charter_dir <- school_dir[school_dir$lea_code != 1,]
-lea_dir <- unique(charter_dir[c("lea_code","lea_name")])
+lea_dir <- unique(school_dir[c("lea_code","lea_name")])
 
 # lea codes need to be four digits and in quotes
 lea_dir$lea_code <- sapply(lea_dir$lea_code, leadgr, y=4)
 
-for(i in 1:nrow(charter_dir)){
+for(i in 1:nrow(lea_dir)){
 
 	org_type <- "lea"
 	lea_name <- lea_dir$lea_name[i]
