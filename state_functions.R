@@ -234,7 +234,24 @@ SubNAEP <- function(subgroup){
 }
 
 ExNaepResult <- function(level){
-	.qry <- "SELECT * FROM [dbo].[naep_state_report]
+	.qry <- "SELECT 
+		[subject]
+      ,[grade]
+      ,[subgroup]
+      ,[year]
+      ,[state]
+      ,cast([average_scale_score] as int) as [average_scale_score]
+      ,cast([below_basic] as int) as [below_basic]
+      ,cast([at_or_above_basic] as int) as [at_or_above_basic]
+      ,cast([at_or_above_proficient] as int) as [at_or_above_proficient]
+      ,cast([at_advanced] as int) as [at_advanced]
+      ,cast([national_average_scale_score] as int) as [national_average_scale_score]
+      ,cast([national_below_basic] as int) as [national_below_basic]
+      ,cast([national_at_or_above_basic] as int) as [national_at_or_above_basic]
+      ,cast([national_at_or_above_proficient] as int) as [national_at_or_above_proficient]
+      ,cast([national_at_advanced] as int) as [national_at_advanced]
+
+		FROM [dbo].[naep_state_report]
 		WHERE [subgroup] not in ('FRL Information not available',
 			'Information not available (FRL)',
 			'Parents  Education: Unknown',
@@ -816,7 +833,7 @@ hard_code_apr <- '{
 								"val": 0.9565,
 								"target": 1,
 								"target_dir": "up"
-							},
+							}
 						}
 					}
 				]

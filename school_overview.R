@@ -77,12 +77,12 @@ InsertPeople <- function(org_code, level){
 
 GetGrades <- function(org_code){
 	## MATH/READING
-	.qry <- "SELECT DISTINCT [grade] FROM [dbo].[enrollment_sy1213]
+	.qry <- "SELECT DISTINCT [grade] FROM [dbo].[current_roster_grades]
 		WHERE [school_code] = '" %+% org_code %+% "';"
 	.sgrades <- sqlQuery(dbrepcard, .qry)
 	##print(.dat_peep)
 	##print(.sgrades)
-	
+
 	.ret <- c()
 	if(nrow(.sgrades)>0){
 		for(i in 1:nrow(.sgrades)){
