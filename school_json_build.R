@@ -1,6 +1,7 @@
 ## Generate School File ## 
 ## Detail Data File Build ##
 ##setwd("C:\\Users\\tommy.shen\\Documents\\GitHub\\ReportCards")
+##setwd("U:/REPORT CARD/GIT Report Cards/ReportCards")
 
 active <- shell('echo %HOMEPATH%', intern=TRUE)
 active <- gsub('\\\\', '/', active)
@@ -13,7 +14,7 @@ source("./school_functions.R")
 
 # setwd("C:\\test_repcard\\school_report_v1.2\\")
 
-
+## setwd("U:/REPORT CARD/GIT Report Cards/ReportCards/JSON Output")
 
 sfile_version <- sqlQuery(dbrepcard, "SELECT TOP 1 
 			[version_number],
