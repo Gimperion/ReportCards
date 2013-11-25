@@ -1153,6 +1153,10 @@ WriteScience <- function(.casdat_sci, year, level){
 
 
 WriteCAS <- function(.casdat_mr, year, level){
+
+	.casdat_mr$math_level[.casdat_mr$exclude=='I'] <- NA
+	.casdat_mr$read_level[.casdat_mr$exclude=='I'] <- NA
+
 	.subjects <- c("Math", "Reading")
 	.fay <- c("all", "full_year")
 	

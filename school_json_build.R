@@ -21,7 +21,7 @@ sfile_version <- sqlQuery(dbrepcard, "SELECT TOP 1
 			[timestamp]
 		FROM [dbo].[ver_control_schoolfile]
 		ORDER BY [version_number] DESC")
-		
+
 next_version <- sfile_version$version_number + 0.1
 
 subDir <- paste0("school_report_v", round(next_version, 1))
@@ -201,12 +201,10 @@ for(i in 1:nrow(school_dir)){
 		cat(indent(level), ']', sep="", fill=TRUE)
 		down(level)
 		cat(indent(level),'}', sep="", fill=TRUE)
-	}
-	
+	}	
 	{
 		## ELL/AMAO Stuff ##	
 	}
-	
 	down(level)
 	cat(indent(level), ']', sep="", fill=TRUE)
 	
@@ -218,13 +216,9 @@ for(i in 1:nrow(school_dir)){
 	close(newfile)
 }
 
-
-
-
 ## SUCCESSFUL PUSH!  
 update_vcontrol <- sfile_version
 update_vcontrol$version_number <- next_version
 update_vcontrol$timestamp <- Sys.time()
 
 sqlSave(dbrepcard, update_vcontrol, tablename="ver_control_schoolfile", append=TRUE, safer=TRUE, rownames=FALSE, varType=c(timestamp="datetime"))
-
