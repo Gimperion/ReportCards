@@ -52,13 +52,26 @@ StartFlatFile <- function(dirline){
 
 	flatbase <- BuildOverview(flatbase, dirline)
 	
-	assessment_sheet <- createSheet(flatbase, sheetName="Assessment")
-	assess_tab <- GetAssessmentDF(org_code)
-	
 	header_style <- CellStyle(flatbase) + Font(flatbase, isBold=TRUE) + Border()
-	addDataFrame(assess_tab, assessment_sheet, row.names=FALSE, startRow=1, startColumn=1, colnamesStyle=header_style)
+	## Enrollment 
+	{
+		enrollment_sheet <- createSheet(flatbase, sheetName="Enrollment")
+		enroll_tab <- GetEnrollmentDF(org_code)
+		
+		addDataFrame(enroll_tab, enrollment_sheet, row.names=FALSE, startRow=1, startColumn=1, colnamesStyle=header_style)
+
+		autoSizeColumn(enrollment_sheet, 1:4)
+	}
 	
-	autoSizeColumn(assessment_sheet, 1:12)
+	## Assessment 
+	{
+		assessment_sheet <- createSheet(flatbase, sheetName="Assessment")
+		assess_tab <- GetAssessmentDF(org_code)
+		
+		addDataFrame(assess_tab, assessment_sheet, row.names=FALSE, startRow=1, startColumn=1, colnamesStyle=header_style)
+
+		autoSizeColumn(assessment_sheet, 1:12)
+	}
 	
 	return(flatbase)
 }
@@ -87,12 +100,13 @@ BuildOverview <- function(wb, dirline){
 	cells <- createCell(rows, colIndex=1:4)
 	
 	.stitle <- dirline$school_name[1]
-	title_style <- CellStyle(wb) + Font(wb, isBold=TRUE, heightInPoints=16, color="blue") + Border()
+	title_style <- CellStyle(wb) + Font(wb, isBold=TRUE, heightInPoints=16, color="#2222A1") + Border()
 	
 	setCellValue(cells[[1,1]], .stitle)
 	addMergedRegion(overview_sheet, 1, 1, 1, 2)
 	setCellStyle(cells[[1,1]], title_style)
-	
+	setCellStyle(cells[[1,2]], title_style)
+		
 	header_style2 <- CellStyle(wb) + Font(wb, isBold=TRUE) 
 	
 	setCellValue(cells[[3,1]], "org_type:")
@@ -128,30 +142,19 @@ BuildOverview <- function(wb, dirline){
 	return(wb)
 }
 
+## GET FLAT CAS DATA FOR SCHOOL SELECTED
 GetAssessmentDF <- function(scode){
 	## MATH/READING
 	.proc <- list()
 	
-	.qry13 <- "SELECT * FROM [dbo].[assessment_sy1213]
-		WHERE [fy13_entity_code] = '" %+% scode %+% "';"
-	.proc[['assm2013']] <- sqlQuery(dbrepcard, .qry13)
+	.tblist <- c("assessment_sy0910", "assessment_sy1011", "assessment_sy1112", "assessment1213")
 	
-	.qry12 <- "SELECT * FROM [dbo].[assessment_sy1112]
-		WHERE [fy13_entity_code] = '" %+% scode %+% "';"
-	.proc[['assm2012']] <- sqlQuery(dbrepcard, .qry12)
-	
-	.qry11 <- "SELECT * FROM [dbo].[assessment_sy1011]
-		WHERE [fy13_entity_code] = '" %+% scode %+% "';"
-	.proc[['assm2011']] <- sqlQuery(dbrepcard, .qry11)
-	
-	.qry10 <- "SELECT * FROM [dbo].[assessment_sy0910]
-		WHERE [fy13_entity_code] = '" %+% scode %+% "';"
-	.proc[['assm2010']] <- sqlQuery(dbrepcard, .qry10)
-	
-	.qry09 <- "SELECT * FROM [dbo].[assessment_sy0809]
-		WHERE [fy13_entity_code] = '" %+% scode %+% "';"
-	.proc[['assm2009']] <- sqlQuery(dbrepcard, .qry09)
-	
+	for(i in .tblist){
+		.qry <- sprintf("SELECT * FROM [dbo].[%s]
+		WHERE [fy13_entity_code] = '%s';", i, leadgr(scode,4))
+		.proc[[i]] <- sqlQuery(dbrepcard, .qry)	
+	}
+
 	for(i in .proc){
 		if(exists('.retdf')){
 			.retdf <- rbind(.retdf, BuildCASDF(i))
@@ -255,4 +258,86 @@ BuildCASDF <- function(.casdat_mr){
 	return(.catch)
 }
 
+## POPULATE FLAT FILE OF ENROLLMENT DATA FOR SCHOOL SELECTED
+GetEnrollmentDF <- function(scode){
+	## MATH/READING
+	.proc <- list()
+	
+	.tblist <- c("enrollment_sy0607", "enrollment_sy0708", "enrollment_sy0809", "enrollment_sy0910", "enrollment_sy1011", "enrollment_sy1112", "enrollment_sy1213")
+	
+	for(i in .tblist){
+		.qry <- sprintf("SELECT * FROM [dbo].[%s]
+		WHERE [fy13_entity_code] = '%s';", i, leadgr(scode,4))
+		.proc[[i]] <- sqlQuery(dbrepcard, .qry)	
+	}
+		
+	for(i in .proc){
+		if(exists('.retdf')){
+			.retdf <- rbind(.retdf, BuildEnrDF(i))
+		} else{
+			.retdf <- BuildEnrDF(i)
+		}
+	}
+	
+	return(.retdf)
+}
+
+
+BuildEnrDF <- function(.enr_dat){
+
+	.enr_row <- data.frame(matrix(nrow=1, ncol=4))
+	names(.enr_row) <- c("year", "grade", "subgroup", "students")
+	
+	if(is.null(.enr_dat) | is.logical(.enr_dat)){
+		return(.enr_row[NULL,]) 
+	}
+	
+	year <- .enr_dat$ea_year[1]
+	
+	.encatch <- .enr_row[NULL,]
+		
+	.enr_dat$grade <- sapply(.enr_dat$grade, leadgr, 2)
+	
+	.glist <- sort(unique(.enr_dat$grade))
+	
+	.subgroups <- c("African American","White","Hispanic","Asian","American Indian", "Pacific Islander", "Multi Racial","Special Education","English Learner","Economically Disadvantaged","Male", "Female")
+	
+	if(exists('.catch')){  rm(.catch) }
+	
+	for(g in 0:length(.glist)){
+		.tmp <- .enr_dat
+		goutput <- "All"
+		if(g>0){
+			.tmp <- subset(.tmp, grade==.glist[g])
+			goutput <- .glist[g]
+		}
+		
+		for(s in 0:length(.subgroups)){
+			
+			soutput <- "All"
+			.tmps <- .tmp
+			if(s > 0){
+				soutput <- .subgroups[s]
+				.tmps <- SubProcEnr(.tmp, s)
+			}
+			
+			if(nrow(.tmps)>=10){
+				.add <- .enr_row
+				
+				.add$year <- year
+				.add$grade <- goutput
+				.add$subgroup <- soutput
+				.add$students <- nrow(.tmps)
+				
+				if(exists('.encatch')){
+					.encatch <- rbind(.encatch, .add)
+				} else{
+					.encatch <- .add
+				}
+			}
+		}
+	}
+	
+	return(.encatch)
+}
 
