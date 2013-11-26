@@ -63,7 +63,7 @@ plot.multi.dens <- function(s, toplb="")
 	}
 }
 
-## RENAME STUPID CLEM SHIT
+## RENAME
 rename <- function(badname, replacement, dataset){
 	x <- names(dataset) 
 	
