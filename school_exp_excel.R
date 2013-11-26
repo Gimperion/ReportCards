@@ -46,10 +46,8 @@ SchoolFlatFile <- function(org_code){
 
 StartFlatFile <- function(dirline){
 	
-	org_code <- dirline$school_code[1]
-	
+	org_code <- dirline$school_code[1]	
 	flatbase <- createWorkbook()
-
 	flatbase <- BuildOverview(flatbase, dirline)
 	
 	header_style <- CellStyle(flatbase) + Font(flatbase, isBold=TRUE) + Border()
@@ -88,7 +86,6 @@ GSUrl <- function(org_code){
 		return(NA)
 	}
 }
-
 
 BuildOverview <- function(wb, dirline){
 
@@ -208,11 +205,20 @@ BuildCASDF <- function(.casdat_mr){
 				.flevels <- c("N", "S", "D", "C")
 				
 				if(b==2){
-					.flevels <- c("S")
+					## Detection of State/District/School Level
+					
+					if(length(unique(.tmp$lea_code))>1){
+						.flevels <- c("S", "C", "D")
+					} else if(length(unique(.tmp$fy13_entity_code))>1){
+						.flevels <- c("S", "C")
+					} else{
+						.flevels <- c("S")
+					}				
+					
 					.tmp <- subset(.tmp, new_to_us =='NO')
 					.tmp <- subset(.tmp, school_grade==tested_grade | alt_tested=="YES")
 				}
-				
+
 				.subgroups <- c("African American","White","Hispanic","Asian", "Pacific Islander", "Multiracial","Special Education","English Learner","Economically Disadvantaged","Male", "Female")
 				
 				for(h in 0:9){
