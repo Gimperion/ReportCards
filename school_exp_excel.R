@@ -147,14 +147,13 @@ GetAssessmentDF <- function(scode){
 	## MATH/READING
 	.proc <- list()
 	
-	.tblist <- c("assessment_sy0910", "assessment_sy1011", "assessment_sy1112", "assessment1213")
+	.tblist <- c("assessment_sy0910", "assessment_sy1011", "assessment_sy1112", "assessment_sy1213")
 	
 	for(i in .tblist){
 		.qry <- sprintf("SELECT * FROM [dbo].[%s]
 		WHERE [fy13_entity_code] = '%s';", i, leadgr(scode,4))
 		.proc[[i]] <- sqlQuery(dbrepcard, .qry)	
 	}
-
 	for(i in .proc){
 		if(exists('.retdf')){
 			.retdf <- rbind(.retdf, BuildCASDF(i))
@@ -189,13 +188,13 @@ BuildCASDF <- function(.casdat_mr){
 	.fay <- c("all", "full_year")
 	
 	.plevels <- c("Below Basic", "Basic", "Proficient", "Advanced")
+	.glevels <- sort(unique(.casdat_mr$tested_grade))
 	
 	## A = Subject, 1 for Math, 2 for Reading
 	for(a in 1:2){
 		## b = full year or not
 		for(b in 1:2){
 			## d = each grade 
-			.glevels <- sort(unique(.casdat_mr$tested_grade))
 			for(g in 0:length(.glevels)){
 				goutput <- ''
 				.tmp <- .casdat_mr
@@ -298,11 +297,9 @@ BuildEnrDF <- function(.enr_dat){
 		
 	.enr_dat$grade <- sapply(.enr_dat$grade, leadgr, 2)
 	
-	.glist <- sort(unique(.enr_dat$grade))
+	.glist <- unique(.enr_dat$grade)
 	
 	.subgroups <- c("African American","White","Hispanic","Asian","American Indian", "Pacific Islander", "Multi Racial","Special Education","English Learner","Economically Disadvantaged","Male", "Female")
-	
-	if(exists('.catch')){  rm(.catch) }
 	
 	for(g in 0:length(.glist)){
 		.tmp <- .enr_dat
