@@ -1251,3 +1251,283 @@ WriteCAS <- function(.casdat_mr, year, level){
 }
 
 ##cat(ExCasChunk('0210', 2))
+
+
+WriteAttendance <- function(org_code, level){
+	.ret <- c()	
+	.lv <- level
+
+	att_qry <- paste0("SELECT * FROM [dbo].[equity_report_prelim]
+				WHERE School_Code = '",org_code,"' AND [Metric] = 'In-Seat Attendance Rate' AND [ReportType] = 'External'")
+	att <- sqlQuery(dbrepcard, att_qry)
+	
+	if(nrow(att) >= 1){
+		for(i in unique(att$School_Year)){
+			tmp <- subset(att, School_Year == i)
+			.add <- indent(.lv) %+% '{\n'
+			
+			up(.lv)
+			.add <- .add %+% paste(indent(.lv), '"key": {\n', sep="")
+			up(.lv)
+
+			.add <- .add %+% paste(indent(.lv), '"year": "',substr(i,1,4),'"\n', sep="")		
+							
+			down(.lv)	
+			.add <- .add %+% paste(indent(.lv), '},\n', sep="")		
+
+			.add <- .add %+% paste(indent(.lv), '"val": {\n', sep="")
+			up(.lv)
+
+			.add <- .add %+% paste(indent(.lv), '"in_seat_attendance":',make_null(
+				(tmp$SchoolScore[tmp$Metric=="In-Seat Attendance Rate"])/100
+				),',\n', sep="")
+			.add <- .add %+% paste(indent(.lv), '"average_daily_attendance":',round(runif(1,0,1),2),'\n', sep="")
+
+			down(.lv)
+			.add <- .add %+% paste(indent(.lv), '}\n', sep="")
+			down(.lv)
+			
+			.add <- .add %+% paste(indent(.lv), '}', sep="")
+
+			.ret[length(.ret)+1] <- .add
+		}
+	}
+	return(paste(.ret, collapse=',\n'))
+}
+
+
+
+WriteAbsences <- function(org_code, level){
+	.ret <- c()	
+	.lv <- level
+
+	abs_qry <- paste0("SELECT * FROM [dbo].[equity_report_prelim]
+				WHERE School_Code = '",org_code,"' AND [Metric] in ('Unexcused Absences 1-5', 'Unexcused Absences 6-10','Unexcused Absences 11-15','Unexcused Absences 16-25','Unexcused Absences > 25') AND [ReportType] = 'External'")
+	abs <- sqlQuery(dbrepcard, abs_qry)
+	if(nrow(abs) >= 1){
+		for(i in unique(abs$School_Year)){
+			tmp <- subset(abs, School_Year == i)
+			.add <- indent(.lv) %+% '{\n'
+			
+			up(.lv)
+			.add <- .add %+% paste(indent(.lv), '"key": {\n', sep="")
+			up(.lv)
+
+			.add <- .add %+% paste(indent(.lv), '"year": "',substr(i,1,4),'"\n', sep="")		
+							
+			down(.lv)
+							
+			.add <- .add %+% paste(indent(.lv), '},\n', sep="")
+								
+			.add <- .add %+% paste(indent(.lv), '"val": {\n', sep="")
+			up(.lv)
+							
+			.add <- .add %+% paste(indent(.lv), '"1-5_days":',make_null(tmp$SchoolScore[tmp$Metric=="Unexcused Absences 1-5"]),',\n', sep="")
+			.add <- .add %+% paste(indent(.lv), '"6-10_days":',make_null(tmp$SchoolScore[tmp$Metric=="Unexcused Absences 6-10"]),',\n', sep="")
+			.add <- .add %+% paste(indent(.lv), '"11-15_days":',make_null(tmp$SchoolScore[tmp$Metric=="Unexcused Absences 11-15"]),',\n', sep="")
+			.add <- .add %+% paste(indent(.lv), '"16-25_days":',make_null(tmp$SchoolScore[tmp$Metric=="Unexcused Absences 16-25"]),',\n', sep="")
+			.add <- .add %+% paste(indent(.lv), '"more_than_25_days":',make_null(tmp$SchoolScore[tmp$Metric=="Unexcused Absences > 25"]),'\n', sep="")
+
+			down(.lv)
+			.add <- .add %+% paste(indent(.lv), '}\n', sep="")
+			down(.lv)
+			
+			.add <- .add %+% paste(indent(.lv), '}', sep="")
+
+			.ret[length(.ret)+1] <- .add
+		}
+	}
+	return(paste(.ret, collapse=',\n'))
+}
+
+
+
+
+RetSuspensionGroup <- function(x){
+	if(x == 'All Students'){
+		return('All')
+	} else if(x == 'Black non-Hispanic'){
+		return('African American')
+	} else if (x == 'Hispanic / Latino'){
+		return('Hispanic')
+	} else if (x == 'Asian'){
+		return('Asian')
+	} else if (x == 'White non-Hispanic'){
+		return('White')
+	} else if (x == 'Multiracial'){
+		return('Multi Racial')
+	} else if (x == 'Limited English Proficiency'){
+		return('English Learner')
+	} else if (x == 'Special Education'){
+		return('Special Education')
+	} else if(x == 'Free or Reduced Lunch'){
+		return('Economically Disadvantaged')
+	} else{
+		return(x)
+	}
+}
+ 
+
+WriteSuspensions <- function(org_code, level){
+	.ret <- c()	
+	.lv <- level
+
+	sus_qry <- paste0("SELECT * FROM [dbo].[equity_report_prelim]
+				WHERE School_Code = '",org_code,"' AND [Metric] in ('Suspended 1+','Suspended 11+') AND [ReportType] = 'External'")
+	sus <- sqlQuery(dbrepcard, sus_qry)
+
+	if(nrow(sus) >= 1){
+		for(i in unique(sus$School_Year)){
+			tmp <- subset(sus, School_Year == i)
+			for(f in unique(tmp$Student_Group)){	
+				.add <- indent(.lv) %+% '{\n'
+				
+				up(.lv)
+				.add <- .add %+% paste(indent(.lv), '"key": {\n', sep="")
+				up(.lv)
+
+				.add <- .add %+% paste(indent(.lv), '"year": "',substr(i,1,4),'",\n', sep="")		
+				.add <- .add %+% paste(indent(.lv), '"subgroup": "',RetSuspensionGroup(f),'"\n', sep="")				
+				down(.lv)
+								
+				.add <- .add %+% paste(indent(.lv), '},\n', sep="")
+									
+				.add <- .add %+% paste(indent(.lv), '"val": {\n', sep="")
+				up(.lv)
+
+				.add <- .add %+% paste(indent(.lv), '"suspended_1":',make_null((tmp$SchoolScore[tmp$Metric=="Suspended 1+" & tmp$Student_Group ==f])/100),',\n', sep="")
+				.add <- .add %+% paste(indent(.lv), '"suspended_11":',make_null((tmp$SchoolScore[tmp$Metric=="Suspended 11+" & tmp$Student_Group ==f])/100),'\n', sep="")			
+
+				down(.lv)
+				.add <- .add %+% paste(indent(.lv), '}\n', sep="")
+				down(.lv)
+				
+				.add <- .add %+% paste(indent(.lv), '}', sep="")
+
+				.ret[length(.ret)+1] <- .add
+			}
+		}	
+	}		
+	return(paste(.ret, collapse=',\n'))
+}
+
+
+
+
+WriteExpulsions <- function(org_code, level){
+	.ret <- c()	
+	.lv <- level
+
+	exp_qry <- paste0("SELECT * FROM [dbo].[equity_report_prelim]
+				WHERE School_Code = '",org_code,"' AND [Metric] = 'Expulsions' AND [ReportType] = 'External'")
+	exp <- sqlQuery(dbrepcard, exp_qry)
+
+	if(nrow(exp) >= 1){
+		for(i in unique(exp$School_Year)){
+			tmp <- subset(exp, School_Year == i)
+
+			.add <- indent(.lv) %+% '{\n'
+			
+			up(.lv)
+			.add <- .add %+% paste(indent(.lv), '"key": {\n', sep="")
+			up(.lv)
+
+			.add <- .add %+% paste(indent(.lv), '"year": "',substr(i,1,4),'"\n', sep="")		
+							
+			down(.lv)
+							
+			.add <- .add %+% paste(indent(.lv), '},\n', sep="")
+								
+			.add <- .add %+% paste(indent(.lv), '"val": {\n', sep="")
+			up(.lv)
+							
+			.add <- .add %+% paste(indent(.lv), '"expulsions":',make_null(tmp$SchoolScore),'\n', sep="")
+
+			down(.lv)
+			.add <- .add %+% paste(indent(.lv), '}\n', sep="")
+			down(.lv)
+			
+			.add <- .add %+% paste(indent(.lv), '}', sep="")
+
+			.ret[length(.ret)+1] <- .add
+		}
+	}
+	return(paste(.ret, collapse=',\n'))
+}
+
+
+
+RetMonthInt <- function(x){
+	if(x == 'January'){
+		return(1)
+	} else if(x == 'February'){
+		return(2)
+	} else if (x == 'March'){
+		return(3)
+	} else if (x == 'April'){
+		return(4)
+	} else if (x == 'May'){
+		return(5)
+	} else if (x == 'June'){
+		return(6)
+	} else if (x == 'July'){
+		return(7)
+	} else if (x == 'August'){
+		return(8)
+	} else if(x == 'September'){
+		return(9)
+	} else if(x == 'October'){
+		return(10)
+	} else if(x == 'November'){
+		return(11)
+	} else if(x == 'December'){
+		return(12)
+	} else{
+		return(x)
+	}
+}
+
+WriteEnterWithdraw <- function(org_code, level){
+	.ret <- c()	
+	.lv <- level
+
+	ent_qry <- paste0("SELECT * FROM [dbo].[equity_report_prelim]
+				WHERE School_Code = '",org_code,"' AND [Metric] in ('Entry','Net Cumulative','Withdrawal') AND [ReportType] = 'External'")
+	ent <- sqlQuery(dbrepcard, ent_qry)
+
+	if(nrow(ent) >= 1){
+		for(i in unique(ent$School_Year)){
+			for(f in unique(ent$Month)){	
+				tmp <- subset(ent, School_Year == i & Month == f)
+
+				.add <- indent(.lv) %+% '{\n'
+				
+				up(.lv)
+				.add <- .add %+% paste(indent(.lv), '"key": {\n', sep="")
+				up(.lv)
+
+				.add <- .add %+% paste(indent(.lv), '"year": "',substr(i,1,4),'",\n', sep="")		
+				.add <- .add %+% paste(indent(.lv), '"month": ',RetMonthInt(f),'\n', sep="")				
+				down(.lv)
+
+				.add <- .add %+% paste(indent(.lv), '},\n', sep="")
+									
+				.add <- .add %+% paste(indent(.lv), '"val": {\n', sep="")
+				up(.lv)
+
+				.add <- .add %+% paste(indent(.lv), '"entry":',make_null(tmp$SchoolScore[tmp$Metric=="Entry"]),',\n', sep="")
+				.add <- .add %+% paste(indent(.lv), '"withdrawal":',make_null(tmp$SchoolScore[tmp$Metric=="Withdrawal"]),',\n', sep="")
+				.add <- .add %+% paste(indent(.lv), '"net_cumulative":',make_null(tmp$SchoolScore[tmp$Metric=="Net Cumulative"]),'\n', sep="")
+
+				down(.lv)
+				.add <- .add %+% paste(indent(.lv), '}\n', sep="")
+				down(.lv)
+				
+				.add <- .add %+% paste(indent(.lv), '}', sep="")
+
+				.ret[length(.ret)+1] <- .add
+			}
+		}
+	}
+	return(paste(.ret, collapse=',\n'))
+}
