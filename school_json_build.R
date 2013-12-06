@@ -200,11 +200,68 @@ for(i in 1:nrow(school_dir)){
 		cat(ExSPEDChunk(org_code, level+1), fill=TRUE)
 		cat(indent(level), ']', sep="", fill=TRUE)
 		down(level)
-		cat(indent(level),'}', sep="", fill=TRUE)
-	}	
+		cat(indent(level),'},', sep="", fill=TRUE)
+	}
 	{
 		## ELL/AMAO Stuff ##	
 	}
+	## Equity Report Starts Here
+	{
+		#### Absences
+		cat(indent(level),'{', sep="", fill=TRUE)
+		up(level)
+		cat(indent(level), '"id": "unexcused_absences",', sep="", fill=TRUE)
+		cat(indent(level), '"data": [', sep="", fill=TRUE)
+		cat(WriteAbsences(org_code, level+1), fill=TRUE)
+		cat(indent(level), ']', sep="", fill=TRUE)
+		down(level)
+		cat(indent(level),'},', sep="", fill=TRUE)
+	}
+	{
+		#### Attendance
+		cat(indent(level),'{', sep="", fill=TRUE)
+		up(level)
+		cat(indent(level), '"id": "attendance",', sep="", fill=TRUE)
+		cat(indent(level), '"data": [', sep="", fill=TRUE)
+		cat(WriteAttendance(org_code, level+1), fill=TRUE)
+		cat(indent(level), ']', sep="", fill=TRUE)
+		down(level)
+		cat(indent(level),'},', sep="", fill=TRUE)
+	}
+	{
+		#### Suspensions
+		cat(indent(level),'{', sep="", fill=TRUE)
+		up(level)
+		cat(indent(level), '"id": "suspensions",', sep="", fill=TRUE)
+		cat(indent(level), '"data": [', sep="", fill=TRUE)
+		cat(WriteSuspensions(org_code, level+1), fill=TRUE)
+		cat(indent(level), ']', sep="", fill=TRUE)
+		down(level)
+		cat(indent(level),'},', sep="", fill=TRUE)
+	}
+	{
+		#### Expulsions
+		cat(indent(level),'{', sep="", fill=TRUE)
+		up(level)
+		cat(indent(level), '"id": "expulsions",', sep="", fill=TRUE)
+		cat(indent(level), '"data": [', sep="", fill=TRUE)
+		cat(WriteExpulsions(org_code, level+1), fill=TRUE)
+		cat(indent(level), ']', sep="", fill=TRUE)
+		down(level)
+		cat(indent(level),'},', sep="", fill=TRUE)
+	}
+	{
+		#### Mid-Year Entry and Withdrawal
+		cat(indent(level),'{', sep="", fill=TRUE)
+		up(level)
+		cat(indent(level), '"id": "mid_year_entry_and_withdrawal",', sep="", fill=TRUE)
+		cat(indent(level), '"data": [', sep="", fill=TRUE)
+		cat(WriteEnterWithdraw(org_code, level+1), fill=TRUE)
+		cat(indent(level), ']', sep="", fill=TRUE)
+		down(level)
+		cat(indent(level),'}', sep="", fill=TRUE)
+	}
+
 	down(level)
 	cat(indent(level), ']', sep="", fill=TRUE)
 	
