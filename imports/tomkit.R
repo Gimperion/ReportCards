@@ -115,3 +115,12 @@ checkna_str <- function(x){
 	return('"' %+% x %+%'"')
 }
 
+sampdf <- function(x,y) {
+	x[sample(1:nrow(x),y),]
+}
+
+make_null <- function(x){
+	if(length(x) == 0) {x <- 'null'}
+	else if (is.na(x) | is.null(x)){x <- 'null'}
+	else return(x)
+}
