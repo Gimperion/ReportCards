@@ -1281,7 +1281,12 @@ WriteAttendance <- function(org_code, level){
 			.add <- .add %+% paste(indent(.lv), '"in_seat_attendance":',make_null(
 				(tmp$SchoolScore[tmp$Metric=="In-Seat Attendance Rate"])/100
 				),',\n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"average_daily_attendance":',round(runif(1,0,1),2),'\n', sep="")
+			.add <- .add %+% paste(indent(.lv), '"state_in_seat_attendance":',make_null(
+				(tmp$AverageScore[tmp$Metric=="In-Seat Attendance Rate"])/100
+				),',\n', sep="")
+
+			.add <- .add %+% paste(indent(.lv), '"average_daily_attendance":',round(runif(1,0,1),2),',\n', sep="")
+			.add <- .add %+% paste(indent(.lv), '"state_average_daily_attendance":',round(runif(1,0,1),2),'\n', sep="")
 
 			down(.lv)
 			.add <- .add %+% paste(indent(.lv), '}\n', sep="")
@@ -1326,7 +1331,13 @@ WriteAbsences <- function(org_code, level){
 			.add <- .add %+% paste(indent(.lv), '"6-10_days":',make_null(tmp$SchoolScore[tmp$Metric=="Unexcused Absences 6-10"]),',\n', sep="")
 			.add <- .add %+% paste(indent(.lv), '"11-15_days":',make_null(tmp$SchoolScore[tmp$Metric=="Unexcused Absences 11-15"]),',\n', sep="")
 			.add <- .add %+% paste(indent(.lv), '"16-25_days":',make_null(tmp$SchoolScore[tmp$Metric=="Unexcused Absences 16-25"]),',\n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"more_than_25_days":',make_null(tmp$SchoolScore[tmp$Metric=="Unexcused Absences > 25"]),'\n', sep="")
+			.add <- .add %+% paste(indent(.lv), '"more_than_25_days":',make_null(tmp$SchoolScore[tmp$Metric=="Unexcused Absences > 25"]),',\n', sep="")
+
+			.add <- .add %+% paste(indent(.lv), '"state_1-5_days":',make_null(tmp$AverageScore[tmp$Metric=="Unexcused Absences 1-5"]),',\n', sep="")
+			.add <- .add %+% paste(indent(.lv), '"state_6-10_days":',make_null(tmp$AverageScore[tmp$Metric=="Unexcused Absences 6-10"]),',\n', sep="")
+			.add <- .add %+% paste(indent(.lv), '"state_11-15_days":',make_null(tmp$AverageScore[tmp$Metric=="Unexcused Absences 11-15"]),',\n', sep="")
+			.add <- .add %+% paste(indent(.lv), '"state_16-25_days":',make_null(tmp$AverageScore[tmp$Metric=="Unexcused Absences 16-25"]),',\n', sep="")
+			.add <- .add %+% paste(indent(.lv), '"state_more_than_25_days":',make_null(tmp$AverageScore[tmp$Metric=="Unexcused Absences > 25"]),'\n', sep="")
 
 			down(.lv)
 			.add <- .add %+% paste(indent(.lv), '}\n', sep="")
@@ -1396,7 +1407,9 @@ WriteSuspensions <- function(org_code, level){
 				up(.lv)
 
 				.add <- .add %+% paste(indent(.lv), '"suspended_1":',make_null((tmp$SchoolScore[tmp$Metric=="Suspended 1+" & tmp$Student_Group ==f])/100),',\n', sep="")
-				.add <- .add %+% paste(indent(.lv), '"suspended_11":',make_null((tmp$SchoolScore[tmp$Metric=="Suspended 11+" & tmp$Student_Group ==f])/100),'\n', sep="")			
+				.add <- .add %+% paste(indent(.lv), '"suspended_11":',make_null((tmp$SchoolScore[tmp$Metric=="Suspended 11+" & tmp$Student_Group ==f])/100),',\n', sep="")
+				.add <- .add %+% paste(indent(.lv), '"state_suspended_1":',make_null((tmp$AverageScore[tmp$Metric=="Suspended 1+" & tmp$Student_Group ==f])/100),',\n', sep="")
+				.add <- .add %+% paste(indent(.lv), '"state_suspended_11":',make_null((tmp$AverageScore[tmp$Metric=="Suspended 11+" & tmp$Student_Group ==f])/100),'\n', sep="")
 
 				down(.lv)
 				.add <- .add %+% paste(indent(.lv), '}\n', sep="")
@@ -1441,7 +1454,8 @@ WriteExpulsions <- function(org_code, level){
 			.add <- .add %+% paste(indent(.lv), '"val": {\n', sep="")
 			up(.lv)
 							
-			.add <- .add %+% paste(indent(.lv), '"expulsions":',make_null(tmp$SchoolScore),'\n', sep="")
+			.add <- .add %+% paste(indent(.lv), '"expulsions":',make_null(tmp$SchoolScore),',\n', sep="")
+			.add <- .add %+% paste(indent(.lv), '"state_expulsions":',make_null(tmp$AverageScore),'\n', sep="")
 
 			down(.lv)
 			.add <- .add %+% paste(indent(.lv), '}\n', sep="")
@@ -1488,7 +1502,7 @@ RetMonthInt <- function(x){
 }
 
 WriteEnterWithdraw <- function(org_code, level){
-	.ret <- c()	
+	.ret <- c()
 	.lv <- level
 
 	ent_qry <- paste0("SELECT * FROM [dbo].[equity_report_prelim]
