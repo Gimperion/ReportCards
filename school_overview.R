@@ -112,6 +112,20 @@ GSUrl <- function(org_code){
 	}
 }
 
+
+EquityUrl <- function(org_code){
+	.qry_equity <- "SELECT * FROM [dbo].[equity_report_url_mapping]
+		WHERE [school_code] = '" %+% org_code %+% "' AND [url_check] = 1"
+	.equity_dat <- sqlQuery(dbrepcard, .qry_equity)
+	if(nrow(.equity_dat )>0){
+		return(trimall(.equity_dat$equity_url[1]))
+	} else{
+		return(NA)
+	}
+}
+
+
+
 ## Yay for-loops!!!!!
 for(i in 1:nrow(school_dir)){
 	org_type <- "school"
@@ -183,6 +197,7 @@ for(i in 1:nrow(school_dir)){
 	cat(indent(level),'"facebook": ',checkna_str(school_dir$facebook[i]),',', sep="", fill=TRUE)  ## fill ward
 	cat(indent(level),'"twitter": ',checkna_str(school_dir$twitter[i]),',', sep="", fill=TRUE)  ## fill ward
 	cat(indent(level),'"external_report_card": ',checkna_str(WriteProfile(org_code)),',', sep="", fill=TRUE)  ## fill ward
+	cat(indent(level),'"equity_report_url": \n',checkna_str(EquityUrl(org_code)),',\n', sep="", fill=FALSE) 
 
 	cat(indent(level), '"contact": [', sep="", fill=TRUE)
 	cat(InsertPeople(org_code, level+1))
