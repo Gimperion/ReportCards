@@ -45,6 +45,9 @@ school_dir$description <- gsub('\n', "", school_dir$description)
 school_dir$description <- gsub('\r', "", school_dir$description)
 school_dir$website <- gsub('\n', "", school_dir$website)
 school_dir$website <- gsub('\r', "", school_dir$website)
+school_dir$profile_name <- gsub('\n', "", school_dir$profile_name)
+school_dir$profile_name <- gsub('\r', "", school_dir$profile_name)
+
 
 InsertPeople <- function(org_code, level){
 	.lv <- level
