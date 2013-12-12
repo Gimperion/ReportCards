@@ -156,7 +156,6 @@ up(level)
 	down(level)
 	cat(indent(level),'},', sep="", fill=TRUE)
 }
-
 {
 	## College Readiness##
 	cat(indent(level),'{', sep="", fill=TRUE)
@@ -168,7 +167,6 @@ up(level)
 	down(level)
 	cat(indent(level),'},', sep="", fill=TRUE)
 }
-
 {
 	## SPED Testing##
 	cat(indent(level),'{', sep="", fill=TRUE)
@@ -209,7 +207,10 @@ up(level)
 	
 	cat(indent(level), '}', sep="", fill=TRUE)
 	down(level)
-	cat(indent(level),'}', sep="", fill=TRUE)
+	cat(indent(level),'},', sep="", fill=TRUE)
+}
+{
+	cat(indent(level),hard_code_equity, fill=TRUE)
 }
 
 down(level)
