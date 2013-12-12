@@ -515,9 +515,6 @@ ExStateCAS <- function(level){
 
 
 
-
-
-
 ## ExCASChunk version 2
 ExStateEnroll <- function(level){
 	.lv <- level
@@ -576,7 +573,158 @@ ExStateEnroll <- function(level){
 	return(paste(.ret, collapse=',\n'))	
 }
 
-hard_code_apr <- '{
+hard_code_equity <- '			{
+				"id": "unexcused_absences",
+				"data": [
+					{
+						"key": {
+							"year": "2012"
+						},
+						"val": {
+							"1-5_days": 43,
+							"6-10_days": 22,
+							"11-15_days": 9,
+							"16-25_days": 8,
+							"more_than_25_days": 8
+						}
+					}
+				]
+			},
+			{
+				"id": "attendance",
+				"data": [
+					{
+						"key": {
+							"year": "2012"
+						},
+						"val": {
+							"in_seat_attendance": 0.95,
+							"average_daily_attendance": null,
+						}
+					}
+				]
+			},
+			{
+				"id": "suspensions",
+				"data": [
+					{
+						"key": {
+							"year": "2012",
+							"subgroup": "All"
+						},
+						"val": {
+							"suspended_1": 0.12,
+							"suspended_11": 0
+						}
+					},
+					{
+						"key": {
+							"year": "2012",
+							"subgroup": "African American"
+						},
+						"val": {
+							"suspended_1": 0.16,
+							"suspended_11": 0.01
+						}
+					},
+					{
+						"key": {
+							"year": "2012",
+							"subgroup": "Asian"
+						},
+						"val": {
+							"suspended_1": 0.02,
+							"suspended_11": 0
+						}
+					},
+					{
+						"key": {
+							"year": "2012",
+							"subgroup": "Economically Disadvantaged"
+						},
+						"val": {
+							"suspended_1": 0.15,
+							"suspended_11": 0.01
+						}
+					},
+					{
+						"key": {
+							"year": "2012",
+							"subgroup": "English Learner"
+						},
+						"val": {
+							"suspended_1": 0.04,
+							"suspended_11": 0
+						}
+					},
+					{
+						"key": {
+							"year": "2012",
+							"subgroup": "Hispanic"
+						},
+						"val": {
+							"suspended_1": 0.04,
+							"suspended_11":0
+						}
+					},
+					{
+						"key": {
+							"year": "2012",
+							"subgroup": "White"
+						},
+						"val": {
+							"suspended_1": 0.01,
+							"suspended_11":0
+						}
+					},
+					{
+						"key": {
+							"year": "2012",
+							"subgroup": "Pacific Islander"
+						},
+						"val": {
+							"suspended_1": 0.1,
+							"suspended_11":0
+						}
+					},
+					{
+						"key": {
+							"year": "2012",
+							"subgroup": "Multiracial"
+						},
+						"val": {
+							"suspended_1": 0.05,
+							"suspended_11":0
+						}
+					},
+					{
+						"key": {
+							"year": "2012",
+							"subgroup": "Special Education"
+						},
+						"val": {
+							"suspended_1": 0.23,
+							"suspended_11": 0.01
+						}
+					}
+				]
+			},
+			{
+				"id": "expulsions",
+				"data": [
+					{
+						"key": {
+							"year": "2012"
+						},
+						"val": {
+							"expulsions":187,
+							"expulsion_rate": 0.22
+						}
+					}
+				]
+			}'
+
+hard_code_apr <- '			{
 				"id": "apr",
 				"data": [
 					{
