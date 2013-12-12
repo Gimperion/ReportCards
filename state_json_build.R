@@ -156,6 +156,7 @@ up(level)
 	down(level)
 	cat(indent(level),'},', sep="", fill=TRUE)
 }
+
 {
 	## College Readiness##
 	cat(indent(level),'{', sep="", fill=TRUE)
@@ -167,6 +168,7 @@ up(level)
 	down(level)
 	cat(indent(level),'},', sep="", fill=TRUE)
 }
+
 {
 	## SPED Testing##
 	cat(indent(level),'{', sep="", fill=TRUE)
@@ -178,6 +180,7 @@ up(level)
 	down(level)
 	cat(indent(level),'},', sep="", fill=TRUE)
 }
+
 {
 	## PreK Testing##
 	cat(indent(level),'{', sep="", fill=TRUE)
@@ -189,9 +192,11 @@ up(level)
 	down(level)
 	cat(indent(level),'},', sep="", fill=TRUE)
 }
+
 {
 	cat(indent(level),hard_code_apr, fill=TRUE)
 }
+
 {
 	#AMAO
 	cat(indent(level),'{', sep="", fill=TRUE)
@@ -209,9 +214,11 @@ up(level)
 	down(level)
 	cat(indent(level),'},', sep="", fill=TRUE)
 }
+
 {
 	cat(indent(level),hard_code_equity, fill=TRUE)
 }
+
 
 down(level)
 
