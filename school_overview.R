@@ -127,6 +127,20 @@ EquityUrl <- function(org_code){
 	}
 }
 
+JSONTrueFalse <- function(x){
+	
+	x <- toupper(x)
+
+	if(is.na(x) | is.null(x)){
+		return('null')
+	} else if(x %in% c('YES', 'TRUE', '1')){
+		return('true')
+	} else if(x %in% c('NO', 'FALSE', '0')){
+		return('false')
+	} else{
+		return('null')
+	}
+}
 
 
 ## Yay for-loops!!!!!
@@ -144,7 +158,9 @@ for(i in 1:nrow(school_dir)){
 	cat(indent(level),'"org_name": "',school_dir$profile_name[i],'",', sep="", fill=TRUE)
 	cat(indent(level),'"org_code": "',org_code,'",', sep="", fill=TRUE)
 	
-	cstat <- ifelse(school_dir$charter_status[i]=='Yes', 'true', 'false')
+	cat(indent(level),'"closed": ',JSONTrueFalse(school_dir$closing[i]), ',', sep="", fill=TRUE)
+	
+	cstat <- JSONTrueFalse(school_dir$charter_status[i])
 	
 	cat(indent(level),'"charter": ',cstat,',', sep="", fill=TRUE)
 	cat(indent(level), '"school_type": [', sep="", fill=TRUE)
