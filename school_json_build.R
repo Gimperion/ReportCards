@@ -11,7 +11,7 @@ source("./imports/tomkit.R")
 source("http://www.straydots.com/code/ODBC.R")
 source("./school_functions.R")
 ##source("./state_functions.R")
-library(ddply)
+library(dplyr)
 
 ## setwd("U:/REPORT CARD/GIT Report Cards/ReportCards/JSON Output")
 

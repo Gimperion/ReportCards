@@ -105,7 +105,6 @@ ExMGPResult <- function(org_code, level){
 	return(paste(.ret, collapse=',\n'))
 }
 
-
 ExCollegeReadiness <- function(org_code, level){
 	.lv <- level
 	
@@ -224,8 +223,6 @@ SubProcGrad <- function(.dat, lv){
 	return(.dat[NULL,])
 }
 
-
-
 WriteGraduation <- function(gdata, level, year){
 	.lv <- level
 	.ret <- c()
@@ -266,7 +263,6 @@ WriteGraduation <- function(gdata, level, year){
 		}		
 	}
 	
-
 	return(paste(.ret, collapse=',\n'))
 }
 
@@ -994,8 +990,6 @@ WriteComp <- function(.casdat_comp, level){
 	return(paste(.ret, collapse=',\n'))
 }
 
-
-
 ExCasChunk <- function(scode, level){
 	## MATH/READING
 	.qry_mr <- sprintf("SELECT A.* FROM [dbo].[assessment] A
@@ -1068,7 +1062,6 @@ WriteScience <- function(.casdat_sci, level){
 			goutput <- paste('grade', .glevels[g], sep=" ")
 			.tmp <- subset(.tmp, tested_grade==.glevels[g])
 		}
-		
 		
 		if(nrow(.tmp)>=10){
 			.add <- indent(.lv) %+% '{\n'
@@ -1280,9 +1273,6 @@ WriteSuspensions <- function(org_code, level){
 	}		
 	return(paste(.ret, collapse=',\n'))
 }
-
-
-
 
 WriteExpulsions <- function(org_code, level){
 	.ret <- c()	
