@@ -44,8 +44,7 @@ SchoolFlatFile <- function(org_code){
 	}
 }
 
-StartFlatFile <- function(dirline){
-	
+StartFlatFile <- function(dirline){	
 	org_code <- dirline$school_code[1]	
 	flatbase <- createWorkbook()
 	flatbase <- BuildOverview(flatbase, dirline)
@@ -74,7 +73,6 @@ StartFlatFile <- function(dirline){
 	return(flatbase)
 }
 
-
 GSUrl <- function(org_code){
 	.qry_gsurl <- "SELECT * FROM [dbo].[gs_url]
 		WHERE [school_code] = '" %+% org_code %+% "'"
@@ -89,8 +87,7 @@ GSUrl <- function(org_code){
 
 BuildOverview <- function(wb, dirline){
 
-	org_code <- dirline$school_code[1]
-	
+	org_code <- dirline$school_code[1]	
 	overview_sheet <- createSheet(wb, sheetName="Overview")
 
 	rows <- createRow(overview_sheet, 1:20)
@@ -158,12 +155,10 @@ GetAssessmentDF <- function(scode){
 			.retdf <- BuildCASDF(i)
 		}
 	}
-	
 	return(.retdf)
 }
 
 BuildCASDF <- function(.casdat_mr){
-
 	.cas_row <- data.frame(matrix(nrow=1, ncol=11))
 	names(.cas_row) <- c("year", "enrollment_status", "grade", "subgroup", "subject","n_eligible", "n_test_takers", "below_basic", "basic", "proficient", "advanced")
 	
@@ -275,21 +270,19 @@ GetEnrollmentDF <- function(scode){
 		WHERE [fy13_entity_code] = '%s';", i, leadgr(scode,4))
 		.proc[[i]] <- sqlQuery(dbrepcard, .qry)	
 	}
-		
+	
 	for(i in .proc){
 		if(exists('.retdf')){
 			.retdf <- rbind(.retdf, BuildEnrDF(i))
 		} else{
 			.retdf <- BuildEnrDF(i)
 		}
-	}
-	
+	}	
 	return(.retdf)
 }
 
 
 BuildEnrDF <- function(.enr_dat){
-
 	.enr_row <- data.frame(matrix(nrow=1, ncol=4))
 	names(.enr_row) <- c("year", "grade", "subgroup", "students")
 	
@@ -297,12 +290,10 @@ BuildEnrDF <- function(.enr_dat){
 		return(.enr_row[NULL,]) 
 	}
 	
-	year <- .enr_dat$ea_year[1]
-	
+	year <- .enr_dat$ea_year[1]	
 	.encatch <- .enr_row[NULL,]
 		
-	.enr_dat$grade <- sapply(.enr_dat$grade, leadgr, 2)
-	
+	.enr_dat$grade <- sapply(.enr_dat$grade, leadgr, 2)	
 	.glist <- unique(.enr_dat$grade)
 	
 	.subgroups <- c("African American","White","Hispanic","Asian","American Indian", "Pacific Islander", "Multi Racial","Special Education","English Learner","Economically Disadvantaged","Male", "Female")
@@ -316,14 +307,12 @@ BuildEnrDF <- function(.enr_dat){
 		}
 		
 		for(s in 0:length(.subgroups)){
-			
 			soutput <- "All"
 			.tmps <- .tmp
 			if(s > 0){
 				soutput <- .subgroups[s]
 				.tmps <- SubProcEnr(.tmp, s)
 			}
-			
 			if(nrow(.tmps)>=10){
 				.add <- .enr_row
 				
@@ -340,7 +329,7 @@ BuildEnrDF <- function(.enr_dat){
 			}
 		}
 	}
-	
 	return(.encatch)
 }
+
 

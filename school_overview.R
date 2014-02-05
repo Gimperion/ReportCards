@@ -10,7 +10,6 @@ source("./school_functions.R")
 ##source("./state_functions.R")
 
 
-
 overview_version <- sqlQuery(dbrepcard, "SELECT TOP 1 
 			[version_number],
 			[timestamp]
@@ -78,10 +77,11 @@ InsertPeople <- function(org_code, level){
 	return(paste(.ret, collapse=',\n'))
 }
 
+
 GetGrades <- function(org_code){
 	## MATH/READING
-	.qry <- "SELECT DISTINCT [grade] FROM [dbo].[current_roster_grades]
-		WHERE [school_code] = '" %+% org_code %+% "';"
+	.qry <- sprintf("SELECT DISTINCT [grade] FROM [dbo].[current_roster_grades]
+		WHERE [school_code] = '%s';",org_code)
 	.sgrades <- sqlQuery(dbrepcard, .qry)
 	##print(.dat_peep)
 	##print(.sgrades)
@@ -96,8 +96,8 @@ GetGrades <- function(org_code){
 }
 
 WriteProfile <- function(org_code){
-	.qry_profile <- "SELECT * FROM [dbo].[profile_urls_13]
-		WHERE [school_code] = '" %+% org_code %+% "'"
+	.qry_profile <- sprintf("SELECT * FROM [dbo].[profile_urls]
+		WHERE [school_code] = '%s'",org_code )
 	.prog_profile <- sqlQuery(dbrepcard, .qry_profile)
 	x <- .prog_profile$url
 	return(x)

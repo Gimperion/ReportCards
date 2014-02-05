@@ -109,7 +109,7 @@ checkna <- function(x){
 }
 
 checkna_str <- function(x){
-	if(is.na(x)){
+	if(is.na(x)| length(x) ==0){
 		return('null')
 	}
 	return('"' %+% x %+%'"')

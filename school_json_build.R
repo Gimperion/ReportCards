@@ -11,8 +11,7 @@ source("./imports/tomkit.R")
 source("http://www.straydots.com/code/ODBC.R")
 source("./school_functions.R")
 ##source("./state_functions.R")
-
-# setwd("C:\\test_repcard\\school_report_v1.2\\")
+library(ddply)
 
 ## setwd("U:/REPORT CARD/GIT Report Cards/ReportCards/JSON Output")
 
@@ -25,7 +24,8 @@ sfile_version <- sqlQuery(dbrepcard, "SELECT TOP 1
 next_version <- sfile_version$version_number + 0.1
 
 subDir <- paste0("school_report_v", round(next_version, 1))
-mainDir <- "C:\\test_repcard\\"
+mainDir <- "./data/"
+
 dir.create(file.path(mainDir, subDir), showWarnings = FALSE)
 setwd(file.path(mainDir, subDir))
 

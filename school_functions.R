@@ -571,29 +571,57 @@ ExAccreditation <- function(org_code, level=0){
 }
 
 ExCasChunk <- function(scode, level){
+	## MATH/READING
+	.qry_mr <- sprintf("SELECT A.* FROM [dbo].[assessment] A
+		INNER JOIN (SELECT 
+			[ea_year]
+			,[school_code]
+			,[grade]
+		FROM [dbo].[fy14_mapping]
+		WHERE [fy14_entity_code] = '%s') B
+	ON A.[ea_year] = B.[ea_year] 
+		AND A.[school_grade] = B.[grade] 
+		AND A.[school_code] = B.[school_code]", scode)
+	
+	.dat_mr <- sqlQuery(dbrepcard, .qry_mr)
+	.ret <- do(group_by(.dat_mr, ea_year), WriteCAS, level)	
+	
+	## Comp
+	.qry_comp <- sprintf("SELECT A.* FROM [dbo].[assm_comp] A
+		INNER JOIN (SELECT 
+			[ea_year]
+			,[school_code]
+			,[grade]
+		FROM [dbo].[fy14_mapping]
+		WHERE [fy14_entity_code] = '%s') B
+	ON A.[ea_year] = B.[ea_year] 
+		AND A.[tested_grade] = B.[grade] 
+		AND A.[school_code] = B.[school_code]", scode)
+
+	.dat_comp <- sqlQuery(dbrepcard, .qry_comp)
+	.ret <- c(.ret, do(group_by(.dat_comp, ea_year), WriteComp, level))
+	
+	return(paste(.ret, collapse=',\n'))
+}
+
+
+ExCasChunk_retired <- function(scode, level){
 	.lv <- level
 	
 	## MATH/READING
-	.qry13 <- "SELECT * FROM [dbo].[assessment_sy1213]
-		WHERE [fy13_entity_code] = '" %+% scode %+% "';"
-	.dat13_mr <- sqlQuery(dbrepcard, .qry13)
-	
-	.qry12 <- "SELECT * FROM [dbo].[assessment_sy1112]
-		WHERE [fy13_entity_code] = '" %+% scode %+% "';"
-	.dat12_mr <- sqlQuery(dbrepcard, .qry12)
-	
-	.qry11 <- "SELECT * FROM [dbo].[assessment_sy1011]
-		WHERE [fy13_entity_code] = '" %+% scode %+% "';"
-	.dat11_mr <- sqlQuery(dbrepcard, .qry11)
-	
-	.qry10 <- "SELECT * FROM [dbo].[assessment_sy0910]
-		WHERE [fy13_entity_code] = '" %+% scode %+% "';"
-	.dat10_mr <- sqlQuery(dbrepcard, .qry10)
-	
-	.qry09 <- "SELECT * FROM [dbo].[assessment_sy0809]
-		WHERE [fy13_entity_code] = '" %+% scode %+% "';"
-	.dat09_mr <- sqlQuery(dbrepcard, .qry09)
-	
+	.qry <- sprintf("SELECT A.* FROM [dbo].[assessment] A
+		INNER JOIN (SELECT 
+			[ea_year]
+			,[school_code]
+			,[grade]
+		FROM [dbo].[fy14_mapping]
+		WHERE [fy14_entity_code] = '%s') B
+	ON A.[ea_year] = B.[ea_year] 
+		AND A.[school_grade] = B.[grade] 
+		AND A.[school_code] = B.[school_code]", scode)
+
+	.dat_mr <- sqlQuery(dbrepcard, .qry13)
+
 	.ret <- c()
 	
 	if(nrow(.dat13_mr)>=10 & !is.null(.dat13_mr)){
@@ -1285,8 +1313,8 @@ WriteAttendance <- function(org_code, level){
 				(tmp$AverageScore[tmp$Metric=="In-Seat Attendance Rate"])/100
 				),',\n', sep="")
 
-			.add <- .add %+% paste(indent(.lv), '"average_daily_attendance":',round(runif(1,0,1),2),',\n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"state_average_daily_attendance":',round(runif(1,0,1),2),'\n', sep="")
+			.add <- .add %+% paste(indent(.lv), '"average_daily_attendance":null,\n', sep="")
+			.add <- .add %+% paste(indent(.lv), '"state_average_daily_attendance":null\n', sep="")
 
 			down(.lv)
 			.add <- .add %+% paste(indent(.lv), '}\n', sep="")
@@ -1299,8 +1327,6 @@ WriteAttendance <- function(org_code, level){
 	}
 	return(paste(.ret, collapse=',\n'))
 }
-
-
 
 WriteAbsences <- function(org_code, level){
 	.ret <- c()	
