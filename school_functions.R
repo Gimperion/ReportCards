@@ -18,8 +18,7 @@ AppendProgramInfo <- function(org_code){
 		WHERE [school_code] = '" %+% org_code %+% "'"
 	.prog <- sqlQuery(dbrepcard, .qry)
 	
-	.ret <- c()
-	
+	.ret <- c()	
 	if(nrow(.prog)>0){
 	
 		.prog$program_string <- gsub( '"', "'",.prog$program_string)
@@ -67,7 +66,6 @@ RetMGPGroup <- function(.ingrp){
 		return(.ingrp)
 	}
 }
-
 
 ExMGPResult <- function(org_code, level){
 	.lv <- level
@@ -551,13 +549,12 @@ ExAccreditation <- function(org_code, level=0){
 			.add <- indent(level) %+% '{\n'
 			up(.lv)
 			
-			.add <- .add %+% paste(indent(.lv), '"type": ',checkna_str(.accr$accreditation_type[i]),', \n', sep="")
-			
-			.add <- .add %+% paste(indent(.lv), '"level": ',checkna_str(.accr$accreditation_level[i]),', \n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"exp_date": ',checkna_str(.accr$exp_date[i]),' \n', sep="")
-			
+			.add <- .add %+% sprintf(indent(.lv) %+% '"type": %s, \n', checkna_str(.accr$accreditation_type[i]))
+			.add <- .add %+% sprintf(indent(.lv) %+% '"level": %s, \n', checkna_str(.accr$accreditation_level[i]))
+			.add <- .add %+% sprintf(indent(.lv) %+% '"exp_date": %s \n', checkna_str(.accr$exp_date[i]))
+
 			down(.lv)		
-			.add <- .add %+% paste(indent(.lv), '}', sep="")
+			.add <- .add %+% indent(.lv) %+% '}'
 			.ret <- c(.ret, .add)
 		}
 	} 
@@ -773,7 +770,6 @@ WriteEnroll <- function(.edat, level){
 	return(paste(.ret, collapse=',\n'))
 }
 
-
 ##"African American","White","Hispanic","Asian","Special Education","English Learner","Economically Disadvantaged","Male", "Female")
 SubProc <- function(.dat, lv, b=0){
 	if(lv==0){
@@ -895,7 +891,6 @@ WriteCAS <- function(.casdat_mr, level){
 						down(.lv)
 						
 						.add <- .add %+% paste(indent(.lv), '},\n', sep="")
-							
 						.add <- .add %+% paste(indent(.lv), '"val": {\n', sep="")
 						up(.lv)
 						
