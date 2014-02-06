@@ -19,8 +19,8 @@ overview_version <- sqlQuery(dbrepcard, "SELECT TOP 1
 next_version <- overview_version$version_number + 0.1
 
 
-subDir <- paste0("school_overview_v", round(next_version, 1))
-mainDir <- "C:\\test_repcard\\"
+subDir <- "school_overview"
+mainDir <- "./data/"
 dir.create(file.path(mainDir, subDir), showWarnings = FALSE)
 setwd(file.path(mainDir, subDir))
 
@@ -99,7 +99,13 @@ WriteProfile <- function(org_code){
 	.qry_profile <- sprintf("SELECT * FROM [dbo].[profile_urls]
 		WHERE [school_code] = '%s'",org_code )
 	.prog_profile <- sqlQuery(dbrepcard, .qry_profile)
-	x <- .prog_profile$url
+	
+	if(nrow(.prog_profile) == 0){
+		return(NA)
+	} 
+	
+	x <- .prog_profile$url[1]
+	
 	return(x)
 }
 
@@ -149,13 +155,23 @@ for(i in 1:nrow(school_dir)){
 	org_code <- school_dir$school_code[i]
 
 	newfile <- file(paste(org_type, '_', org_code, '_overview.JSON', sep=""), encoding="UTF-8")
+
+	if(!is.na(school_dir$profile_name[i])){
+		prof_name <- school_dir$profile_name[i]
+	} else{
+		prof_name <- school_dir$school_name[i]
+	}
+	print(prof_name)
+	
 	sink(file=newfile)
 	cat('{', fill=TRUE)
 
+
+	
 	level <- 1
 	cat(indent(level),'"timestamp": "',date(),'",', sep="", fill=TRUE)
 	cat(indent(level),'"org_type": "school",', sep="", fill=TRUE)
-	cat(indent(level),'"org_name": "',school_dir$profile_name[i],'",', sep="", fill=TRUE)
+	cat(indent(level),'"org_name": "',prof_name,'",', sep="", fill=TRUE)
 	cat(indent(level),'"org_code": "',org_code,'",', sep="", fill=TRUE)
 	
 	cat(indent(level),'"closed": ',JSONTrueFalse(school_dir$closing[i]), ',', sep="", fill=TRUE)
@@ -182,7 +198,7 @@ for(i in 1:nrow(school_dir)){
 		down(level)
 		cat(indent(level),'},', sep="", fill=TRUE)
 	}
-	
+
 	{
 		#Great Schools PMF
 		cat(indent(level),'"great_schools": {', sep="", fill=TRUE)

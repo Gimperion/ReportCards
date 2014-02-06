@@ -577,11 +577,11 @@ ExSPEDChunk <- function(scode, level){
 	.dat_mr <- sqlQuery(dbrepcard, .qry_sped_cas)
 	.ret <- do(group_by(.dat_mr, ea_year), WriteSPED, level)	
 	
+	.ret <- subset(.ret, .ret != '')
 	return(paste(.ret, collapse=',\n'))	
 }
 
 WriteSPED <- function(.casdat_mr, level){
-	
 	year <- .casdat_mr$year[1]
 	.subjects <- c("Math", "Reading")
 	.lv <- level
@@ -672,7 +672,7 @@ ExEnrollChunk <- function(scode, level){
 	.dat_enr <- sqlQuery(dbrepcard, .qry_enr)
 	
 	.ret <- do(group_by(.dat_enr, ea_year), WriteEnroll, level)	
-	
+	.ret <- subset(.ret, .ret != '')
 	return(paste(.ret, collapse=',\n'))	
 }
 
@@ -1031,6 +1031,7 @@ ExCasChunk <- function(scode, level){
 	.dat_sci <- sqlQuery(dbrepcard, .qry_sci)
 	.ret <- c(.ret, do(group_by(.dat_sci, ea_year), WriteScience, level))
 	
+	.ret <- subset(.ret, .ret != '')
 	return(paste(.ret, collapse=',\n'))
 }
 

@@ -36,7 +36,14 @@ school_dir$school_code <- sapply(school_dir$school_code, leadgr, 4)
 for(i in 1:nrow(school_dir)){
 	org_type <- "school"
 	org_code <- school_dir$school_code[i]
-	print(school_dir$profile_name[i])
+	
+	if(!is.na(school_dir$profile_name[i])){
+		prof_name <- school_dir$profile_name[i]
+	} else{
+		prof_name <- school_dir$school_name[i]
+	}
+	
+	print(prof_name)
 	
 	newfile <- file(paste(org_type, '_', org_code, '.JSON', sep=""), , encoding="UTF-8")
 	
@@ -46,7 +53,7 @@ for(i in 1:nrow(school_dir)){
 	level <- 1
 	cat(indent(level),'"timestamp": "',date(),'",', sep="", fill=TRUE)
 	cat(indent(level),'"org_type": "school",', sep="", fill=TRUE)
-	cat(indent(level),'"org_name": "',school_dir$profile_name[i],'",', sep="", fill=TRUE)
+	cat(indent(level),'"org_name": "',prof_name,'",', sep="", fill=TRUE)
 	
 	cat(indent(level),'"report_card": {', sep="", fill=TRUE)
 	up(level)
