@@ -14,19 +14,18 @@ ExHQTStatus <- function(org_code){
 
 ##"subgroup": ("All","African American","White","Hispanic","Asian","Special Education","English Learner","Economically Disadvantaged","Homeless Students"),
 AppendProgramInfo <- function(org_code){
-	.qry <- "SELECT * FROM [dbo].[school_programs]
-		WHERE [school_code] = '" %+% org_code %+% "'"
+	.qry <- "SELECT DISTINCT * FROM [dbo].[school_programs]
+		WHERE [school_code] = '" %+% leadgr(org_code,4) %+% "'"
 	.prog <- sqlQuery(dbrepcard, .qry)
 	
 	.ret <- c()	
 	if(nrow(.prog)>0){
 	
-		.prog$program_string <- gsub( '"', "'",.prog$program_string)
+		.prog$program_string <- gsub('\n', "", .prog$program_string)
+		.prog$program_string <- gsub('\r', "", .prog$program_string)
+		.prog$program_string <- paste0('"',.prog$program_string,'"')
 		
-		for(i in 1:nrow(.prog)){
-			.ret <- c(.ret, '"'%+%.prog$program_string[i]%+%'"')
-		}
-		return(paste(.ret, collapse=',\n'))
+		return(paste(.prog$program_string, collapse=',\n'))
 	} else{
 		return('')
 	}
@@ -672,7 +671,7 @@ ExEnrollChunk <- function(scode, level){
 	.dat_enr <- sqlQuery(dbrepcard, .qry_enr)
 	
 	.ret <- do(group_by(.dat_enr, ea_year), WriteEnroll, level)	
-	.ret <- subset(.ret, .ret != '')
+	.ret <- sort(subset(.ret, .ret != ''))
 	return(paste(.ret, collapse=',\n'))	
 }
 
@@ -707,8 +706,6 @@ SubProcEnr <- function(.dat, lv){
 	}	
 	return(.dat[NULL,])
 }
-
-
 
 WriteEnroll <- function(.edat, level){
 
@@ -999,7 +996,7 @@ ExCasChunk <- function(scode, level){
 		AND A.[school_code] = B.[school_code]", scode)
 	
 	.dat_mr <- sqlQuery(dbrepcard, .qry_mr)
-	.ret <- do(group_by(.dat_mr, ea_year), WriteCAS, level)	
+	.ret <- sort(do(group_by(.dat_mr, ea_year), WriteCAS, level))
 	
 	## Comp
 	.qry_comp <- sprintf("SELECT A.* FROM [dbo].[assm_comp] A
@@ -1014,7 +1011,7 @@ ExCasChunk <- function(scode, level){
 		AND A.[school_code] = B.[school_code]", scode)
 
 	.dat_comp <- sqlQuery(dbrepcard, .qry_comp)
-	.ret <- c(.ret, do(group_by(.dat_comp, ea_year), WriteComp, level))
+	.ret <- c(.ret, sort(do(group_by(.dat_comp, ea_year), WriteComp, level)))
 	
 	## Science
 	.qry_sci <- sprintf("SELECT A.* FROM [dbo].[assm_science] A
@@ -1029,7 +1026,7 @@ ExCasChunk <- function(scode, level){
 		AND A.[school_code] = B.[school_code]", scode)
 
 	.dat_sci <- sqlQuery(dbrepcard, .qry_sci)
-	.ret <- c(.ret, do(group_by(.dat_sci, ea_year), WriteScience, level))
+	.ret <- c(.ret, sort(do(group_by(.dat_sci, ea_year), WriteScience, level)))
 	
 	.ret <- subset(.ret, .ret != '')
 	return(paste(.ret, collapse=',\n'))
