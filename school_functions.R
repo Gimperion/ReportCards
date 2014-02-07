@@ -26,7 +26,7 @@ AppendProgramInfo <- function(org_code){
 		for(i in 1:nrow(.prog)){
 			.ret <- c(.ret, '"'%+%.prog$program_string[i]%+%'"')
 		}
-		return(paste(.ret, collapse=','))
+		return(paste(.ret, collapse=',\n'))
 	} else{
 		return('')
 	}
@@ -297,7 +297,7 @@ ExPMF <- function(org_code, level){
 			.add <- .add %+% indent(.lv) %+% '"val": {\n'
 			up(.lv)
 			.add <- .add %+% indent(.lv) %+% '"score": '%+% .pmf11$score[i]%+%',\n'
-			.add <- .add %+% indent(.lv) %+% '"tier": "'%+% .pmf11$tier[i]%+%'",\n'
+			.add <- .add %+% indent(.lv) %+% '"tier": '%+% checkna_str(.pmf11$tier[i]) %+%',\n'
 			.add <- .add %+% .profile
 			down(.lv)
 			.add <- .add %+% indent(.lv) %+% '}\n'

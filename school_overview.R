@@ -47,7 +47,6 @@ school_dir$website <- gsub('\r', "", school_dir$website)
 school_dir$profile_name <- gsub('\n', "", school_dir$profile_name)
 school_dir$profile_name <- gsub('\r', "", school_dir$profile_name)
 
-
 InsertPeople <- function(org_code, level){
 	.lv <- level
 	
@@ -76,7 +75,6 @@ InsertPeople <- function(org_code, level){
 	}
 	return(paste(.ret, collapse=',\n'))
 }
-
 
 GetGrades <- function(org_code){
 	## MATH/READING
@@ -148,7 +146,6 @@ JSONTrueFalse <- function(x){
 	}
 }
 
-
 ## Yay for-loops!!!!!
 for(i in 1:nrow(school_dir)){
 	org_type <- "school"
@@ -165,8 +162,6 @@ for(i in 1:nrow(school_dir)){
 	
 	sink(file=newfile)
 	cat('{', fill=TRUE)
-
-
 	
 	level <- 1
 	cat(indent(level),'"timestamp": "',date(),'",', sep="", fill=TRUE)
@@ -178,8 +173,8 @@ for(i in 1:nrow(school_dir)){
 	
 	cstat <- JSONTrueFalse(school_dir$charter_status[i])
 	
-	cat(indent(level),'"charter": ',cstat,',', sep="", fill=TRUE)
-	cat(indent(level), '"school_type": [', sep="", fill=TRUE)
+	cat(sprintf('%s"charter": %s,',indent(level),cstat), fill=TRUE)
+	cat(sprintf('%s"school_type": [',indent(level)), fill=TRUE)
 	level <- level + 1
 
 	## FILL SCHOOL_TYPE VAR ##
@@ -208,30 +203,30 @@ for(i in 1:nrow(school_dir)){
 		cat(indent(level),'},', sep="", fill=TRUE)
 	}
 	
-	cat(indent(level),'"ward": "',school_dir$ward[i],'",', sep="", fill=TRUE)  ## fill 
-	cat(indent(level),'"grades_serviced": [',GetGrades(org_code),'],', sep="", fill=TRUE) 
+	cat(indent(level),sprintf('"ward": %s,',checkna_str(substr(school_dir$ward[i], 6,6))), sep="", fill=TRUE) 	
+	cat(indent(level),sprintf('"grades_serviced": [%s],', GetGrades(org_code)), sep="", fill=TRUE) 
 	cat(indent(level) %+% '"description": "' %+% school_dir$description[i] %+% '",', fill=TRUE)
 	
 	cat(indent(level), '"address": {', fill=TRUE)
 	level <- level + 1
 	
 	##checkna(school_dir$address_1[i])
-	cat(indent(level),'"line_1": ',checkna_str(school_dir$address_1[i]),',', sep="", fill=TRUE)  ## fill ward
-	cat(indent(level),'"line_2": ',checkna_str(school_dir$address_2[i]),',', sep="", fill=TRUE)  ## fill ward
-	cat(indent(level),'"city": "Washington",', sep="", fill=TRUE)  ## fill ward
-	cat(indent(level),'"state": "DC",', sep="", fill=TRUE)  ## fill ward
-	cat(indent(level),'"zip": ',checkna_str(school_dir$zipcode[i]),',', sep="", fill=TRUE)  ## fill ward
-	cat(indent(level),'"lat": ',checkna(school_dir$latitude[i]),',', sep="", fill=TRUE)  ## fill ward
-	cat(indent(level),'"long": ',checkna(school_dir$longitude[i]), sep="", fill=TRUE)  ## fill ward
+	cat(indent(level),'"line_1": ',checkna_str(school_dir$address_1[i]),',', sep="", fill=TRUE)  
+	cat(indent(level),'"line_2": ',checkna_str(school_dir$address_2[i]),',', sep="", fill=TRUE) 
+	cat(indent(level),'"city": "Washington",', sep="", fill=TRUE) 
+	cat(indent(level),'"state": "DC",', sep="", fill=TRUE) 
+	cat(indent(level),'"zip": ',checkna_str(school_dir$zipcode[i]),',', sep="", fill=TRUE)  
+	cat(indent(level),'"lat": ',checkna(school_dir$latitude[i]),',', sep="", fill=TRUE) 
+	cat(indent(level),'"long": ',checkna(school_dir$longitude[i]), sep="", fill=TRUE)  
 	
 	level <- level - 1
 	cat(indent(level), '},', fill=TRUE)
 
 	cat(indent(level) %+% '"transit": "' %+% school_dir$routes[i] %+% '",', fill=TRUE)
-	cat(indent(level) %+% '"website": ' %+% checkna_str(school_dir$website[i]) %+% ',', fill=TRUE)  ## fill ward
-	cat(indent(level),'"facebook": ',checkna_str(school_dir$facebook[i]),',', sep="", fill=TRUE)  ## fill ward
-	cat(indent(level),'"twitter": ',checkna_str(school_dir$twitter[i]),',', sep="", fill=TRUE)  ## fill ward
-	cat(indent(level),'"external_report_card": ',checkna_str(WriteProfile(org_code)),',', sep="", fill=TRUE)  ## fill ward
+	cat(indent(level) %+% '"website": ' %+% checkna_str(school_dir$website[i]) %+% ',', fill=TRUE) 
+	cat(indent(level),'"facebook": ',checkna_str(school_dir$facebook[i]),',', sep="", fill=TRUE)
+	cat(indent(level),'"twitter": ',checkna_str(school_dir$twitter[i]),',', sep="", fill=TRUE)  
+	cat(indent(level),'"external_report_card": ',checkna_str(WriteProfile(org_code)),',', sep="", fill=TRUE)  
 	cat(indent(level),'"equity_report_url": \n',checkna_str(EquityUrl(org_code)),',\n', sep="", fill=FALSE) 
 
 	cat(indent(level), '"contact": [', sep="", fill=TRUE)
