@@ -1,6 +1,6 @@
-active <- shell('echo %HOMEPATH%', intern=TRUE)
+active <- shell('echo %CODE_PATH%', intern=TRUE)
 active <- gsub('\\\\', '/', active)
-mainDir <- paste0('C:', active, '/Documents/Github/ReportCards')
+mainDir <- paste0(active, '/ReportCards')
 
 setwd(mainDir)
 
