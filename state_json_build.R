@@ -1,18 +1,15 @@
 ## Generate State File ## 
 ## Detail Data File Build ##
-active <- shell('echo %HOMEPATH%', intern=TRUE)
+active <- shell('echo %CODE_PATH%', intern=TRUE)
 active <- gsub('\\\\', '/', active)
-setwd(paste0('C:', active, '/Documents/Github/ReportCards'))
+setwd(paste0(active, 'ReportCards'))
 
+library(dplyr)
 
-##setwd("U:\\REPORT CARD\\GIT Report Cards\\ReportCards")
 source("./imports/tomkit.R")
 source("./imports/ODBC.R")
 source("./school_functions.R")
 source("./state_functions.R")
-
-##setwd("C:\\test_repcard\\school_report_v1.1")
-
 
 checkna <- function(x){
 	if(is.na(x)){
@@ -40,6 +37,8 @@ state_version <- sqlQuery(dbrepcard, "SELECT TOP 1
 next_version <- state_version$version_number + 0.1
 
 newfile <- file(paste0("state_v", next_version, ".JSON"), , encoding="UTF-8")
+
+setwd('./data/')
 
 sink(newfile)
 cat('{', fill=TRUE)
@@ -75,10 +74,12 @@ up(level)
 	cat(indent(level), '"id": "dccas",', sep="", fill=TRUE)
 	cat(indent(level), '"data": [', sep="", fill=TRUE)
 	cat(ExStateCAS(level+1))
+	
 	cat('\n',indent(level), ']', sep="", fill=TRUE)
 	down(level)
 	cat(indent(level),'},', sep="", fill=TRUE)
-}	
+}
+
 {
 	## Highly Qualified Teacher Status
 	cat(indent(level),'{', sep="", fill=TRUE)
@@ -123,7 +124,7 @@ up(level)
 	up(level)
 	cat(indent(level), '"id": "naep_results",', sep="", fill=TRUE)
 	
-	cat(indent(level), '"data": [', sep="")
+	cat(indent(level), '"data": [', sep="", fill=TRUE)
 	cat(ExNaepResult(level), fill=TRUE)
 	
 	cat(indent(level), ']', sep="", fill=TRUE)
@@ -132,14 +133,13 @@ up(level)
 }
 
 
-## Data Segments ## with id/data pair with embedded key/val pairs
 
 down(level)
 cat(indent(level),']', sep="", fill=TRUE)
 down(level)
-
 cat(indent(level), '},', fill=TRUE)
-cat('\n', fill=TRUE)
+
+
 cat(indent(level),'"profile": {', sep="", fill=TRUE)
 up(level)
 cat(indent(level), '"sections": [', sep="", fill=TRUE)
@@ -219,11 +219,8 @@ up(level)
 	cat(indent(level),hard_code_equity, fill=TRUE)
 }
 
-
 down(level)
-
 cat(indent(level), ']', sep="", fill=TRUE)
-
 down(level)
 cat(indent(level), '}', fill=TRUE)
 

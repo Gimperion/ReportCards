@@ -84,7 +84,6 @@ WritePreKCAS <- function(.prekcas, level){
 	return(paste(.ret, collapse=',\n'))
 }
 
-
 ExStateCReady <- function(level){
 	.lv <- level
 	
@@ -108,49 +107,13 @@ ExStateCReady <- function(level){
 ExStateSPEDChunk <- function(level){
 	.lv <- level
 	
-	## MATH/READING
-	.qry13 <- "SELECT * FROM [dbo].[assessment_sy1213]
+	.qry <- "SELECT * FROM [dbo].[assessment]
 		WHERE [special_ed] = 'YES';"
-	.dat13_mr <- sqlQuery(dbrepcard, .qry13)
+		
+	.dat_mr <- sqlQuery(dbrepcard, .qry)
 	
-	.qry12 <- "SELECT * FROM [dbo].[assessment_sy1112]
-		WHERE [special_ed] = 'YES';"
-	.dat12_mr <- sqlQuery(dbrepcard, .qry12)
-	
-	.qry11 <- "SELECT * FROM [dbo].[assessment_sy1011]
-		WHERE [special_ed] = 'YES';"
-	.dat11_mr <- sqlQuery(dbrepcard, .qry11)
-	
-	.qry10 <- "SELECT * FROM [dbo].[assessment_sy0910]
-		WHERE [special_ed] = 'YES';"
-	.dat10_mr <- sqlQuery(dbrepcard, .qry10)
-	
-	.qry09 <- "SELECT * FROM [dbo].[assessment_sy0809]
-		WHERE [special_ed] = 'YES';"
-	.dat09_mr <- sqlQuery(dbrepcard, .qry09)
-	
-	.ret <- c()
-	
-	if(nrow(.dat13_mr)>=10 & !is.null(.dat13_mr)){
-		.ret <- c(.ret, WriteSPED(.dat13_mr, 2013, .lv))
-	}
-	
-	if(nrow(.dat12_mr)>=10 & !is.null(.dat12_mr)){
-		.ret <- c(.ret, WriteSPED(.dat12_mr, 2012, .lv))
-	}
-	
-	if(nrow(.dat11_mr)>=10 & !is.null(.dat11_mr)){
-		.ret <- c(.ret, WriteSPED(.dat11_mr, 2011, .lv))
-	}
-	
-	if(nrow(.dat10_mr)>=10 & !is.null(.dat10_mr)){
-		.ret <- c(.ret, WriteSPED(.dat10_mr, 2010, .lv))
-	}
-	
-	if(nrow(.dat09_mr)>=10 & !is.null(.dat09_mr)){
-		.ret <- c(.ret, WriteSPED(.dat09_mr, 2009, .lv))
-	}
-	
+	.ret <- do(group_by(.dat_mr, ea_year), WriteSPED, level)	
+		
 	.ret <- subset(.ret, .ret != '')
 	return(paste(.ret, collapse=',\n'))
 }
@@ -328,11 +291,12 @@ ExStateGrad <- function(level){
 	if(nrow(.grad12) > 10){
 		.ret <- c(.ret, WriteGraduation(.grad12, .lv, 2012))
 	}
-
+	
 	return(paste(.ret, collapse=',\n'))
 }
 
-WriteCASST <- function(.casdat_mr, year, level){
+WriteCASST <- function(.casdat_mr, level){
+	year <- .casdat_mr$year[1]
 	.subjects <- c("Math", "Reading")
 	.fay <- c("all", "full_year")
 	
@@ -429,147 +393,35 @@ WriteCASST <- function(.casdat_mr, year, level){
 ExStateCAS <- function(level){
 	.lv <- level
 	
-	## MATH/READING
-	.qry13 <- "SELECT * FROM [dbo].[assessment_sy1213];"
-	.dat13_mr <- sqlQuery(dbrepcard, .qry13)
-	
-	.qry12 <- "SELECT * FROM [dbo].[assessment_sy1112];"
-	.dat12_mr <- sqlQuery(dbrepcard, .qry12)
-	
-	.qry11 <- "SELECT * FROM [dbo].[assessment_sy1011];"
-	.dat11_mr <- sqlQuery(dbrepcard, .qry11)
-	
-	.qry10 <- "SELECT * FROM [dbo].[assessment_sy0910];"
-	.dat10_mr <- sqlQuery(dbrepcard, .qry10)
-	
-	.qry09 <- "SELECT * FROM [dbo].[assessment_sy0809];"
-	.dat09_mr <- sqlQuery(dbrepcard, .qry09)
-	
-	.ret <- c()
-	
-	if(nrow(.dat13_mr)>=10 & !is.null(.dat13_mr)){
-		.ret[length(.ret)+1] <- WriteCASST(.dat13_mr, 2013, .lv)
-	}
-	
-	if(nrow(.dat12_mr)>=10 & !is.null(.dat12_mr)){
-		.ret[length(.ret)+1] <- WriteCASST(.dat12_mr, 2012, .lv)
-	}
-	
-	if(nrow(.dat11_mr)>=10 & !is.null(.dat11_mr)){
-		.ret[length(.ret)+1] <- WriteCASST(.dat11_mr, 2011, .lv)
-	}
-	
-	if(nrow(.dat10_mr)>=10 & !is.null(.dat10_mr)){
-		.ret[length(.ret)+1] <- WriteCASST(.dat10_mr, 2010, .lv)
-	}
-	
-	if(nrow(.dat09_mr)>=10 & !is.null(.dat09_mr)){
-		.ret[length(.ret)+1] <- WriteCASST(.dat09_mr, 2009, .lv)
-	}	
+	.dat_mr <- sqlFetch(dbrepcard, "assessment")
+	.ret <- do(group_by(.dat_mr, ea_year), WriteCASST, level)
 	
 	## 
-	.qry13c <- "SELECT * FROM [dbo].[assessment_sy1213_comp];"
-	.dat13_c <- sqlQuery(dbrepcard, .qry13c)
-	if(nrow(.dat13_c)>=10){
-		.ret[length(.ret)+1] <- WriteComp(.dat13_c, 2013, .lv)
-	}
+	.dat_comp <- sqlFetch(dbrepcard, 'assm_comp')
+	.ret <- c(.ret, do(group_by(.dat_comp, ea_year), WriteComp, level))
 	
-	.qry12c <- "SELECT * FROM [dbo].[assessment_sy1112_comp];"
-	.dat12_c <- sqlQuery(dbrepcard, .qry12c)
-	if(nrow(.dat12_c)>=10){
-		.ret[length(.ret)+1] <- WriteComp(.dat12_c, 2012, .lv)
-	}
-	
-	.qry11c <- "SELECT * FROM [dbo].[assessment_sy1011_comp];"
-	.dat11_c <- sqlQuery(dbrepcard, .qry11c)
-	if(nrow(.dat11_c)>=10){
-		.ret[length(.ret)+1] <- WriteComp(.dat11_c, 2011, .lv)
-	}
-	
-	## 
-	.qry13s <- "SELECT * FROM [dbo].[assessment_sy1213_science]
-		WHERE science_empty = 0;"
-	.dat13_s <- sqlQuery(dbrepcard, .qry13s)
-	if(nrow(.dat13_s)>=10){
-		.ret[length(.ret)+1] <- WriteScience(.dat13_s, 2013, .lv)
-	}
-	
-	.qry12s <- "SELECT * FROM [dbo].[assessment_sy1112_science]
-		WHERE science_empty = 0;"
-		
-	.dat12_s <- sqlQuery(dbrepcard, .qry12s)
-	if(nrow(.dat12_s)>=10){
-		.ret[length(.ret)+1] <- WriteScience(.dat12_s, 2012, .lv)
-	}
-	
-	.qry11s <- "SELECT * FROM [dbo].[assessment_sy1011_science]
-	WHERE science_empty = 0;"
-	
-	.dat11_s <- sqlQuery(dbrepcard, .qry11s)
-	if(nrow(.dat11_s)>=10){
-		.ret[length(.ret)+1] <- WriteScience(.dat11_s, 2011, .lv)
-	}
+	.dat_sci <- sqlFetch(dbrepcard, 'assm_science')
+	.ret <- c(.ret, do(group_by(.dat_sci, ea_year), WriteComp, level))
 	
 	return(paste(.ret, collapse=',\n'))
 }
 
-
-
-## ExCASChunk version 2
 ExStateEnroll <- function(level){
 	.lv <- level
 	
-	## MATH/READING
-	.qry13 <- "SELECT * FROM [dbo].[enrollment_sy1213];"
-	.dat13 <- sqlQuery(dbrepcard, .qry13)
+	.qry <- "SELECT A.*,
+			B.[fy14_entity_code],
+			B.[fy14_entity_name]
+		  FROM [dbo].[enrollment] A
+		INNER JOIN [dbo].[fy14_mapping] B
+		ON A.[school_code] = B.[school_code] 
+			AND A.[ea_year] = B.[ea_year] 
+			AND A.[grade] = B.[grade]
+		ORDER BY A.[ea_year]"
+		
+	.dat_enr <- sqlQuery(dbrepcard, .qry)
+	.ret <- do(group_by(.dat_enr, ea_year), WriteEnroll, level)	
 	
-	.qry12 <- "SELECT * FROM [dbo].[enrollment_sy1112]"
-	.dat12 <- sqlQuery(dbrepcard, .qry12)
-	
-	.qry11 <- "SELECT * FROM [dbo].[enrollment_sy1011]"
-	.dat11 <- sqlQuery(dbrepcard, .qry11)
-	
-	.qry10 <- "SELECT * FROM [dbo].[enrollment_sy0910];"
-	.dat10 <- sqlQuery(dbrepcard, .qry10)
-	
-	.qry09 <- "SELECT * FROM [dbo].[enrollment_sy0809];"
-	.dat09 <- sqlQuery(dbrepcard, .qry09)
-	
-	.qry08 <- "SELECT * FROM [dbo].[enrollment_sy0708];"
-	.dat08 <- sqlQuery(dbrepcard, .qry08)
-	
-	.qry07 <- "SELECT * FROM [dbo].[enrollment_sy0607];"
-	.dat07 <- sqlQuery(dbrepcard, .qry07)
-	.ret <- c()
-	
-	if(nrow(.dat13)>=10 & !is.null(.dat13)){
-		.ret[length(.ret)+1] <- WriteEnroll(.dat13, 2012, .lv)
-	}
-	
-	if(nrow(.dat12)>=10 & !is.null(.dat12)){
-		.ret[length(.ret)+1] <- WriteEnroll(.dat12, 2011, .lv)
-	}
-	
-	if(nrow(.dat11)>=10 & !is.null(.dat11)){
-		.ret[length(.ret)+1] <- WriteEnroll(.dat11, 2010, .lv)
-	}
-	
-	if(nrow(.dat10)>=10 & !is.null(.dat10)){
-		.ret[length(.ret)+1] <- WriteEnroll(.dat10, 2009, .lv)
-	}
-	
-	if(nrow(.dat09)>=10 & !is.null(.dat09)){
-		.ret[length(.ret)+1] <- WriteEnroll(.dat09, 2008, .lv)
-	}
-	
-	if(nrow(.dat08)>=10 & !is.null(.dat08)){
-		.ret[length(.ret)+1] <- WriteEnroll(.dat08, 2007, .lv)
-	}
-	
-	if(nrow(.dat07)>=10 & !is.null(.dat07)){
-		.ret[length(.ret)+1] <- WriteEnroll(.dat07, 2006, .lv)
-	}
-
 	return(paste(.ret, collapse=',\n'))	
 }
 

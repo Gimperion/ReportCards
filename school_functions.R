@@ -652,7 +652,6 @@ WriteSPED <- function(.casdat_mr, level){
 }
 
 
-## ExCASChunk version 2
 ExEnrollChunk <- function(scode, level){
 	.lv <- level
 		
