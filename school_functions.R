@@ -671,7 +671,6 @@ ExEnrollChunk <- function(scode, level){
 	.dat_enr <- sqlQuery(dbrepcard, .qry_enr)
 	
 	.ret <- do(group_by(.dat_enr, ea_year), WriteEnroll, level)	
-	.ret <- sort(subset(.ret, .ret != ''))
 	return(paste(.ret, collapse=',\n'))	
 }
 
@@ -914,9 +913,6 @@ WriteCAS <- function(.casdat_mr, level){
 	return(paste(.ret, collapse=',\n'))
 }
 
-##cat(ExCasChunk('0210', 2))
-
-
 WriteComp <- function(.casdat_comp, level){
 ## Composition 
 	year <- .casdat_comp$year[1]
@@ -979,7 +975,7 @@ WriteComp <- function(.casdat_comp, level){
 			.ret[length(.ret)+1] <- .add
 		}
 	}
-	return(paste(.ret, collapse=',\n'))
+	return(paste(sort(.ret), collapse=',\n'))
 }
 
 ExCasChunk <- function(scode, level){
@@ -996,7 +992,7 @@ ExCasChunk <- function(scode, level){
 		AND A.[school_code] = B.[school_code]", scode)
 	
 	.dat_mr <- sqlQuery(dbrepcard, .qry_mr)
-	.ret <- sort(do(group_by(.dat_mr, ea_year), WriteCAS, level))
+	.ret <- do(group_by(.dat_mr, ea_year), WriteCAS, level)
 	
 	## Comp
 	.qry_comp <- sprintf("SELECT A.* FROM [dbo].[assm_comp] A
@@ -1011,7 +1007,7 @@ ExCasChunk <- function(scode, level){
 		AND A.[school_code] = B.[school_code]", scode)
 
 	.dat_comp <- sqlQuery(dbrepcard, .qry_comp)
-	.ret <- c(.ret, sort(do(group_by(.dat_comp, ea_year), WriteComp, level)))
+	.ret <- c(.ret, do(group_by(.dat_comp, ea_year), WriteComp, level))
 	
 	## Science
 	.qry_sci <- sprintf("SELECT A.* FROM [dbo].[assm_science] A
@@ -1026,7 +1022,7 @@ ExCasChunk <- function(scode, level){
 		AND A.[school_code] = B.[school_code]", scode)
 
 	.dat_sci <- sqlQuery(dbrepcard, .qry_sci)
-	.ret <- c(.ret, sort(do(group_by(.dat_sci, ea_year), WriteScience, level)))
+	.ret <- c(.ret, do(group_by(.dat_sci, ea_year), WriteScience, level))
 	
 	.ret <- subset(.ret, .ret != '')
 	return(paste(.ret, collapse=',\n'))
@@ -1096,11 +1092,8 @@ WriteScience <- function(.casdat_sci, level){
 			.ret[length(.ret)+1] <- .add
 		}
 	}
-	return(paste(.ret, collapse=',\n'))
+	return(paste(sort(.ret), collapse=',\n'))
 }
-
-
-
 
 WriteAttendance <- function(org_code, level){
 	.ret <- c()	

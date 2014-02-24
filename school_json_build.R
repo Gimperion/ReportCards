@@ -1,16 +1,14 @@
 ## Generate School File ## 
 ## Detail Data File Build ##
-##setwd("C:\\Users\\tommy.shen\\Documents\\GitHub\\ReportCards")
 ##setwd("U:/REPORT CARD/GIT Report Cards/ReportCards")
 
-active <- shell('echo %HOMEPATH%', intern=TRUE)
+active <- shell('echo %CODE_PATH%', intern=TRUE)
 active <- gsub('\\\\', '/', active)
-setwd(paste0('C:', active, '/Documents/Github/ReportCards'))
+setwd(paste0(active, 'ReportCards'))
 
 source("./imports/tomkit.R")
-source("http://www.straydots.com/code/ODBC.R")
+source("./imports/ODBC.R")
 source("./school_functions.R")
-##source("./state_functions.R")
 library(dplyr)
 
 ## setwd("U:/REPORT CARD/GIT Report Cards/ReportCards/JSON Output")

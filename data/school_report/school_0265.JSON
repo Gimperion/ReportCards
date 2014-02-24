@@ -1,5 +1,5 @@
 {
-	"timestamp": "Fri Feb 07 12:29:33 2014",
+	"timestamp": "Mon Feb 24 09:11:26 2014",
 	"org_type": "school",
 	"org_name": "Mamie D. Lee School",
 	"report_card": {
@@ -1383,31 +1383,23 @@
 		"sections": [
 			{
 				"id": "program_info",
-				"data": ["Primary Learning Center (1st–6th grade)",
-"Intermediate Program(7th–10th grade)",
+				"data": ["Adaptive Physical Education",
 "Aquatics",
 "Black History Month Club",
-"Job Training Program (11th grade–age 21)",
-"Therapeutic Recreation and Enrichment",
-"Therapeutic Art and Music",
-"Photography Club",
-"Dance Club",
 "Cooking Club",
-"Jewerly Club",
-"Primary Learning Center (1st – 6th grade)",
+"Dance Club",
 "Intermediate Program(7th – 10th grade)",
-"Job Training Program (11th grade – Age 21)",
-"Special Olympics",
-"Adaptive Physical Education",
-"Aquatics",
-"Special Olympics",
-"Therapeutic Recreation and Enrichment",
-"Therapeutic Art and Music",
-"Photography Club",
-"Dance Club",
-"Cooking Club",
+"Intermediate Program(7th–10th grade)",
 "Jewelry Club",
-"Adaptive Physical Education"
+"Jewerly Club",
+"Job Training Program (11th grade – Age 21)",
+"Job Training Program (11th grade–age 21)",
+"Photography Club",
+"Primary Learning Center (1st – 6th grade)",
+"Primary Learning Center (1st–6th grade)",
+"Special Olympics",
+"Therapeutic Art and Music",
+"Therapeutic Recreation and Enrichment"
 				]
 			},
 			{
@@ -1615,6 +1607,22 @@
 					},
 					{
 						"key": {
+							"grade": "08", 
+							"subgroup": "All", 
+							"year": "2009" 
+						},
+						"val": 10
+					},
+					{
+						"key": {
+							"grade": "08", 
+							"subgroup": "Special Education", 
+							"year": "2009" 
+						},
+						"val": 10
+					},
+					{
+						"key": {
 							"grade": "UN", 
 							"subgroup": "All", 
 							"year": "2009" 
@@ -1652,22 +1660,6 @@
 							"year": "2009" 
 						},
 						"val": 13
-					},
-					{
-						"key": {
-							"grade": "08", 
-							"subgroup": "All", 
-							"year": "2009" 
-						},
-						"val": 10
-					},
-					{
-						"key": {
-							"grade": "08", 
-							"subgroup": "Special Education", 
-							"year": "2009" 
-						},
-						"val": 10
 					},
 					{
 						"key": {
@@ -2558,7 +2550,7 @@
 							"year": "2012"
 						},
 						"val": {
-							"in_seat_attendance":0,
+							"in_seat_attendance":0.9,
 							"state_in_seat_attendance":0.84,
 							"average_daily_attendance":null,
 							"state_average_daily_attendance":null

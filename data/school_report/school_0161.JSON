@@ -1,5 +1,5 @@
 {
-	"timestamp": "Fri Feb 07 12:27:33 2014",
+	"timestamp": "Mon Feb 24 09:09:38 2014",
 	"org_type": "school",
 	"org_name": "Perry Street Preparatory PCS",
 	"report_card": {
@@ -9832,6 +9832,24 @@
 					{
 						"key": {
 							"subject": "Composition",
+							"grade": "grade 10", 
+							"enrollment_status": "all", 
+							"subgroup": "All", 
+							"year": "2012" 
+						},
+						"val": {
+							"n_eligible":126,
+							"n_test_takers":116,
+							"advanced_or_proficient":39,
+							"advanced":16,
+							"proficient":23,
+							"basic":38,
+							"below_basic":39
+						}
+					},
+					{
+						"key": {
+							"subject": "Composition",
 							"grade": "grade 4", 
 							"enrollment_status": "all", 
 							"subgroup": "All", 
@@ -9868,24 +9886,6 @@
 					{
 						"key": {
 							"subject": "Composition",
-							"grade": "grade 10", 
-							"enrollment_status": "all", 
-							"subgroup": "All", 
-							"year": "2012" 
-						},
-						"val": {
-							"n_eligible":126,
-							"n_test_takers":116,
-							"advanced_or_proficient":39,
-							"advanced":16,
-							"proficient":23,
-							"basic":38,
-							"below_basic":39
-						}
-					},
-					{
-						"key": {
-							"subject": "Composition",
 							"grade": "all", 
 							"enrollment_status": "all", 
 							"subgroup": "All", 
@@ -9899,6 +9899,24 @@
 							"proficient":70,
 							"basic":66,
 							"below_basic":42
+						}
+					},
+					{
+						"key": {
+							"subject": "Composition",
+							"grade": "grade 10", 
+							"enrollment_status": "all", 
+							"subgroup": "All", 
+							"year": "2013" 
+						},
+						"val": {
+							"n_eligible":103,
+							"n_test_takers":99,
+							"advanced_or_proficient":53,
+							"advanced":18,
+							"proficient":35,
+							"basic":31,
+							"below_basic":15
 						}
 					},
 					{
@@ -9935,24 +9953,6 @@
 							"proficient":32,
 							"basic":26,
 							"below_basic":7
-						}
-					},
-					{
-						"key": {
-							"subject": "Composition",
-							"grade": "grade 10", 
-							"enrollment_status": "all", 
-							"subgroup": "All", 
-							"year": "2013" 
-						},
-						"val": {
-							"n_eligible":103,
-							"n_test_takers":99,
-							"advanced_or_proficient":53,
-							"advanced":18,
-							"proficient":35,
-							"basic":31,
-							"below_basic":15
 						}
 					},
 					{
@@ -10030,6 +10030,24 @@
 					{
 						"key": {
 							"subject": "Science",
+							"grade": "grade 10", 
+							"enrollment_status": "all", 
+							"subgroup": "All", 
+							"year": "2012" 
+						},
+						"val": {
+							"n_eligible":149,
+							"n_test_takers":138,
+							"advanced_or_proficient":44,
+							"advanced":0,
+							"proficient":44,
+							"basic":43,
+							"below_basic":51
+						}
+					},
+					{
+						"key": {
+							"subject": "Science",
 							"grade": "grade 5", 
 							"enrollment_status": "all", 
 							"subgroup": "All", 
@@ -10066,24 +10084,6 @@
 					{
 						"key": {
 							"subject": "Science",
-							"grade": "grade 10", 
-							"enrollment_status": "all", 
-							"subgroup": "All", 
-							"year": "2012" 
-						},
-						"val": {
-							"n_eligible":149,
-							"n_test_takers":138,
-							"advanced_or_proficient":44,
-							"advanced":0,
-							"proficient":44,
-							"basic":43,
-							"below_basic":51
-						}
-					},
-					{
-						"key": {
-							"subject": "Science",
 							"grade": "all", 
 							"enrollment_status": "all", 
 							"subgroup": "All", 
@@ -10097,6 +10097,24 @@
 							"proficient":69,
 							"basic":48,
 							"below_basic":63
+						}
+					},
+					{
+						"key": {
+							"subject": "Science",
+							"grade": "grade 10", 
+							"enrollment_status": "all", 
+							"subgroup": "All", 
+							"year": "2013" 
+						},
+						"val": {
+							"n_eligible":96,
+							"n_test_takers":83,
+							"advanced_or_proficient":29,
+							"advanced":0,
+							"proficient":29,
+							"basic":15,
+							"below_basic":39
 						}
 					},
 					{
@@ -10133,24 +10151,6 @@
 							"proficient":19,
 							"basic":14,
 							"below_basic":21
-						}
-					},
-					{
-						"key": {
-							"subject": "Science",
-							"grade": "grade 10", 
-							"enrollment_status": "all", 
-							"subgroup": "All", 
-							"year": "2013" 
-						},
-						"val": {
-							"n_eligible":96,
-							"n_test_takers":83,
-							"advanced_or_proficient":29,
-							"advanced":0,
-							"proficient":29,
-							"basic":15,
-							"below_basic":39
 						}
 					}
 				]
@@ -10365,10 +10365,10 @@
 		"sections": [
 			{
 				"id": "program_info",
-				"data": ["Offers a college preparatory education to every student, PreK-12",
+				"data": ["Builds and nurtures strong relationships with families through Parent Program",
 "Honors and AP classes, college placement/counseling, sports programs and clubs",
-"Safe learning environment that emphasizes Respect, Responsibility and Perseverance",
-"Builds and nurtures strong relationships with families through Parent Program"
+"Offers a college preparatory education to every student, PreK-12",
+"Safe learning environment that emphasizes Respect, Responsibility and Perseverance"
 				]
 			},
 			{
