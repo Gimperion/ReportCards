@@ -168,25 +168,19 @@ EncodeCReady <- function(.dat, level){
 ExGraduation <- function(org_code, level){
 	.lv <- level
 	
-	.qry <- "SELECT * FROM [dbo].[graduation_sy1011]
-		WHERE [fy13_entity_code] = '" %+% org_code %+% "'
-		AND [cohort_status] = 'TRUE'"
-	.grad11 <- sqlQuery(dbrepcard, .qry)
-	.ret <- c()
+	.qry <- sprintf("SELECT A.*, B.[fy14_entity_code], B.[fy14_entity_name]
+		FROM [dbo].[graduation] A
+		LEFT JOIN [dbo].[fy14_mapping] B
+		ON A.[school_code] = B.[school_code] 
+			AND B.[grade] = '09'
+			AND (A.[cohort_year]+2) = B.[ea_year]
+		WHERE [cohort_status] = 1 AND 
+			[fy14_entity_code] = '%s'", leadgr(org_code,4))
+			
+	.grad <- sqlQuery(dbrepcard, .qry)
 	
-	if(nrow(.grad11) > 10){
-		.ret <- c(.ret, WriteGraduation(.grad11, .lv, 2011))
-	}
-	
-	.qry <- "SELECT * FROM [dbo].[graduation_sy1112]
-		WHERE [fy13_entity_code] = '" %+% org_code %+% "'
-		AND [cohort_status] = 'TRUE'"
-	.grad12 <- sqlQuery(dbrepcard, .qry)
-	
-	if(nrow(.grad12) > 10){
-		.ret <- c(.ret, WriteGraduation(.grad12, .lv, 2012))
-	}
-	
+	.ret <- do(group_by(.grad, cohort_year), WriteGraduation, level)
+		
 	return(paste(.ret, collapse=',\n'))
 }
 
@@ -220,9 +214,12 @@ SubProcGrad <- function(.dat, lv){
 	return(.dat[NULL,])
 }
 
-WriteGraduation <- function(gdata, level, year){
+WriteGraduation <- function(gdata, level){
+
 	.lv <- level
 	.ret <- c()
+
+	year <- gdata$cohort_year[1] +4
 	
 	.subgroups <- c("African American","White","Hispanic","Asian","American Indian", "Pacific Islander", "Multi Racial","Special Education","English Learner","Economically Disadvantaged","Male", "Female")
 	

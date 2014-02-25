@@ -30,6 +30,8 @@ setwd(file.path(mainDir, subDir))
 school_dir <- sqlFetch(dbrepcard, 'schooldir_linked')
 school_dir$school_code <- sapply(school_dir$school_code, leadgr, 4)
 
+school_dir <- subset(school_dir, school_code %notin% c("6000", "7000", "0948", "0958", "0947"))
+
 ## Start File Generation
 for(i in 1:nrow(school_dir)){
 	org_type <- "school"
