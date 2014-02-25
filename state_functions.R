@@ -275,22 +275,16 @@ ExNaepResult <- function(level){
 ExStateGrad <- function(level){
 	.lv <- level
 	
-	.qry <- "SELECT * FROM [dbo].[graduation_sy1011]
-		WHERE [cohort_status] = 'TRUE'"
-	.grad11 <- sqlQuery(dbrepcard, .qry)
-	.ret <- c()
+	.qry <- "SELECT A.*, B.[fy14_entity_code], B.[fy14_entity_name]
+		FROM [dbo].[graduation] A
+		LEFT JOIN [dbo].[fy14_mapping] B
+		ON A.[school_code] = B.[school_code] 
+			AND B.[grade] = '09'
+			AND (A.[cohort_year]+2) = B.[ea_year]
+		WHERE [cohort_status] = 1"
+	.grad <- sqlQuery(dbrepcard, .qry)
 		
-	if(nrow(.grad11) > 10){
-		.ret <- c(.ret, WriteGraduation(.grad11, .lv, 2011))
-	}
-	
-	.qry <- "SELECT * FROM [dbo].[graduation_sy1112]
-		WHERE [cohort_status] = 'TRUE'"
-	.grad12 <- sqlQuery(dbrepcard, .qry)
-		
-	if(nrow(.grad12) > 10){
-		.ret <- c(.ret, WriteGraduation(.grad12, .lv, 2012))
-	}
+	.ret <- do(group_by(.grad, cohort_year), WriteGraduation, level)
 	
 	return(paste(.ret, collapse=',\n'))
 }
