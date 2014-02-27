@@ -648,7 +648,6 @@ WriteSPED <- function(.casdat_mr, level){
 	return(paste(.ret, collapse=',\n'))	
 }
 
-
 ExEnrollChunk <- function(scode, level){
 	.lv <- level
 		
@@ -670,9 +669,7 @@ ExEnrollChunk <- function(scode, level){
 	return(paste(.ret, collapse=',\n'))	
 }
 
-
 ##"African American","White","Hispanic","Asian","American Indian", "Pacific Islander", "Multi Racial","Special Education","English Learner","Economically Disadvantaged","Male", "Female"
-
 SubProcEnr <- function(.dat, lv){
 	if(lv==1){
 		return(subset(.dat, race=="BL7" & ethnicity=='NO'))
@@ -693,7 +690,7 @@ SubProcEnr <- function(.dat, lv){
 	} else if(lv==9){
 		return(subset(.dat, ell_prog=='YES'))
 	} else if(lv==10){
-		return(subset(.dat, economy %in% c("FREE", "REDUCED", "DCERT", "CEO")))
+		return(subset(.dat, economy %in% c("FREE", "REDUCED", "DCERT", "CEO", "YES")))
 	} else if(lv==11){
 		return(subset(.dat, gender %in% c("M", "MALE")))
 	} else if(lv==12){
@@ -912,7 +909,7 @@ WriteCAS <- function(.casdat_mr, level){
 WriteComp <- function(.casdat_comp, level){
 ## Composition 
 	year <- .casdat_comp$year[1]
-	.fay <- c("all")
+	.fay <- c("all", "full_year")
 	.lv <- level
 	
 	.ret <- c()
@@ -933,42 +930,44 @@ WriteComp <- function(.casdat_comp, level){
 		}
 		
 		if(nrow(.tmp)>=10){
-			.add <- indent(.lv) %+% '{\n'
-			
-			up(.lv)
-			.add <- .add %+% paste(indent(.lv), '"key": {\n', sep="")
-			up(.lv)
-			
-			.profs <- .tmp$comp_level
-			
-			.add <- .add %+% paste(indent(.lv), '"subject": "Composition",\n', sep="")			
-			.add <- .add %+% paste(indent(.lv), '"grade": "',goutput,'", \n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"enrollment_status": "',.fay,'", \n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"subgroup": "All", \n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"year": "',year,'" \n', sep="")
-			
-			down(.lv)
-			
-			.add <- .add %+% paste(indent(.lv), '},\n', sep="")
+				for(z in .fay){
+				.add <- indent(.lv) %+% '{\n'
 				
-			.add <- .add %+% paste(indent(.lv), '"val": {\n', sep="")
-			up(.lv)
-			
-			.add <- .add %+% paste(indent(.lv), '"n_eligible":',length(.profs),',\n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"n_test_takers":',length(.profs[.profs %in% .plevels]),',\n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"advanced_or_proficient":', length(.profs[.profs %in% c("Proficient", "Advanced")]),',\n', sep="")
-			
-			.add <- .add %+% paste(indent(.lv), '"advanced":',length(.profs[.profs %in% "Advanced"]),',\n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"proficient":',length(.profs[.profs %in% "Proficient"]),',\n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"basic":',length(.profs[.profs %in% "Basic"]),',\n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"below_basic":',length(.profs[.profs %in% "Below Basic"]),'\n', sep="")
-			
-			down(.lv)
-			.add <- .add %+% paste(indent(.lv), '}\n', sep="")
-			down(.lv)
-			.add <- .add %+% paste(indent(.lv), '}', sep="")
-			
-			.ret[length(.ret)+1] <- .add
+				up(.lv)
+				.add <- .add %+% paste(indent(.lv), '"key": {\n', sep="")
+				up(.lv)
+				
+				.profs <- .tmp$comp_level
+				
+				.add <- .add %+% paste(indent(.lv), '"subject": "Composition",\n', sep="")			
+				.add <- .add %+% paste(indent(.lv), '"grade": "',goutput,'", \n', sep="")
+				.add <- .add %+% paste(indent(.lv), '"enrollment_status": "',z,'", \n', sep="")
+				.add <- .add %+% paste(indent(.lv), '"subgroup": "All", \n', sep="")
+				.add <- .add %+% paste(indent(.lv), '"year": "',year,'" \n', sep="")
+				
+				down(.lv)
+				
+				.add <- .add %+% paste(indent(.lv), '},\n', sep="")
+					
+				.add <- .add %+% paste(indent(.lv), '"val": {\n', sep="")
+				up(.lv)
+				
+				.add <- .add %+% paste(indent(.lv), '"n_eligible":',length(.profs),',\n', sep="")
+				.add <- .add %+% paste(indent(.lv), '"n_test_takers":',length(.profs[.profs %in% .plevels]),',\n', sep="")
+				.add <- .add %+% paste(indent(.lv), '"advanced_or_proficient":', length(.profs[.profs %in% c("Proficient", "Advanced")]),',\n', sep="")
+				
+				.add <- .add %+% paste(indent(.lv), '"advanced":',length(.profs[.profs %in% "Advanced"]),',\n', sep="")
+				.add <- .add %+% paste(indent(.lv), '"proficient":',length(.profs[.profs %in% "Proficient"]),',\n', sep="")
+				.add <- .add %+% paste(indent(.lv), '"basic":',length(.profs[.profs %in% "Basic"]),',\n', sep="")
+				.add <- .add %+% paste(indent(.lv), '"below_basic":',length(.profs[.profs %in% "Below Basic"]),'\n', sep="")
+				
+				down(.lv)
+				.add <- .add %+% paste(indent(.lv), '}\n', sep="")
+				down(.lv)
+				.add <- .add %+% paste(indent(.lv), '}', sep="")
+				
+				.ret <- c(.ret, .add)
+			}
 		}
 	}
 	return(paste(sort(.ret), collapse=',\n'))
@@ -1025,10 +1024,10 @@ ExCasChunk <- function(scode, level){
 }
 
 
-WriteScience <- function(.casdat_sci, level){
 ## Science
+WriteScience <- function(.casdat_sci, level){
 	year <- .casdat_sci$year[1]
-	.fay <- c("all")
+	.fay <- c("all", "full_year")
 	.lv <- level
 	
 	.ret <- c()
@@ -1049,43 +1048,45 @@ WriteScience <- function(.casdat_sci, level){
 		}
 		
 		if(nrow(.tmp)>=10){
-			.add <- indent(.lv) %+% '{\n'
-			
-			up(.lv)
-			.add <- .add %+% paste(indent(.lv), '"key": {\n', sep="")
-			up(.lv)
-			
-			.profs <- .tmp$science_level
-			
-			.add <- .add %+% paste(indent(.lv), '"subject": "Science",\n', sep="")					
-			
-			.add <- .add %+% paste(indent(.lv), '"grade": "',goutput,'", \n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"enrollment_status": "',.fay,'", \n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"subgroup": "All", \n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"year": "',year,'" \n', sep="")
-			
-			down(.lv)
-			
-			.add <- .add %+% paste(indent(.lv), '},\n', sep="")
+			for(z in .fay){
+				.add <- indent(.lv) %+% '{\n'
 				
-			.add <- .add %+% paste(indent(.lv), '"val": {\n', sep="")
-			up(.lv)
-			
-			.add <- .add %+% paste(indent(.lv), '"n_eligible":',length(.profs),',\n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"n_test_takers":',length(.profs[.profs %in% .plevels]),',\n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"advanced_or_proficient":', length(.profs[.profs %in% c("Proficient", "Advanced")]),',\n', sep="")
-			
-			.add <- .add %+% paste(indent(.lv), '"advanced":',length(.profs[.profs %in% "Advanced"]),',\n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"proficient":',length(.profs[.profs %in% "Proficient"]),',\n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"basic":',length(.profs[.profs %in% "Basic"]),',\n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"below_basic":',length(.profs[.profs %in% "Below Basic"]),'\n', sep="")
-			
-			down(.lv)
-			.add <- .add %+% paste(indent(.lv), '}\n', sep="")
-			down(.lv)
-			.add <- .add %+% paste(indent(.lv), '}', sep="")
-			
-			.ret[length(.ret)+1] <- .add
+				up(.lv)
+				.add <- .add %+% paste(indent(.lv), '"key": {\n', sep="")
+				up(.lv)
+				
+				.profs <- .tmp$science_level
+				
+				.add <- .add %+% paste(indent(.lv), '"subject": "Science",\n', sep="")					
+				
+				.add <- .add %+% paste(indent(.lv), '"grade": "',goutput,'", \n', sep="")
+				.add <- .add %+% paste(indent(.lv), '"enrollment_status": "',z,'", \n', sep="")
+				.add <- .add %+% paste(indent(.lv), '"subgroup": "All", \n', sep="")
+				.add <- .add %+% paste(indent(.lv), '"year": "',year,'" \n', sep="")
+				
+				down(.lv)
+				
+				.add <- .add %+% paste(indent(.lv), '},\n', sep="")
+					
+				.add <- .add %+% paste(indent(.lv), '"val": {\n', sep="")
+				up(.lv)
+				
+				.add <- .add %+% paste(indent(.lv), '"n_eligible":',length(.profs),',\n', sep="")
+				.add <- .add %+% paste(indent(.lv), '"n_test_takers":',length(.profs[.profs %in% .plevels]),',\n', sep="")
+				.add <- .add %+% paste(indent(.lv), '"advanced_or_proficient":', length(.profs[.profs %in% c("Proficient", "Advanced")]),',\n', sep="")
+				
+				.add <- .add %+% paste(indent(.lv), '"advanced":',length(.profs[.profs %in% "Advanced"]),',\n', sep="")
+				.add <- .add %+% paste(indent(.lv), '"proficient":',length(.profs[.profs %in% "Proficient"]),',\n', sep="")
+				.add <- .add %+% paste(indent(.lv), '"basic":',length(.profs[.profs %in% "Basic"]),',\n', sep="")
+				.add <- .add %+% paste(indent(.lv), '"below_basic":',length(.profs[.profs %in% "Below Basic"]),'\n', sep="")
+				
+				down(.lv)
+				.add <- .add %+% paste(indent(.lv), '}\n', sep="")
+				down(.lv)
+				.add <- .add %+% paste(indent(.lv), '}', sep="")
+				
+				.ret <- c(.ret, .add)
+			}
 		}
 	}
 	return(paste(sort(.ret), collapse=',\n'))
