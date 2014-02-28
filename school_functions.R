@@ -180,7 +180,9 @@ ExGraduation <- function(org_code, level){
 	.grad <- sqlQuery(dbrepcard, .qry)
 	
 	.ret <- do(group_by(.grad, cohort_year), WriteGraduation, level)
-		
+	.ret <- unlist(.ret)
+	.ret <- sort(subset(.ret, .ret != ''))
+	
 	return(paste(.ret, collapse=',\n'))
 }
 
@@ -218,9 +220,7 @@ WriteGraduation <- function(gdata, level){
 
 	.lv <- level
 	.ret <- c()
-
 	year <- gdata$cohort_year[1] +4
-	
 	.subgroups <- c("African American","White","Hispanic","Asian","American Indian", "Pacific Islander", "Multi Racial","Special Education","English Learner","Economically Disadvantaged","Male", "Female")
 	
 	for(s in 0:length(.subgroups)){
@@ -808,20 +808,22 @@ SubProc <- function(.dat, lv, b=0){
 }
 
 ## rewrite
-WriteCAS <- function(.casdat_mr, level){
+WriteCAS <- function(.casdat_mr, spaces, entity='state'){
 	year <- .casdat_mr$year[1]
 	
-	.casdat_mr$math_level[.casdat_mr$exclude=='I'] <- NA
-	.casdat_mr$read_level[.casdat_mr$exclude=='I'] <- NA
+	.casdat_mr$math_level[.casdat_mr$exclude %in% c('I','M', 'A', 'Y')] <- NA
+	.casdat_mr$read_level[.casdat_mr$exclude %in% c('I','M', 'A', 'Y')] <- NA
 
 	.subjects <- c("Math", "Reading")
 	.fay <- c("all", "full_year")
 	
-	.lv <- level
+	.lv <- spaces
 	
 	.ret <- c()
 	.plevels <- c("Below Basic", "Basic", "Proficient", "Advanced")
 	
+	.entity_fay <- list('state'=c("S", "C", "D"), 'lea'=c("S", "C"), 'school'=c("S"))
+		
 	## A = Subject, 1 for Math, 2 for Reading
 	for(a in 1:2){
 		## b = full year or not
@@ -841,9 +843,10 @@ WriteCAS <- function(.casdat_mr, level){
 				.flevels <- c("N", "S", "D", "C")
 				
 				if(b==2){
-					.flevels <- c("S")
+					.flevels <- .entity_fay[entity][[1]]
 					.tmp <- subset(.tmp, new_to_us =='NO')
 					.tmp <- subset(.tmp, school_grade==tested_grade | alt_tested=="YES")
+					.tmp <- subset(.tmp, school_code %notin% c("0948", "0958"))
 				}
 				
 				.subgroups <- c("African American","White","Hispanic","Asian", "Pacific Islander", "Multiracial","Special Education","English Learner","Economically Disadvantaged","Male", "Female")
@@ -897,14 +900,63 @@ WriteCAS <- function(.casdat_mr, level){
 						down(.lv)
 						.add <- .add %+% paste(indent(.lv), '}', sep="")
 						
-						.ret[length(.ret)+1] <- .add
+						.ret <- c(.ret, .add)
 					}
 				}
 			}
 		}
 	}
+	
+	for(z in .fay){		
+		.tmp <- subset(.casdat_mr, new_to_us=='YES')
+		.add <- indent(.lv) %+% '{\n'
+		
+		up(.lv)
+		.add <- .add %+% paste(indent(.lv), '"key": {\n', sep="")
+		up(.lv)
+		
+		if(z == "full_year"){
+			.tmp <- subset(.tmp, full_academic_year %in% .entity_fay[entity][[1]])
+			.tmp <- subset(.tmp, school_grade==tested_grade | alt_tested=="YES")
+			.tmp <- subset(.tmp, school_code %notin% c("0948", "0958"))
+		}
+		
+		.profs <- .tmp$read_level
+		
+		.add <- .add %+% paste(indent(.lv), '"subject": "Reading",\n', sep="")					
+		
+		.add <- .add %+% paste(indent(.lv), '"grade": "all", \n', sep="")
+		.add <- .add %+% paste(indent(.lv), '"enrollment_status": "',z,'", \n', sep="")
+		.add <- .add %+% paste(indent(.lv), '"subgroup": "New to the US (ELL)", \n', sep="")
+		.add <- .add %+% paste(indent(.lv), '"year": "',year,'" \n', sep="")
+		
+		down(.lv)
+		
+		.add <- .add %+% paste(indent(.lv), '},\n', sep="")
+		.add <- .add %+% paste(indent(.lv), '"val": {\n', sep="")
+		up(.lv)
+		
+		.add <- .add %+% paste(indent(.lv), '"n_eligible":',length(.profs),',\n', sep="")
+		.add <- .add %+% paste(indent(.lv), '"n_test_takers":',length(.profs[.profs %in% .plevels]),',\n', sep="")
+		.add <- .add %+% paste(indent(.lv), '"advanced_or_proficient":null,\n', sep="")
+		
+		.add <- .add %+% paste(indent(.lv), '"advanced":null,\n', sep="")
+		.add <- .add %+% paste(indent(.lv), '"proficient":null,\n', sep="")
+		.add <- .add %+% paste(indent(.lv), '"basic":null,\n', sep="")
+		.add <- .add %+% paste(indent(.lv), '"below_basic":null\n', sep="")
+		
+		down(.lv)
+		.add <- .add %+% paste(indent(.lv), '}\n', sep="")
+		down(.lv)
+		.add <- .add %+% paste(indent(.lv), '}', sep="")
+		
+		.ret <- c(.ret, .add)
+	
+	}
 	return(paste(.ret, collapse=',\n'))
 }
+
+
 
 WriteComp <- function(.casdat_comp, level){
 ## Composition 
@@ -974,6 +1026,8 @@ WriteComp <- function(.casdat_comp, level){
 }
 
 ExCasChunk <- function(scode, level){
+
+	
 	## MATH/READING
 	.qry_mr <- sprintf("SELECT A.* FROM [dbo].[assessment] A
 		INNER JOIN (SELECT 
@@ -984,10 +1038,10 @@ ExCasChunk <- function(scode, level){
 		WHERE [fy14_entity_code] = '%s') B
 	ON A.[ea_year] = B.[ea_year] 
 		AND A.[school_grade] = B.[grade] 
-		AND A.[school_code] = B.[school_code]", scode)
+		AND A.[school_code] = B.[school_code]", leadgr(scode,4))
 	
 	.dat_mr <- sqlQuery(dbrepcard, .qry_mr)
-	.ret <- do(group_by(.dat_mr, ea_year), WriteCAS, level)
+	.ret <- do(group_by(.dat_mr, ea_year), WriteCAS, level, "school")
 	
 	## Comp
 	.qry_comp <- sprintf("SELECT A.* FROM [dbo].[assm_comp] A
@@ -999,7 +1053,7 @@ ExCasChunk <- function(scode, level){
 		WHERE [fy14_entity_code] = '%s') B
 	ON A.[ea_year] = B.[ea_year] 
 		AND A.[tested_grade] = B.[grade] 
-		AND A.[school_code] = B.[school_code]", scode)
+		AND A.[school_code] = B.[school_code]", leadgr(scode,4))
 
 	.dat_comp <- sqlQuery(dbrepcard, .qry_comp)
 	.ret <- c(.ret, do(group_by(.dat_comp, ea_year), WriteComp, level))
@@ -1014,7 +1068,7 @@ ExCasChunk <- function(scode, level){
 		WHERE [fy14_entity_code] = '%s') B
 	ON A.[ea_year] = B.[ea_year] 
 		AND A.[tested_grade] = B.[grade] 
-		AND A.[school_code] = B.[school_code]", scode)
+		AND A.[school_code] = B.[school_code]", leadgr(scode,4))
 
 	.dat_sci <- sqlQuery(dbrepcard, .qry_sci)
 	.ret <- c(.ret, do(group_by(.dat_sci, ea_year), WriteScience, level))

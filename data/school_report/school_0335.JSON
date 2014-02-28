@@ -1,5 +1,5 @@
 {
-	"timestamp": "Thu Feb 27 14:38:53 2014",
+	"timestamp": "Fri Feb 28 11:18:13 2014",
 	"org_type": "school",
 	"org_name": "Wheatley Education Campus",
 	"report_card": {
@@ -1407,6 +1407,42 @@
 					},
 					{
 						"key": {
+							"subject": "Reading",
+							"grade": "all", 
+							"enrollment_status": "all", 
+							"subgroup": "New to the US (ELL)", 
+							"year": "2009" 
+						},
+						"val": {
+							"n_eligible":0,
+							"n_test_takers":0,
+							"advanced_or_proficient":null,
+							"advanced":null,
+							"proficient":null,
+							"basic":null,
+							"below_basic":null
+						}
+					},
+					{
+						"key": {
+							"subject": "Reading",
+							"grade": "all", 
+							"enrollment_status": "full_year", 
+							"subgroup": "New to the US (ELL)", 
+							"year": "2009" 
+						},
+						"val": {
+							"n_eligible":0,
+							"n_test_takers":0,
+							"advanced_or_proficient":null,
+							"advanced":null,
+							"proficient":null,
+							"basic":null,
+							"below_basic":null
+						}
+					},
+					{
+						"key": {
 							"subject": "Math",
 							"grade": "all", 
 							"enrollment_status": "all", 
@@ -1415,11 +1451,11 @@
 						},
 						"val": {
 							"n_eligible":245,
-							"n_test_takers":242,
+							"n_test_takers":239,
 							"advanced_or_proficient":40,
 							"advanced":1,
 							"proficient":39,
-							"basic":100,
+							"basic":97,
 							"below_basic":102
 						}
 					},
@@ -1433,11 +1469,11 @@
 						},
 						"val": {
 							"n_eligible":242,
-							"n_test_takers":239,
+							"n_test_takers":236,
 							"advanced_or_proficient":38,
 							"advanced":1,
 							"proficient":37,
-							"basic":99,
+							"basic":96,
 							"below_basic":102
 						}
 					},
@@ -1451,11 +1487,11 @@
 						},
 						"val": {
 							"n_eligible":47,
-							"n_test_takers":46,
+							"n_test_takers":45,
 							"advanced_or_proficient":2,
 							"advanced":0,
 							"proficient":2,
-							"basic":11,
+							"basic":10,
 							"below_basic":33
 						}
 					},
@@ -1487,11 +1523,11 @@
 						},
 						"val": {
 							"n_eligible":48,
-							"n_test_takers":48,
+							"n_test_takers":47,
 							"advanced_or_proficient":1,
 							"advanced":0,
 							"proficient":1,
-							"basic":19,
+							"basic":18,
 							"below_basic":28
 						}
 					},
@@ -1505,11 +1541,11 @@
 						},
 						"val": {
 							"n_eligible":48,
-							"n_test_takers":48,
+							"n_test_takers":47,
 							"advanced_or_proficient":1,
 							"advanced":0,
 							"proficient":1,
-							"basic":19,
+							"basic":18,
 							"below_basic":28
 						}
 					},
@@ -1595,24 +1631,6 @@
 						},
 						"val": {
 							"n_eligible":50,
-							"n_test_takers":49,
-							"advanced_or_proficient":10,
-							"advanced":1,
-							"proficient":9,
-							"basic":19,
-							"below_basic":20
-						}
-					},
-					{
-						"key": {
-							"subject": "Math",
-							"grade": "grade 5", 
-							"enrollment_status": "all", 
-							"subgroup": "African American", 
-							"year": "2010" 
-						},
-						"val": {
-							"n_eligible":49,
 							"n_test_takers":48,
 							"advanced_or_proficient":10,
 							"advanced":1,
@@ -1626,16 +1644,34 @@
 							"subject": "Math",
 							"grade": "grade 5", 
 							"enrollment_status": "all", 
+							"subgroup": "African American", 
+							"year": "2010" 
+						},
+						"val": {
+							"n_eligible":49,
+							"n_test_takers":47,
+							"advanced_or_proficient":10,
+							"advanced":1,
+							"proficient":9,
+							"basic":17,
+							"below_basic":20
+						}
+					},
+					{
+						"key": {
+							"subject": "Math",
+							"grade": "grade 5", 
+							"enrollment_status": "all", 
 							"subgroup": "Special Education", 
 							"year": "2010" 
 						},
 						"val": {
 							"n_eligible":12,
-							"n_test_takers":11,
+							"n_test_takers":10,
 							"advanced_or_proficient":0,
 							"advanced":0,
 							"proficient":0,
-							"basic":4,
+							"basic":3,
 							"below_basic":7
 						}
 					},
@@ -1811,11 +1847,11 @@
 						},
 						"val": {
 							"n_eligible":37,
-							"n_test_takers":36,
+							"n_test_takers":35,
 							"advanced_or_proficient":10,
 							"advanced":0,
 							"proficient":10,
-							"basic":15,
+							"basic":14,
 							"below_basic":11
 						}
 					},
@@ -1829,11 +1865,11 @@
 						},
 						"val": {
 							"n_eligible":36,
-							"n_test_takers":35,
+							"n_test_takers":34,
 							"advanced_or_proficient":9,
 							"advanced":0,
 							"proficient":9,
-							"basic":15,
+							"basic":14,
 							"below_basic":11
 						}
 					},
@@ -2261,12 +2297,12 @@
 						},
 						"val": {
 							"n_eligible":245,
-							"n_test_takers":242,
+							"n_test_takers":239,
 							"advanced_or_proficient":44,
 							"advanced":4,
 							"proficient":40,
-							"basic":125,
-							"below_basic":73
+							"basic":124,
+							"below_basic":71
 						}
 					},
 					{
@@ -2279,12 +2315,12 @@
 						},
 						"val": {
 							"n_eligible":242,
-							"n_test_takers":239,
+							"n_test_takers":236,
 							"advanced_or_proficient":43,
 							"advanced":4,
 							"proficient":39,
-							"basic":124,
-							"below_basic":72
+							"basic":123,
+							"below_basic":70
 						}
 					},
 					{
@@ -2297,12 +2333,12 @@
 						},
 						"val": {
 							"n_eligible":47,
-							"n_test_takers":46,
+							"n_test_takers":45,
 							"advanced_or_proficient":1,
 							"advanced":0,
 							"proficient":1,
 							"basic":15,
-							"below_basic":30
+							"below_basic":29
 						}
 					},
 					{
@@ -2333,11 +2369,11 @@
 						},
 						"val": {
 							"n_eligible":48,
-							"n_test_takers":48,
+							"n_test_takers":47,
 							"advanced_or_proficient":3,
 							"advanced":0,
 							"proficient":3,
-							"basic":22,
+							"basic":21,
 							"below_basic":23
 						}
 					},
@@ -2351,11 +2387,11 @@
 						},
 						"val": {
 							"n_eligible":48,
-							"n_test_takers":48,
+							"n_test_takers":47,
 							"advanced_or_proficient":3,
 							"advanced":0,
 							"proficient":3,
-							"basic":22,
+							"basic":21,
 							"below_basic":23
 						}
 					},
@@ -2441,24 +2477,6 @@
 						},
 						"val": {
 							"n_eligible":50,
-							"n_test_takers":49,
-							"advanced_or_proficient":15,
-							"advanced":1,
-							"proficient":14,
-							"basic":19,
-							"below_basic":15
-						}
-					},
-					{
-						"key": {
-							"subject": "Reading",
-							"grade": "grade 5", 
-							"enrollment_status": "all", 
-							"subgroup": "African American", 
-							"year": "2010" 
-						},
-						"val": {
-							"n_eligible":49,
 							"n_test_takers":48,
 							"advanced_or_proficient":15,
 							"advanced":1,
@@ -2472,17 +2490,35 @@
 							"subject": "Reading",
 							"grade": "grade 5", 
 							"enrollment_status": "all", 
+							"subgroup": "African American", 
+							"year": "2010" 
+						},
+						"val": {
+							"n_eligible":49,
+							"n_test_takers":47,
+							"advanced_or_proficient":15,
+							"advanced":1,
+							"proficient":14,
+							"basic":19,
+							"below_basic":13
+						}
+					},
+					{
+						"key": {
+							"subject": "Reading",
+							"grade": "grade 5", 
+							"enrollment_status": "all", 
 							"subgroup": "Special Education", 
 							"year": "2010" 
 						},
 						"val": {
 							"n_eligible":12,
-							"n_test_takers":11,
+							"n_test_takers":10,
 							"advanced_or_proficient":0,
 							"advanced":0,
 							"proficient":0,
 							"basic":2,
-							"below_basic":9
+							"below_basic":8
 						}
 					},
 					{
@@ -2657,12 +2693,12 @@
 						},
 						"val": {
 							"n_eligible":37,
-							"n_test_takers":36,
+							"n_test_takers":35,
 							"advanced_or_proficient":11,
 							"advanced":3,
 							"proficient":8,
 							"basic":17,
-							"below_basic":8
+							"below_basic":7
 						}
 					},
 					{
@@ -2675,12 +2711,12 @@
 						},
 						"val": {
 							"n_eligible":36,
-							"n_test_takers":35,
+							"n_test_takers":34,
 							"advanced_or_proficient":10,
 							"advanced":3,
 							"proficient":7,
 							"basic":17,
-							"below_basic":8
+							"below_basic":7
 						}
 					},
 					{
@@ -3099,6 +3135,42 @@
 					},
 					{
 						"key": {
+							"subject": "Reading",
+							"grade": "all", 
+							"enrollment_status": "all", 
+							"subgroup": "New to the US (ELL)", 
+							"year": "2010" 
+						},
+						"val": {
+							"n_eligible":0,
+							"n_test_takers":0,
+							"advanced_or_proficient":null,
+							"advanced":null,
+							"proficient":null,
+							"basic":null,
+							"below_basic":null
+						}
+					},
+					{
+						"key": {
+							"subject": "Reading",
+							"grade": "all", 
+							"enrollment_status": "full_year", 
+							"subgroup": "New to the US (ELL)", 
+							"year": "2010" 
+						},
+						"val": {
+							"n_eligible":0,
+							"n_test_takers":0,
+							"advanced_or_proficient":null,
+							"advanced":null,
+							"proficient":null,
+							"basic":null,
+							"below_basic":null
+						}
+					},
+					{
+						"key": {
 							"subject": "Math",
 							"grade": "all", 
 							"enrollment_status": "all", 
@@ -3107,11 +3179,11 @@
 						},
 						"val": {
 							"n_eligible":283,
-							"n_test_takers":283,
+							"n_test_takers":280,
 							"advanced_or_proficient":53,
 							"advanced":1,
 							"proficient":52,
-							"basic":117,
+							"basic":114,
 							"below_basic":113
 						}
 					},
@@ -3125,11 +3197,11 @@
 						},
 						"val": {
 							"n_eligible":274,
-							"n_test_takers":274,
+							"n_test_takers":272,
 							"advanced_or_proficient":51,
 							"advanced":1,
 							"proficient":50,
-							"basic":112,
+							"basic":110,
 							"below_basic":111
 						}
 					},
@@ -3539,11 +3611,11 @@
 						},
 						"val": {
 							"n_eligible":36,
-							"n_test_takers":36,
+							"n_test_takers":33,
 							"advanced_or_proficient":10,
 							"advanced":0,
 							"proficient":10,
-							"basic":17,
+							"basic":14,
 							"below_basic":9
 						}
 					},
@@ -3557,11 +3629,11 @@
 						},
 						"val": {
 							"n_eligible":34,
-							"n_test_takers":34,
+							"n_test_takers":32,
 							"advanced_or_proficient":9,
 							"advanced":0,
 							"proficient":9,
-							"basic":16,
+							"basic":14,
 							"below_basic":9
 						}
 					},
@@ -3989,11 +4061,11 @@
 						},
 						"val": {
 							"n_eligible":283,
-							"n_test_takers":283,
+							"n_test_takers":280,
 							"advanced_or_proficient":53,
 							"advanced":1,
 							"proficient":52,
-							"basic":126,
+							"basic":123,
 							"below_basic":104
 						}
 					},
@@ -4007,11 +4079,11 @@
 						},
 						"val": {
 							"n_eligible":274,
-							"n_test_takers":274,
+							"n_test_takers":272,
 							"advanced_or_proficient":50,
 							"advanced":1,
 							"proficient":49,
-							"basic":122,
+							"basic":120,
 							"below_basic":102
 						}
 					},
@@ -4421,11 +4493,11 @@
 						},
 						"val": {
 							"n_eligible":36,
-							"n_test_takers":36,
+							"n_test_takers":33,
 							"advanced_or_proficient":2,
 							"advanced":0,
 							"proficient":2,
-							"basic":23,
+							"basic":20,
 							"below_basic":11
 						}
 					},
@@ -4439,11 +4511,11 @@
 						},
 						"val": {
 							"n_eligible":34,
-							"n_test_takers":34,
+							"n_test_takers":32,
 							"advanced_or_proficient":2,
 							"advanced":0,
 							"proficient":2,
-							"basic":21,
+							"basic":19,
 							"below_basic":11
 						}
 					},
@@ -4859,6 +4931,42 @@
 							"proficient":2,
 							"basic":15,
 							"below_basic":6
+						}
+					},
+					{
+						"key": {
+							"subject": "Reading",
+							"grade": "all", 
+							"enrollment_status": "all", 
+							"subgroup": "New to the US (ELL)", 
+							"year": "2011" 
+						},
+						"val": {
+							"n_eligible":0,
+							"n_test_takers":0,
+							"advanced_or_proficient":null,
+							"advanced":null,
+							"proficient":null,
+							"basic":null,
+							"below_basic":null
+						}
+					},
+					{
+						"key": {
+							"subject": "Reading",
+							"grade": "all", 
+							"enrollment_status": "full_year", 
+							"subgroup": "New to the US (ELL)", 
+							"year": "2011" 
+						},
+						"val": {
+							"n_eligible":0,
+							"n_test_takers":0,
+							"advanced_or_proficient":null,
+							"advanced":null,
+							"proficient":null,
+							"basic":null,
+							"below_basic":null
 						}
 					},
 					{
@@ -6627,6 +6735,42 @@
 					},
 					{
 						"key": {
+							"subject": "Reading",
+							"grade": "all", 
+							"enrollment_status": "all", 
+							"subgroup": "New to the US (ELL)", 
+							"year": "2012" 
+						},
+						"val": {
+							"n_eligible":1,
+							"n_test_takers":0,
+							"advanced_or_proficient":null,
+							"advanced":null,
+							"proficient":null,
+							"basic":null,
+							"below_basic":null
+						}
+					},
+					{
+						"key": {
+							"subject": "Reading",
+							"grade": "all", 
+							"enrollment_status": "full_year", 
+							"subgroup": "New to the US (ELL)", 
+							"year": "2012" 
+						},
+						"val": {
+							"n_eligible":0,
+							"n_test_takers":0,
+							"advanced_or_proficient":null,
+							"advanced":null,
+							"proficient":null,
+							"basic":null,
+							"below_basic":null
+						}
+					},
+					{
+						"key": {
 							"subject": "Math",
 							"grade": "all", 
 							"enrollment_status": "all", 
@@ -8387,6 +8531,42 @@
 							"proficient":16,
 							"basic":21,
 							"below_basic":6
+						}
+					},
+					{
+						"key": {
+							"subject": "Reading",
+							"grade": "all", 
+							"enrollment_status": "all", 
+							"subgroup": "New to the US (ELL)", 
+							"year": "2013" 
+						},
+						"val": {
+							"n_eligible":4,
+							"n_test_takers":1,
+							"advanced_or_proficient":null,
+							"advanced":null,
+							"proficient":null,
+							"basic":null,
+							"below_basic":null
+						}
+					},
+					{
+						"key": {
+							"subject": "Reading",
+							"grade": "all", 
+							"enrollment_status": "full_year", 
+							"subgroup": "New to the US (ELL)", 
+							"year": "2013" 
+						},
+						"val": {
+							"n_eligible":2,
+							"n_test_takers":1,
+							"advanced_or_proficient":null,
+							"advanced":null,
+							"proficient":null,
+							"basic":null,
+							"below_basic":null
 						}
 					},
 					{

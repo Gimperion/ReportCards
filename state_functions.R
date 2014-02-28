@@ -289,6 +289,10 @@ ExStateGrad <- function(level){
 	return(paste(.ret, collapse=',\n'))
 }
 
+
+## Deprecated function. 
+## Temporarily kept here for debugging reasons.
+## Will be moved in future versions.
 WriteCASST <- function(.casdat_mr, level){
 	year <- .casdat_mr$year[1]
 	.subjects <- c("Math", "Reading")
@@ -298,6 +302,9 @@ WriteCASST <- function(.casdat_mr, level){
 	
 	.ret <- c()
 	.plevels <- c("Below Basic", "Basic", "Proficient", "Advanced")
+	
+	.casdat_mr$math_level[.casdat_mr$exclude %in% c('I','M', 'A', 'Y')] <- NA
+	.casdat_mr$read_level[.casdat_mr$exclude %in% c('I','M', 'A', 'Y')] <- NA
 	
 	## A = Subject, 1 for Math, 2 for Reading
 	for(a in 1:2){
@@ -388,7 +395,7 @@ ExStateCAS <- function(level){
 	.lv <- level
 	
 	.dat_mr <- sqlFetch(dbrepcard, "assessment")
-	.ret <- do(group_by(.dat_mr, ea_year), WriteCASST, level)
+	.ret <- do(group_by(.dat_mr, ea_year), WriteCAS, level)
 	
 	## 
 	.dat_comp <- sqlFetch(dbrepcard, 'assm_comp')

@@ -1,5 +1,5 @@
 {
-	"timestamp": "Thu Feb 27 14:34:34 2014",
+	"timestamp": "Fri Feb 28 11:13:42 2014",
 	"org_type": "school",
 	"org_name": "LAYC Career Academy PCS",
 	"report_card": {
@@ -12,7 +12,42 @@
 			{
 				"id": "dccas",
 				"data": [
-
+					{
+						"key": {
+							"subject": "Reading",
+							"grade": "all", 
+							"enrollment_status": "all", 
+							"subgroup": "New to the US (ELL)", 
+							"year": "2013" 
+						},
+						"val": {
+							"n_eligible":0,
+							"n_test_takers":0,
+							"advanced_or_proficient":null,
+							"advanced":null,
+							"proficient":null,
+							"basic":null,
+							"below_basic":null
+						}
+					},
+					{
+						"key": {
+							"subject": "Reading",
+							"grade": "all", 
+							"enrollment_status": "full_year", 
+							"subgroup": "New to the US (ELL)", 
+							"year": "2013" 
+						},
+						"val": {
+							"n_eligible":0,
+							"n_test_takers":0,
+							"advanced_or_proficient":null,
+							"advanced":null,
+							"proficient":null,
+							"basic":null,
+							"below_basic":null
+						}
+					}
 				]
 			},
 			{
@@ -120,46 +155,6 @@
 					},
 					{
 						"key": {
-							"grade": "UN", 
-							"subgroup": "All", 
-							"year": "2013" 
-						},
-						"val": 28
-					},
-					{
-						"key": {
-							"grade": "UN", 
-							"subgroup": "African American", 
-							"year": "2013" 
-						},
-						"val": 15
-					},
-					{
-						"key": {
-							"grade": "UN", 
-							"subgroup": "Hispanic", 
-							"year": "2013" 
-						},
-						"val": 12
-					},
-					{
-						"key": {
-							"grade": "UN", 
-							"subgroup": "Economically Disadvantaged", 
-							"year": "2013" 
-						},
-						"val": 12
-					},
-					{
-						"key": {
-							"grade": "UN", 
-							"subgroup": "Female", 
-							"year": "2013" 
-						},
-						"val": 20
-					},
-					{
-						"key": {
 							"grade": "AO", 
 							"subgroup": "All", 
 							"year": "2013" 
@@ -205,6 +200,46 @@
 							"year": "2013" 
 						},
 						"val": 52
+					},
+					{
+						"key": {
+							"grade": "UN", 
+							"subgroup": "All", 
+							"year": "2013" 
+						},
+						"val": 28
+					},
+					{
+						"key": {
+							"grade": "UN", 
+							"subgroup": "African American", 
+							"year": "2013" 
+						},
+						"val": 15
+					},
+					{
+						"key": {
+							"grade": "UN", 
+							"subgroup": "Hispanic", 
+							"year": "2013" 
+						},
+						"val": 12
+					},
+					{
+						"key": {
+							"grade": "UN", 
+							"subgroup": "Economically Disadvantaged", 
+							"year": "2013" 
+						},
+						"val": 12
+					},
+					{
+						"key": {
+							"grade": "UN", 
+							"subgroup": "Female", 
+							"year": "2013" 
+						},
+						"val": 20
 					},
 					{
 						"key": {
@@ -296,22 +331,6 @@
 					},
 					{
 						"key": {
-							"grade": "12", 
-							"subgroup": "All", 
-							"year": "2012" 
-						},
-						"val": 17
-					},
-					{
-						"key": {
-							"grade": "12", 
-							"subgroup": "Female", 
-							"year": "2012" 
-						},
-						"val": 10
-					},
-					{
-						"key": {
 							"grade": "11", 
 							"subgroup": "All", 
 							"year": "2012" 
@@ -322,6 +341,22 @@
 						"key": {
 							"grade": "11", 
 							"subgroup": "African American", 
+							"year": "2012" 
+						},
+						"val": 10
+					},
+					{
+						"key": {
+							"grade": "12", 
+							"subgroup": "All", 
+							"year": "2012" 
+						},
+						"val": 17
+					},
+					{
+						"key": {
+							"grade": "12", 
+							"subgroup": "Female", 
 							"year": "2012" 
 						},
 						"val": 10
