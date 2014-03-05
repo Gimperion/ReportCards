@@ -27,6 +27,13 @@ ExStatePreKCAS <- function(level){
 	return(paste(.ret, collapse=',\n'))	
 }
 
+ExGradTargets <- function(level){	
+	.ret <- sapply(2012:2017, function(x, lv){
+		sprintf('%s{"key": %d, "value": %f}', indent(lv), x, 0.59 +(x-2011)*(0.78-0.59)/6)}, level 
+	)
+	return(paste(.ret, collapse=',\n'))		
+}
+
 WritePreKCAS <- function(.prekcas, level){
 	.lv <- level
 	.ret <- c()
@@ -402,7 +409,7 @@ ExStateCAS <- function(level){
 	.ret <- c(.ret, do(group_by(.dat_comp, ea_year), WriteComp, level))
 	
 	.dat_sci <- sqlFetch(dbrepcard, 'assm_science')
-	.ret <- c(.ret, do(group_by(.dat_sci, ea_year), WriteComp, level))
+	.ret <- c(.ret, do(group_by(.dat_sci, ea_year), WriteScience, level))
 	
 	return(paste(.ret, collapse=',\n'))
 }

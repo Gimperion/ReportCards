@@ -36,7 +36,7 @@ state_version <- sqlQuery(dbrepcard, "SELECT TOP 1
 		
 next_version <- state_version$version_number + 0.1
 
-newfile <- file(paste0("state_v", next_version, ".JSON"), , encoding="UTF-8")
+newfile <- file("state_lv.JSON", encoding="UTF-8")
 
 setwd('./data/')
 
@@ -73,8 +73,7 @@ up(level)
 	up(level)
 	cat(indent(level), '"id": "dccas",', sep="", fill=TRUE)
 	cat(indent(level), '"data": [', sep="", fill=TRUE)
-	cat(ExStateCAS(level+1))
-	
+	cat(ExStateCAS(level+1))	
 	cat('\n',indent(level), ']', sep="", fill=TRUE)
 	down(level)
 	cat(indent(level),'},', sep="", fill=TRUE)
@@ -87,11 +86,8 @@ up(level)
 	cat(indent(level), '"id": "hqt_status",', sep="", fill=TRUE)
 	cat(indent(level), '"data":0.824', sep="", fill=TRUE)
 	
-	##cat(ExHQTStatus(org_code, level+1), fill=TRUE)		
-	##cat(indent(level), ']', sep="", fill=TRUE)
 	down(level)
 	cat(indent(level),'},', sep="", fill=TRUE)
-
 }
 {
 	#College Enrollment
@@ -99,12 +95,11 @@ up(level)
 	up(level)
 	cat(indent(level), '"id": "college_enroll",', sep="", fill=TRUE)
 	cat(indent(level), '"data": [', sep="", fill=TRUE)
-	cat(ExCollegeEnroll(org_code, level+1), fill=TRUE)		
+	cat(ExCollegeEnroll(org_code, level+1), fill=TRUE)
 	cat(indent(level), ']', sep="", fill=TRUE)
 	down(level)
 	cat(indent(level),'},', sep="", fill=TRUE)
 }
-		
 {
 	## Graduation  -- end of report card section
 	cat(indent(level),'{', sep="", fill=TRUE)
@@ -117,6 +112,18 @@ up(level)
 	cat(indent(level),'},', sep="", fill=TRUE)
 }
 
+{
+	## Graduation targets
+	cat(indent(level),'{', sep="", fill=TRUE)
+	up(level)
+	cat(indent(level), '"id": "graduatioN_targets",', sep="", fill=TRUE)
+	cat(indent(level), '"data": [', sep="", fill=TRUE)
+	cat(ExGradTargets(level+1), fill=TRUE)
+	cat('\n',indent(level), ']', sep="", fill=TRUE)
+	down(level)
+	cat(indent(level),'},', sep="", fill=TRUE)
+	
+}
 
 {
 	## NAEP Stuff

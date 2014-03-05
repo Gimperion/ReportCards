@@ -1,0 +1,281 @@
+
+R version 3.0.2 (2013-09-25) -- "Frisbee Sailing"
+Copyright (C) 2013 The R Foundation for Statistical Computing
+Platform: i386-w64-mingw32/i386 (32-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> ## Generate State File ## 
+> ## Detail Data File Build ##
+> active <- shell('echo %CODE_PATH%', intern=TRUE)
+> active <- gsub('\\\\', '/', active)
+> setwd(paste0(active, 'ReportCards'))
+> 
+> library(dplyr)
+
+Attaching package: 'dplyr'
+
+The following objects are masked from 'package:stats':
+
+    filter, lag
+
+The following objects are masked from 'package:base':
+
+    intersect, setdiff, setequal, union
+
+> 
+> source("./imports/tomkit.R")
+> source("./imports/ODBC.R")
+Loading required package: RODBC
+> source("./school_functions.R")
+> source("./state_functions.R")
+> 
+> checkna <- function(x){
++ 	if(is.na(x)){
++ 		return('null')
++ 	}
++ 	return(x)
++ }
+> 
+> checkna_str <- function(x){
++ 	if(is.na(x)){
++ 		return('null')
++ 	}
++ 	return('"' %+% x %+%'"')
++ }
+> 
+> org_type <- "state"
+> org_code <- "STATE"
+> 
+> state_version <- sqlQuery(dbrepcard, "SELECT TOP 1 
++ 			[version_number],
++ 			[timestamp]
++ 		FROM [dbo].[ver_control_statefile]
++ 		ORDER BY [version_number] DESC")
+> 		
+> next_version <- state_version$version_number + 0.1
+> 
+> newfile <- file("state_lv.JSON", encoding="UTF-8")
+> 
+> setwd('./data/')
+> 
+> sink(newfile)
+> cat('{', fill=TRUE)
+> 
+> level <- 1
+> cat(indent(level),'"timestamp": "',date(),'",', sep="", fill=TRUE)
+> cat(indent(level),'"org_type": "state",', sep="", fill=TRUE)
+> cat(indent(level),'"org_name": "District of Columbia",', sep="", fill=TRUE)
+> 
+> cat(indent(level),'"report_card": {', sep="", fill=TRUE)
+> up(level)
+> cat(indent(level),'"sections": [', sep="", fill=TRUE)
+> up(level)
+> 
+> ######### INSERT DATA HERE ##################
+> {	
++ 	### Accountability
++ 	cat(indent(level),'{', sep="", fill=TRUE)
++ 	up(level)
++ 	cat(indent(level), '"id": "accountability",', sep="", fill=TRUE)
++ 	cat(indent(level), '"data": [', sep="")
++ 	up(level)
++ 	cat(ExStateAcct(level), fill=TRUE) 
++ 	down(level)
++ 	cat(indent(level),']', sep="", fill=TRUE)
++ 	down(level)
++ 	cat(indent(level),'},', sep="", fill=TRUE)
++ }
+> {
++ 	## Assessment
++ 	cat(indent(level),'{', sep="", fill=TRUE)
++ 	up(level)
++ 	cat(indent(level), '"id": "dccas",', sep="", fill=TRUE)
++ 	cat(indent(level), '"data": [', sep="", fill=TRUE)
++ 	cat(ExStateCAS(level+1))	
++ 	cat('\n',indent(level), ']', sep="", fill=TRUE)
++ 	down(level)
++ 	cat(indent(level),'},', sep="", fill=TRUE)
++ }
+> 
+> {
++ 	## Highly Qualified Teacher Status
++ 	cat(indent(level),'{', sep="", fill=TRUE)
++ 	up(level)
++ 	cat(indent(level), '"id": "hqt_status",', sep="", fill=TRUE)
++ 	cat(indent(level), '"data":0.824', sep="", fill=TRUE)
++ 	
++ 	down(level)
++ 	cat(indent(level),'},', sep="", fill=TRUE)
++ }
+> {
++ 	#College Enrollment
++ 	cat(indent(level),'{', sep="", fill=TRUE)
++ 	up(level)
++ 	cat(indent(level), '"id": "college_enroll",', sep="", fill=TRUE)
++ 	cat(indent(level), '"data": [', sep="", fill=TRUE)
++ 	cat(ExCollegeEnroll(org_code, level+1), fill=TRUE)
++ 	cat(indent(level), ']', sep="", fill=TRUE)
++ 	down(level)
++ 	cat(indent(level),'},', sep="", fill=TRUE)
++ }
+> {
++ 	## Graduation  -- end of report card section
++ 	cat(indent(level),'{', sep="", fill=TRUE)
++ 	up(level)
++ 	cat(indent(level), '"id": "graduation",', sep="", fill=TRUE)
++ 	cat(indent(level), '"data": [', sep="", fill=TRUE)
++ 	cat(ExStateGrad(level+1), fill=TRUE)
++ 	cat('\n',indent(level), ']', sep="", fill=TRUE)
++ 	down(level)
++ 	cat(indent(level),'},', sep="", fill=TRUE)
++ }
+> 
+> {
++ 	## Graduation targets
++ 	cat(indent(level),'{', sep="", fill=TRUE)
++ 	up(level)
++ 	cat(indent(level), '"id": "graduatioN_targets",', sep="", fill=TRUE)
++ 	cat(indent(level), '"data": [', sep="", fill=TRUE)
++ 	cat(ExGradTargets(level+1), fill=TRUE)
++ 	cat('\n',indent(level), ']', sep="", fill=TRUE)
++ 	down(level)
++ 	cat(indent(level),'},', sep="", fill=TRUE)
++ 	
++ }
+> 
+> {
++ 	## NAEP Stuff
++ 	cat(indent(level),'{', sep="", fill=TRUE)
++ 	up(level)
++ 	cat(indent(level), '"id": "naep_results",', sep="", fill=TRUE)
++ 	
++ 	cat(indent(level), '"data": [', sep="", fill=TRUE)
++ 	cat(ExNaepResult(level), fill=TRUE)
++ 	
++ 	cat(indent(level), ']', sep="", fill=TRUE)
++ 	down(level)
++ 	cat(indent(level),'}', sep="", fill=TRUE)
++ }
+> 
+> 
+> 
+> down(level)
+> cat(indent(level),']', sep="", fill=TRUE)
+> down(level)
+> cat(indent(level), '},', fill=TRUE)
+> 
+> 
+> cat(indent(level),'"profile": {', sep="", fill=TRUE)
+> up(level)
+> cat(indent(level), '"sections": [', sep="", fill=TRUE)
+> up(level)
+> 
+> {
++ 	#Enrollment
++ 	cat(indent(level),'{', sep="", fill=TRUE)
++ 	up(level)
++ 	cat(indent(level), '"id": "enrollment",', sep="", fill=TRUE)
++ 	cat(indent(level), '"data": [', sep="", fill=TRUE)
++ 	cat(ExStateEnroll(level+1), fill=TRUE)
++ 	cat(indent(level), ']', sep="", fill=TRUE)
++ 	down(level)
++ 	cat(indent(level),'},', sep="", fill=TRUE)
++ }
+> 
+> {
++ 	## College Readiness##
++ 	cat(indent(level),'{', sep="", fill=TRUE)
++ 	up(level)
++ 	cat(indent(level), '"id": "college_readiness",', sep="", fill=TRUE)
++ 	cat(indent(level), '"data": [', sep="", fill=TRUE)
++ 	cat(ExStateCReady(level+1), fill=TRUE)
++ 	cat(indent(level), ']', sep="", fill=TRUE)
++ 	down(level)
++ 	cat(indent(level),'},', sep="", fill=TRUE)
++ }
+> 
+> {
++ 	## SPED Testing##
++ 	cat(indent(level),'{', sep="", fill=TRUE)
++ 	up(level)
++ 	cat(indent(level), '"id": "special_ed",', sep="", fill=TRUE)
++ 	cat(indent(level), '"data": [', sep="", fill=TRUE)
++ 	cat(ExStateSPEDChunk(level+1), fill=TRUE)
++ 	cat(indent(level), ']', sep="", fill=TRUE)
++ 	down(level)
++ 	cat(indent(level),'},', sep="", fill=TRUE)
++ }
+> 
+> {
++ 	## PreK Testing##
++ 	cat(indent(level),'{', sep="", fill=TRUE)
++ 	up(level)
++ 	cat(indent(level), '"id": "prek_cas_results",', sep="", fill=TRUE)
++ 	cat(indent(level), '"data": [', sep="", fill=TRUE)
++ 	cat(ExStatePreKCAS(level+1), fill=TRUE)
++ 	cat(indent(level), ']', sep="", fill=TRUE)
++ 	down(level)
++ 	cat(indent(level),'},', sep="", fill=TRUE)
++ }
+> 
+> {
++ 	cat(indent(level),hard_code_apr, fill=TRUE)
++ }
+> 
+> {
++ 	#AMAO
++ 	cat(indent(level),'{', sep="", fill=TRUE)
++ 	up(level)
++ 	cat(indent(level), '"id": "ell",', sep="", fill=TRUE)
++ 	cat(indent(level), '"data": {', sep="", fill=TRUE)
++ 	up(level)
++ 	cat(indent(level), '"amao_1": {"val":0.54, "target": 0.60},', sep="", fill=TRUE)
++ 	cat(indent(level), '"amao_2": {"val":0.23, "target": 0.15},', sep="", fill=TRUE)
++ 	cat(indent(level), '"amao_3m": {"val":0.33, "target": 0.53},', sep="", fill=TRUE)
++ 	cat(indent(level), '"amao_3r": {"val":0.22, "target": 0.44}', sep="", fill=TRUE)
++ 	down(level)
++ 	
++ 	cat(indent(level), '}', sep="", fill=TRUE)
++ 	down(level)
++ 	cat(indent(level),'},', sep="", fill=TRUE)
++ }
+> 
+> {
++ 	cat(indent(level),hard_code_equity, fill=TRUE)
++ }
+> 
+> down(level)
+> cat(indent(level), ']', sep="", fill=TRUE)
+> down(level)
+> cat(indent(level), '}', fill=TRUE)
+> 
+> cat('}', fill=TRUE)
+> sink()
+> 
+> ## SUCCESSFUL PUSH!  
+> update_vcontrol <- state_version
+> update_vcontrol$version_number <- next_version
+> update_vcontrol$timestamp <- Sys.time()
+> 
+> sqlSave(dbrepcard, update_vcontrol, tablename="ver_control_statefile", append=TRUE, safer=TRUE, rownames=FALSE, varType=c(timestamp="datetime"))
+> 
+> 
+> proc.time()
+   user  system elapsed 
+  81.37    3.26   96.70 
+Warning messages:
+1: closing unused RODBC handle 2 
+2: closing unused RODBC handle 1 

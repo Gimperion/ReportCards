@@ -1,3 +1,64 @@
+ExAMOs <- function(orgcode, .lv){
+	.qry <- sprintf("SELECT * 
+		FROM [dbo].[amo_status_export]
+		WHERE [current_entity_code] = %s", leadgr(orgcode, 4))
+		
+	.amo_dat <- sqlQuery(dbrepcard, .qry)
+	.ret <- c()
+	
+	if(nrow(.amo_dat) > 0){
+		for(i in 1:nrow(.amo_dat)){
+			## math chunk
+			.add <- indent(.lv) %+% '{\n'
+			up(.lv)
+			.add <- .add %+% paste(indent(.lv), '"key": {\n', sep="")
+			up(.lv)			
+			.add <- .add %+% paste(indent(.lv), '"subject": "Math",\n', sep="")
+			.add <- .add %+% paste(indent(.lv), '"grade": "all",\n', sep="")
+			.add <- .add %+% paste(indent(.lv), '"enrollment_status": "full_year",\n', sep="")
+			.add <- .add %+% paste(indent(.lv), '"subgroup": "',.amo_dat$subgroup[i],'",\n', sep="")
+			.add <- .add %+% paste(indent(.lv), '"year": "',.amo_dat$year[i],'"\n', sep="")
+			down(.lv)
+			.add <- .add %+% paste(indent(.lv), '},\n', sep="")
+		
+			.add <- .add %+% paste(indent(.lv), '"val": {\n', sep="")
+			up(.lv)
+			.add <- .add %+% paste(indent(.lv), '"baseline": ', .amo_dat$math_baseline[i],',\n', sep="")
+			.add <- .add %+% paste(indent(.lv), '"target": ', .amo_dat$math_target[i],'\n', sep="")
+			down(.lv)
+			.add <- .add %+% paste(indent(.lv), '}\n', sep="")
+			down(.lv)
+			.add <- .add %+% paste(indent(.lv), '}', sep="")
+			.ret <- c(.ret, .add)		
+		
+			## read chunk
+			.add <- indent(.lv) %+% '{\n'
+			up(.lv)
+			.add <- .add %+% paste(indent(.lv), '"key": {\n', sep="")
+			up(.lv)			
+			.add <- .add %+% paste(indent(.lv), '"subject": "Reading",\n', sep="")
+			.add <- .add %+% paste(indent(.lv), '"grade": "all",\n', sep="")
+			.add <- .add %+% paste(indent(.lv), '"enrollment_status": "full_year",\n', sep="")
+			.add <- .add %+% paste(indent(.lv), '"subgroup": "',.amo_dat$subgroup[i],'",\n', sep="")
+			.add <- .add %+% paste(indent(.lv), '"year": "',.amo_dat$year[i],'"\n', sep="")
+			down(.lv)
+			.add <- .add %+% paste(indent(.lv), '},\n', sep="")
+		
+			.add <- .add %+% paste(indent(.lv), '"val": {\n', sep="")
+			up(.lv)
+			.add <- .add %+% paste(indent(.lv), '"baseline": ', .amo_dat$read_baseline[i],',\n', sep="")
+			.add <- .add %+% paste(indent(.lv), '"target": ', .amo_dat$read_target[i],'\n', sep="")
+			down(.lv)
+			.add <- .add %+% paste(indent(.lv), '}\n', sep="")
+			down(.lv)
+			.add <- .add %+% paste(indent(.lv), '}', sep="")
+			.ret <- c(.ret, .add)	
+		}
+		return(paste(.ret, collapse=',\n'))		
+	}
+}
+
+
 ExHQTStatus <- function(org_code){
 	.qry <- "SELECT * FROM [dbo].[hqt_status_sy1112]
 		WHERE [school_code] = '" %+% org_code %+% "'"
@@ -23,6 +84,7 @@ AppendProgramInfo <- function(org_code){
 	
 		.prog$program_string <- gsub('\n', "", .prog$program_string)
 		.prog$program_string <- gsub('\r', "", .prog$program_string)
+		.prog$program_string <- gsub('"', "'", .prog$program_string)
 		.prog$program_string <- paste0('"',.prog$program_string,'"')
 		
 		return(paste(.prog$program_string, collapse=',\n'))
@@ -165,9 +227,7 @@ EncodeCReady <- function(.dat, level){
 	return(paste(.ret, collapse=',\n'))
 }
 
-ExGraduation <- function(org_code, level){
-	.lv <- level
-	
+ExGraduation <- function(org_code, level=1){
 	.qry <- sprintf("SELECT A.*, B.[fy14_entity_code], B.[fy14_entity_name]
 		FROM [dbo].[graduation] A
 		LEFT JOIN [dbo].[fy14_mapping] B
@@ -176,13 +236,12 @@ ExGraduation <- function(org_code, level){
 			AND (A.[cohort_year]+2) = B.[ea_year]
 		WHERE [cohort_status] = 1 AND 
 			[fy14_entity_code] = '%s'", leadgr(org_code,4))
-			
+
 	.grad <- sqlQuery(dbrepcard, .qry)
 	
 	.ret <- do(group_by(.grad, cohort_year), WriteGraduation, level)
 	.ret <- unlist(.ret)
-	.ret <- sort(subset(.ret, .ret != ''))
-	
+	.ret <- sort(subset(.ret, .ret!=''))
 	return(paste(.ret, collapse=',\n'))
 }
 
@@ -666,7 +725,8 @@ ExEnrollChunk <- function(scode, level){
 	.dat_enr <- sqlQuery(dbrepcard, .qry_enr)
 	
 	.ret <- do(group_by(.dat_enr, ea_year), WriteEnroll, level)	
-	return(paste(.ret, collapse=',\n'))	
+	
+	return(paste(unlist(.ret), collapse=',\n'))	
 }
 
 ##"African American","White","Hispanic","Asian","American Indian", "Pacific Islander", "Multi Racial","Special Education","English Learner","Economically Disadvantaged","Male", "Female"
@@ -823,7 +883,7 @@ WriteCAS <- function(.casdat_mr, spaces, entity='state'){
 	.plevels <- c("Below Basic", "Basic", "Proficient", "Advanced")
 	
 	.entity_fay <- list('state'=c("S", "C", "D"), 'lea'=c("S", "C"), 'school'=c("S"))
-		
+
 	## A = Subject, 1 for Math, 2 for Reading
 	for(a in 1:2){
 		## b = full year or not
@@ -1111,7 +1171,7 @@ WriteScience <- function(.casdat_sci, level){
 				
 				.profs <- .tmp$science_level
 				
-				.add <- .add %+% paste(indent(.lv), '"subject": "Science",\n', sep="")					
+				.add <- .add %+% paste(indent(.lv), '"subject": "Science",\n', sep="")
 				
 				.add <- .add %+% paste(indent(.lv), '"grade": "',goutput,'", \n', sep="")
 				.add <- .add %+% paste(indent(.lv), '"enrollment_status": "',z,'", \n', sep="")

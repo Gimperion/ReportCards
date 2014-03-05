@@ -61,7 +61,7 @@ for(i in 1:nrow(school_dir)){
 	up(level)
 	
 	######### INSERT DATA HERE ##################
-	{	
+	{
 		### Accountability
 		cat(indent(level),'{', sep="", fill=TRUE)
 		up(level)
@@ -81,6 +81,17 @@ for(i in 1:nrow(school_dir)){
 		cat(indent(level), '"id": "dccas",', sep="", fill=TRUE)
 		cat(indent(level), '"data": [', sep="", fill=TRUE)
 		cat(ExCasChunk(org_code, level+1))
+		cat('\n',indent(level), ']', sep="", fill=TRUE)
+		down(level)
+		cat(indent(level),'},', sep="", fill=TRUE)
+	}
+	{
+		## AMOs
+		cat(indent(level),'{', sep="", fill=TRUE)
+		up(level)
+		cat(indent(level), '"id": "amo_targets",', sep="", fill=TRUE)
+		cat(indent(level), '"data": [', sep="", fill=TRUE)
+		cat(ExAMOs(org_code, level+1))
 		cat('\n',indent(level), ']', sep="", fill=TRUE)
 		down(level)
 		cat(indent(level),'},', sep="", fill=TRUE)
@@ -129,7 +140,7 @@ for(i in 1:nrow(school_dir)){
 		cat(indent(level), ']', sep="", fill=TRUE)
 		down(level)
 		cat(indent(level),'},', sep="", fill=TRUE)
-	}			
+	}
 	{
 		## Graduation  -- end of report card section
 		cat(indent(level),'{', sep="", fill=TRUE)

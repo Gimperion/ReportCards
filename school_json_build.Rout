@@ -1,0 +1,559 @@
+
+R version 3.0.2 (2013-09-25) -- "Frisbee Sailing"
+Copyright (C) 2013 The R Foundation for Statistical Computing
+Platform: i386-w64-mingw32/i386 (32-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> ## Generate School File ## 
+> ## Detail Data File Build ##
+> ##setwd("U:/REPORT CARD/GIT Report Cards/ReportCards")
+> 
+> active <- shell('echo %CODE_PATH%', intern=TRUE)
+> active <- gsub('\\\\', '/', active)
+> setwd(paste0(active, 'ReportCards'))
+> 
+> source("./imports/tomkit.R")
+> source("./imports/ODBC.R")
+Loading required package: RODBC
+> source("./school_functions.R")
+> library(dplyr)
+
+Attaching package: 'dplyr'
+
+The following objects are masked from 'package:stats':
+
+    filter, lag
+
+The following objects are masked from 'package:base':
+
+    intersect, setdiff, setequal, union
+
+> 
+> ## setwd("U:/REPORT CARD/GIT Report Cards/ReportCards/JSON Output")
+> 
+> sfile_version <- sqlQuery(dbrepcard, "SELECT TOP 1 
++ 			[version_number],
++ 			[timestamp]
++ 		FROM [dbo].[ver_control_schoolfile]
++ 		ORDER BY [version_number] DESC")
+> 
+> next_version <- sfile_version$version_number + 0.1
+> 
+> subDir <- "school_report"
+> mainDir <- "./data/"
+> 
+> dir.create(file.path(mainDir, subDir), showWarnings = FALSE)
+> setwd(file.path(mainDir, subDir))
+> 
+> school_dir <- sqlFetch(dbrepcard, 'schooldir_linked')
+> school_dir$school_code <- sapply(school_dir$school_code, leadgr, 4)
+> 
+> school_dir <- subset(school_dir, school_code %notin% c("7000", "0948", "0958", "0480", "0472", "0465"))
+> 
+> ## Start File Generation
+> for(i in 1:nrow(school_dir)){
++ 	org_type <- "school"
++ 	org_code <- school_dir$school_code[i]
++ 	
++ 	if(!is.na(school_dir$profile_name[i])){
++ 		prof_name <- school_dir$profile_name[i]
++ 	} else{
++ 		prof_name <- school_dir$school_name[i]
++ 	}
++ 	
++ 	print(prof_name)
++ 	
++ 	newfile <- file(paste(org_type, '_', org_code, '.JSON', sep=""), , encoding="UTF-8")
++ 	
++ 	sink(newfile)
++ 	cat('{', fill=TRUE)
++ 	
++ 	level <- 1
++ 	cat(indent(level),'"timestamp": "',date(),'",', sep="", fill=TRUE)
++ 	cat(indent(level),'"org_type": "school",', sep="", fill=TRUE)
++ 	cat(indent(level),'"org_name": "',prof_name,'",', sep="", fill=TRUE)
++ 	
++ 	cat(indent(level),'"report_card": {', sep="", fill=TRUE)
++ 	up(level)
++ 	cat(indent(level),'"sections": [', sep="", fill=TRUE)
++ 	up(level)
++ 	
++ 	######### INSERT DATA HERE ##################
++ 	{
++ 		### Accountability
++ 		cat(indent(level),'{', sep="", fill=TRUE)
++ 		up(level)
++ 		cat(indent(level), '"id": "accountability",', sep="", fill=TRUE)
++ 		cat(indent(level), '"data": [', sep="")
++ 		up(level)
++ 		cat(ExAccountability(org_code, level), fill=TRUE) 
++ 		down(level)
++ 		cat(indent(level),']', sep="", fill=TRUE)
++ 		down(level)
++ 		cat(indent(level),'},', sep="", fill=TRUE)
++ 	}
++ 	{
++ 		## Assessment
++ 		cat(indent(level),'{', sep="", fill=TRUE)
++ 		up(level)
++ 		cat(indent(level), '"id": "dccas",', sep="", fill=TRUE)
++ 		cat(indent(level), '"data": [', sep="", fill=TRUE)
++ 		cat(ExCasChunk(org_code, level+1))
++ 		cat('\n',indent(level), ']', sep="", fill=TRUE)
++ 		down(level)
++ 		cat(indent(level),'},', sep="", fill=TRUE)
++ 	}
++ 	{
++ 		## AMOs
++ 		cat(indent(level),'{', sep="", fill=TRUE)
++ 		up(level)
++ 		cat(indent(level), '"id": "amo_targets",', sep="", fill=TRUE)
++ 		cat(indent(level), '"data": [', sep="", fill=TRUE)
++ 		cat(ExAMOs(org_code, level+1))
++ 		cat('\n',indent(level), ']', sep="", fill=TRUE)
++ 		down(level)
++ 		cat(indent(level),'},', sep="", fill=TRUE)
++ 	}	
++ 	{
++ 		## Highly Qualified Teacher Status
++ 		cat(indent(level),'{', sep="", fill=TRUE)
++ 		up(level)
++ 		cat(indent(level), '"id": "hqt_status",', sep="", fill=TRUE)
++ 		
++ 		cat(indent(level), '"data":', ExHQTStatus(org_code), sep="", fill=TRUE)	
++ 		down(level)
++ 		cat(indent(level),'},', sep="", fill=TRUE)
++ 	}
++ 	{
++ 		## Early Childhood
++ 		cat(indent(level),'{', sep="", fill=TRUE)
++ 		up(level)
++ 		cat(indent(level), '"id": "early_childhood",', sep="", fill=TRUE)
++ 		
++ 		cat(indent(level), '"data": [', sep="", fill=TRUE)
++ 		cat(ExAccreditation(org_code, level+1), fill=TRUE)
++ 		
++ 		cat(indent(level), ']', sep="", fill=TRUE)
++ 		down(level)
++ 		cat(indent(level),'},', sep="", fill=TRUE)
++ 	}
++ 	{
++ 		#College Enrollment
++ 		cat(indent(level),'{', sep="", fill=TRUE)
++ 		up(level)
++ 		cat(indent(level), '"id": "college_enroll",', sep="", fill=TRUE)
++ 		cat(indent(level), '"data": [', sep="", fill=TRUE)
++ 		##cat(ExCollegeEnroll(org_code, level+1), fill=TRUE)		
++ 		cat(indent(level), ']', sep="", fill=TRUE)
++ 		down(level)
++ 		cat(indent(level),'},', sep="", fill=TRUE)
++ 	}
++ 	if(school_dir$lea_code[i] != '1'){
++ 		#PCSB PMF
++ 		cat(indent(level),'{', sep="", fill=TRUE)
++ 		up(level)
++ 		cat(indent(level), '"id": "pcsb_pmf",', sep="", fill=TRUE)
++ 		cat(indent(level), '"data": [', sep="", fill=TRUE)
++ 		cat(ExPMF(org_code, level+1), fill=TRUE)		
++ 		cat(indent(level), ']', sep="", fill=TRUE)
++ 		down(level)
++ 		cat(indent(level),'},', sep="", fill=TRUE)
++ 	}
++ 	{
++ 		## Graduation  -- end of report card section
++ 		cat(indent(level),'{', sep="", fill=TRUE)
++ 		up(level)
++ 		cat(indent(level), '"id": "graduation",', sep="", fill=TRUE)
++ 		cat(indent(level), '"data": [', sep="", fill=TRUE)
++ 		cat(ExGraduation(org_code, level+1), fill=TRUE)
++ 		cat('\n',indent(level), ']', sep="", fill=TRUE)
++ 		down(level)
++ 		cat(indent(level),'}', sep="", fill=TRUE)
++ 	}
++ 	
++ 	down(level)
++ 	cat(indent(level),']', sep="", fill=TRUE)
++ 	down(level)
++ 	
++ 	cat(indent(level), '},', fill=TRUE)
++ 	cat('\n', fill=TRUE)
++ 	cat(indent(level),'"profile": {', sep="", fill=TRUE)
++ 	up(level)
++ 	cat(indent(level), '"sections": [', sep="", fill=TRUE)
++ 	up(level)
++ 	{
++ 		## Program Info
++ 		cat(indent(level),'{', sep="", fill=TRUE)
++ 		up(level)
++ 		cat(indent(level), '"id": "program_info",', sep="", fill=TRUE)
++ 		
++ 		cat(indent(level), '"data": [', sep="")
++ 		cat(AppendProgramInfo(org_code), fill=TRUE)
++ 		
++ 		cat(indent(level), ']', sep="", fill=TRUE)
++ 		down(level)
++ 		cat(indent(level),'},', sep="", fill=TRUE)
++ 	}
++ 	{
++ 		#Enrollment
++ 		cat(indent(level),'{', sep="", fill=TRUE)
++ 		up(level)
++ 		cat(indent(level), '"id": "enrollment",', sep="", fill=TRUE)
++ 		cat(indent(level), '"data": [', sep="", fill=TRUE)
++ 		cat(ExEnrollChunk(org_code, level+1), fill=TRUE)
++ 		cat(indent(level), ']', sep="", fill=TRUE)
++ 		down(level)
++ 		cat(indent(level),'},', sep="", fill=TRUE)
++ 	}
++ 	{
++ 		## Median Growth Percentile ##
++ 		cat(indent(level),'{', sep="", fill=TRUE)
++ 		up(level)
++ 		cat(indent(level), '"id": "mgp_scores",', sep="", fill=TRUE)
++ 		cat(indent(level), '"data": [', sep="", fill=TRUE)
++ 		cat(ExMGPResult(org_code, level+1), fill=TRUE)
++ 		cat(indent(level), ']', sep="", fill=TRUE)
++ 		down(level)
++ 		cat(indent(level),'},', sep="", fill=TRUE)
++ 	}
++ 	{
++ 		## College Readiness##
++ 		cat(indent(level),'{', sep="", fill=TRUE)
++ 		up(level)
++ 		cat(indent(level), '"id": "college_readiness",', sep="", fill=TRUE)
++ 		cat(indent(level), '"data": [', sep="", fill=TRUE)
++ 		cat(ExCollegeReadiness(org_code, level+1), fill=TRUE)
++ 		cat(indent(level), ']', sep="", fill=TRUE)
++ 		down(level)
++ 		cat(indent(level),'},', sep="", fill=TRUE)
++ 	}
++ 	{
++ 		## SPED Testing##
++ 		cat(indent(level),'{', sep="", fill=TRUE)
++ 		up(level)
++ 		cat(indent(level), '"id": "special_ed",', sep="", fill=TRUE)
++ 		cat(indent(level), '"data": [', sep="", fill=TRUE)
++ 		cat(ExSPEDChunk(org_code, level+1), fill=TRUE)
++ 		cat(indent(level), ']', sep="", fill=TRUE)
++ 		down(level)
++ 		cat(indent(level),'},', sep="", fill=TRUE)
++ 	}
++ 	{
++ 		## ELL/AMAO Stuff ##	
++ 	}
++ 	## Equity Report Starts Here
++ 	{
++ 		#### Absences
++ 		cat(indent(level),'{', sep="", fill=TRUE)
++ 		up(level)
++ 		cat(indent(level), '"id": "unexcused_absences",', sep="", fill=TRUE)
++ 		cat(indent(level), '"data": [', sep="", fill=TRUE)
++ 		cat(WriteAbsences(org_code, level+1), fill=TRUE)
++ 		cat(indent(level), ']', sep="", fill=TRUE)
++ 		down(level)
++ 		cat(indent(level),'},', sep="", fill=TRUE)
++ 	}
++ 	{
++ 		#### Attendance
++ 		cat(indent(level),'{', sep="", fill=TRUE)
++ 		up(level)
++ 		cat(indent(level), '"id": "attendance",', sep="", fill=TRUE)
++ 		cat(indent(level), '"data": [', sep="", fill=TRUE)
++ 		cat(WriteAttendance(org_code, level+1), fill=TRUE)
++ 		cat(indent(level), ']', sep="", fill=TRUE)
++ 		down(level)
++ 		cat(indent(level),'},', sep="", fill=TRUE)
++ 	}
++ 	{
++ 		#### Suspensions
++ 		cat(indent(level),'{', sep="", fill=TRUE)
++ 		up(level)
++ 		cat(indent(level), '"id": "suspensions",', sep="", fill=TRUE)
++ 		cat(indent(level), '"data": [', sep="", fill=TRUE)
++ 		cat(WriteSuspensions(org_code, level+1), fill=TRUE)
++ 		cat(indent(level), ']', sep="", fill=TRUE)
++ 		down(level)
++ 		cat(indent(level),'},', sep="", fill=TRUE)
++ 	}
++ 	{
++ 		#### Expulsions
++ 		cat(indent(level),'{', sep="", fill=TRUE)
++ 		up(level)
++ 		cat(indent(level), '"id": "expulsions",', sep="", fill=TRUE)
++ 		cat(indent(level), '"data": [', sep="", fill=TRUE)
++ 		cat(WriteExpulsions(org_code, level+1), fill=TRUE)
++ 		cat(indent(level), ']', sep="", fill=TRUE)
++ 		down(level)
++ 		cat(indent(level),'},', sep="", fill=TRUE)
++ 	}
++ 	{
++ 		#### Mid-Year Entry and Withdrawal
++ 		cat(indent(level),'{', sep="", fill=TRUE)
++ 		up(level)
++ 		cat(indent(level), '"id": "mid_year_entry_and_withdrawal",', sep="", fill=TRUE)
++ 		cat(indent(level), '"data": [', sep="", fill=TRUE)
++ 		cat(WriteEnterWithdraw(org_code, level+1), fill=TRUE)
++ 		cat(indent(level), ']', sep="", fill=TRUE)
++ 		down(level)
++ 		cat(indent(level),'}', sep="", fill=TRUE)
++ 	}
++ 
++ 	down(level)
++ 	cat(indent(level), ']', sep="", fill=TRUE)
++ 	
++ 	down(level)
++ 	cat(indent(level), '}', fill=TRUE)
++ 	
++ 	cat('}', fill=TRUE)
++ 	sink()
++ 	close(newfile)
++ }
+[1] "Maya Angelou PCS – Evans High School"
+[1] "César Chávez PCS for Public Policy – Parkside Middle School"
+[1] "LAYC Career Academy PCS"
+[1] "Community Academy PCS – Amos 1"
+[1] "Community Academy PCS – Butler Global"
+[1] "Community Academy PCS – CAPCS Online"
+[1] "César Chávez PCS for Public Policy – Parkside High School"
+[1] "Friendship PCS – Southeast Elementary Academy"
+[1] "Hope Community PCS – Tolson"
+[1] "Howard University Math and Science PCS"
+[1] "KIPP DC – AIM Academy PCS"
+[1] "Potomac Lighthouse PCS"
+[1] "KIPP DC – WILL Academy PCS"
+[1] "Washington Latin PCS – Middle School"
+[1] "Briya PCS"
+[1] "César Chávez PCS for Public Policy – Chávez Prep"
+[1] "YouthBuild PCS"
+[1] "DC Prep PCS – Edgewood Elementary"
+[1] "Hope Community PCS – Lamond"
+[1] "KIPP DC – LEAP Academy PCS"
+[1] "Maya Angelou PCS – Evans Middle School"
+[1] "Ideal Academy PCS"
+[1] "Mary McLeod Bethune Day Academy PCS"
+[1] "Maya Angelou PCS – Young Adult Learning Center"
+[1] "Early Childhood Academy PCS"
+[1] "AppleTree Early Learning PCS – Columbia Heights"
+[1] "AppleTree Early Learning PCS – Southwest"
+[1] "Bridges PCS"
+[1] "E.L. Haynes PCS – Georgia Avenue"
+[1] "Booker T. Washington PCS"
+[1] "César Chávez PCS for Public Policy – Capitol Hill"
+[1] "Community Academy PCS – Amos 2"
+[1] "Elsie Whitlow Stokes Community Freedom PCS"
+[1] "Hospitality High PCS"
+[1] "Perry Street Preparatory PCS"
+[1] "IDEA PCS"
+[1] "Meridian PCS"
+[1] "Next Step/El Próximo Paso PCS"
+[1] "Options PCS"
+[1] "Paul PCS - Middle School"
+[1] "Roots PCS"
+[1] "SEED Public Charter School of Washington, DC"
+[1] "School Within School at Goding"
+[1] "Washington Mathematics Science Technology PCHS"
+[1] "Arts and Technology Academy PCS"
+[1] "Capital City PCS – Middle School"
+[1] "Tree of Life PCS"
+[1] "Capital City PCS – Lower School"
+[1] "Friendship PCS – Collegiate Academy"
+[1] "Somerset Preparatory Academy PCS"
+[1] "Cedar Tree Academy PCS"
+[1] "KIPP DC – KEY Academy PCS"
+[1] "KIPP DC – Lead Academy PCS"
+[1] "Thurgood Marshall Academy PCS"
+[1] "Latin American Montessori Bilingual PCS"
+[1] "Eagle Academy PCS – The Eagle Center at McGogney"
+[1] "DC Prep PCS – Edgewood Middle"
+[1] "Sela PCS"
+[1] "Two Rivers PCS"
+[1] "DC Bilingual PCS"
+[1] "Ingenuity Prep PCS"
+[1] "Aiton Elementary School"
+[1] "Amidon-Bowen Elementary School"
+[1] "Bancroft Elementary School"
+[1] "Barnard Elementary School"
+[1] "Beers Elementary School"
+[1] "KIPP DC – Connect Academy PCS"
+[1] "William E. Doar, Jr. PCS for the Performing Arts"
+[1] "Brent Elementary School"
+[1] "Brightwood Education Campus"
+[1] "KIPP DC – Spring Academy PCS"
+[1] "Community College Preparatory Academy PCS"
+[1] "Achievement Preparatory Academy PCS – Elementary"
+[1] "DC Prep PCS – Benning Middle"
+[1] "Burroughs Education Campus"
+[1] "Burrville Elementary School"
+[1] "Paul PCS - International High School"
+[1] "Cleveland Elementary School"
+[1] "H.D. Cooke Elementary School"
+[1] "Drew Elementary School"
+[1] "Eaton Elementary School"
+[1] "Garfield Elementary School"
+[1] "Garrison Elementary School"
+[1] "Hardy Middle School"
+[1] "C.W. Harris Elementary School"
+[1] "Hendley Elementary School"
+[1] "Houston Elementary School"
+[1] "Hyde-Addison Elementary School"
+[1] "Janney Elementary School"
+[1] "Ketcham Elementary School"
+[1] "Hearst Elementary School"
+[1] "Kimball Elementary School"
+[1] "Lafayette Elementary School"
+[1] "Langdon Education Campus"
+[1] "LaSalle-Backus Education Campus"
+[1] "Mamie D. Lee School"
+[1] "Leckie Elementary School"
+[1] "Ludlow-Taylor Elementary School"
+[1] "Key Elementary School"
+[1] "Mann Elementary School"
+[1] "Maury Elementary School"
+[1] "Miner Elementary School"
+[1] "Marie Reed Elementary School"
+[1] "Moten Elementary School"
+[1] "Murch Elementary School"
+[1] "Nalle Elementary School"
+[1] "Noyes Education Campus"
+[1] "Orr Elementary School"
+[1] "Oyster-Adams Bilingual School"
+[1] "Patterson Elementary School"
+[1] "Payne Elementary School"
+[1] "Bruce-Monroe Elementary School @ Park View"
+[1] "Plummer Elementary School"
+[1] "Powell Elementary School"
+[1] "Peabody Elementary School"
+[1] "Raymond Education Campus"
+[1] "Ross Elementary School"
+[1] "Savoy Elementary School"
+[1] "Malcolm X Elementary School @ Green"
+[1] "Seaton Elementary School"
+[1] "Sharpe Health School"
+[1] "Shepherd Elementary School"
+[1] "Simon Elementary School"
+[1] "Randle Highlands Elementary School"
+[1] "Stanton Elementary School"
+[1] "Stoddert Elementary School"
+[1] "Smothers Elementary School"
+[1] "Takoma Education Campus"
+[1] "Thomas Elementary School"
+[1] "Thomson Elementary School"
+[1] "Truesdell Education Campus"
+[1] "Tubman Elementary School"
+[1] "Turner Elementary School"
+[1] "Tyler Elementary School"
+[1] "Walker-Jones Education Campus"
+[1] "Watkins Elementary School"
+[1] "Wheatley Education Campus"
+[1] "West Education Campus"
+[1] "Whittier Education Campus"
+[1] "J.O. Wilson Elementary School"
+[1] "King Elementary School"
+[1] "Brookland Education Campus @ Bunker Hill"
+[1] "Capitol Hill Montessori @ Logan"
+[1] "Friendship PCS – Blow-Pierce Elementary"
+[1] "Friendship PCS – Blow-Pierce Middle"
+[1] "Friendship PCS – Chamberlain Elementary"
+[1] "Friendship PCS – Chamberlain Middle"
+[1] "Friendship PCS – Woodridge Elementary"
+[1] "Friendship PCS – Woodridge Middle"
+[1] "Langley Elementary School"
+[1] "Benjamin Banneker High School"
+[1] "Browne Education Campus"
+[1] "Deal Middle School"
+[1] "Eliot-Hine Middle School"
+[1] "School Without Walls @ Francis-Stevens"
+[1] "Hart Middle School"
+[1] "Johnson Middle School"
+[1] "Kramer Middle School"
+[1] "Kelly Miller Middle School"
+[1] "Sousa Middle School"
+[1] "Stuart-Hobson Middle School"
+[1] "Jefferson Middle School Academy"
+[1] "McKinley Middle School"
+[1] "Columbia Heights Education Campus"
+[1] "Anacostia High School"
+[1] "Ballou High School"
+[1] "Cardozo Education Campus"
+[1] "Coolidge High School"
+[1] "Roosevelt STAY High School @ MacFarland"
+[1] "Eastern High School"
+[1] "McKinley Technology High School"
+[1] "Roosevelt High School @ MacFarland"
+[1] "Ballou STAY High School"
+[1] "Wilson High School"
+[1] "H.D. Woodson High School"
+[1] "School Without Walls High School"
+[1] "Dunbar High School"
+[1] "Duke Ellington School of the Arts"
+[1] "Washington Metropolitan High School"
+[1] "Phelps Architecture, Construction, and Engineering High School"
+[1] "Maya Angelou Academy at New Beginnings (formerly Oak Hill)"
+[1] "Youth Services Center"
+[1] "Luke C. Moore High School"
+[1] "C.H.O.I.C.E. Academy @ Emery"
+[1] "St. Coletta Special Education PCS"
+[1] "Achievement Preparatory Academy PCS –  Middle"
+[1] "Center City PCS – Brightwood"
+[1] "Center City PCS – Capitol Hill"
+[1] "Center City PCS – Congress Heights"
+[1] "Center City PCS – Petworth"
+[1] "Center City PCS – Shaw"
+[1] "Center City PCS – Trinidad"
+[1] "Community Academy PCS – Amos 3"
+[1] "DC Prep PCS – Benning Elementary"
+[1] "Excel Academy PCS"
+[1] "Imagine Southeast PCS"
+[1] "Washington Yu Ying PCS"
+[1] "Washington Latin PCS – Upper School"
+[1] "Carlos Rosario International PCS"
+[1] "National Collegiate Preparatory Public Charter High School"
+[1] "KIPP DC – Promise Academy PCS"
+[1] "KIPP DC – Discover Academy PCS"
+[1] "KIPP DC – College Preparatory PCS"
+[1] "Friendship PCS – Technology Preparatory Academy"
+[1] "Eagle Academy PCS – New Jersey Avenue"
+[1] "KIPP DC – Grow Academy PCS"
+[1] "AppleTree Early Learning PCS – Oklahoma Ave"
+[1] "E.L. Haynes PCS – Kansas Avenue (High School)"
+[1] "E.L. Haynes PCS – Kansas Avenue (Elementary School)"
+[1] "Capital City PCS – High School"
+[1] "Inspired Teaching Demonstration PCS"
+[1] "Mundo Verde Bilingual PCS"
+[1] "Shining Stars Montessori Academy PCS"
+[1] "Richard Wright PCS for Journalism and Media Arts"
+[1] "BASIS DC PCS"
+[1] "Creative Minds International PCS"
+[1] "DC Scholars PCS"
+[1] "KIPP DC – Heights Academy PCS"
+[1] "AppleTree Early Learning PCS – Southeast"
+[1] "AppleTree Early Learning PCS – Lincoln Park"
+[1] "Early S.T.A.G.E.S. at Walker Jones EC"
+There were 50 or more warnings (use warnings() to see the first 50)
+> 
+> ## SUCCESSFUL PUSH!  
+> update_vcontrol <- sfile_version
+> update_vcontrol$version_number <- next_version
+> update_vcontrol$timestamp <- Sys.time()
+> 
+> sqlSave(dbrepcard, update_vcontrol, tablename="ver_control_schoolfile", append=TRUE, safer=TRUE, rownames=FALSE, varType=c(timestamp="datetime"))
+> 
+> proc.time()
+   user  system elapsed 
+ 257.69    1.93  351.31 
+Warning messages:
+1: closing unused RODBC handle 2 
+2: closing unused RODBC handle 1 
