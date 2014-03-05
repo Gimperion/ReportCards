@@ -459,7 +459,7 @@ hard_code_equity <- '			{
 						},
 						"val": {
 							"in_seat_attendance": 0.95,
-							"average_daily_attendance": null,
+							"average_daily_attendance": null
 						}
 					}
 				]

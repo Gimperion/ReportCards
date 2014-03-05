@@ -1059,8 +1059,7 @@ WriteComp <- function(.casdat_comp, level){
 				
 				down(.lv)
 				
-				.add <- .add %+% paste(indent(.lv), '},\n', sep="")
-					
+				.add <- .add %+% paste(indent(.lv), '},\n', sep="")					
 				.add <- .add %+% paste(indent(.lv), '"val": {\n', sep="")
 				up(.lv)
 				
