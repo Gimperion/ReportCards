@@ -23,8 +23,8 @@ ExAMOs <- function(orgcode, .lv){
 		
 			.add <- .add %+% paste(indent(.lv), '"val": {\n', sep="")
 			up(.lv)
-			.add <- .add %+% paste(indent(.lv), '"baseline": ', .amo_dat$math_baseline[i],',\n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"target": ', .amo_dat$math_target[i],'\n', sep="")
+			.add <- .add %+% paste(indent(.lv), '"baseline": ',checkna(.amo_dat$math_baseline[i]),',\n', sep="")
+			.add <- .add %+% paste(indent(.lv), '"target": ', checkna(.amo_dat$math_target[i]),'\n', sep="")
 			down(.lv)
 			.add <- .add %+% paste(indent(.lv), '}\n', sep="")
 			down(.lv)
@@ -46,8 +46,8 @@ ExAMOs <- function(orgcode, .lv){
 		
 			.add <- .add %+% paste(indent(.lv), '"val": {\n', sep="")
 			up(.lv)
-			.add <- .add %+% paste(indent(.lv), '"baseline": ', .amo_dat$read_baseline[i],',\n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"target": ', .amo_dat$read_target[i],'\n', sep="")
+			.add <- .add %+% paste(indent(.lv), '"baseline": ', checkna(.amo_dat$read_baseline[i]),',\n', sep="")
+			.add <- .add %+% paste(indent(.lv), '"target": ', checkna(.amo_dat$read_target[i]),'\n', sep="")
 			down(.lv)
 			.add <- .add %+% paste(indent(.lv), '}\n', sep="")
 			down(.lv)
@@ -141,9 +141,9 @@ ExMGPResult <- function(org_code, level){
 				up(.lv)
 				.add <- .add %+% paste(indent(.lv), '"key": {\n', sep="")
 				up(.lv)			
-				.add <- .add %+% paste(indent(.lv), '"subject": "',.mgp$subject[i] ,'", \n', sep="")
-				.add <- .add %+% paste(indent(.lv), '"subgroup": "',RetMGPGroup(.mgp$group[i]),'", \n', sep="")
-				.add <- .add %+% paste(indent(.lv), '"year": "',.mgp$year[i],'" \n', sep="")
+				.add <- .add %+% paste(indent(.lv), '"subject": "',.mgp$subject[i] ,'",\n', sep="")
+				.add <- .add %+% paste(indent(.lv), '"subgroup": "',RetMGPGroup(.mgp$group[i]),'",\n', sep="")
+				.add <- .add %+% paste(indent(.lv), '"year": "',.mgp$year[i],'"\n', sep="")
 				down(.lv)
 				.add <- .add %+% paste(indent(.lv), '},\n', sep="")
 			
@@ -297,8 +297,8 @@ WriteGraduation <- function(gdata, level){
 			.add <- .add %+% paste(indent(.lv), '"key": {\n', sep="")
 			up(.lv)
 			
-			.add <- .add %+% paste(indent(.lv), '"subgroup": "', soutput,'", \n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"year": "',year,'" \n', sep="")
+			.add <- .add %+% paste(indent(.lv), '"subgroup": "', soutput,'",\n', sep="")
+			.add <- .add %+% paste(indent(.lv), '"year": "',year,'"\n', sep="")
 			down(.lv)				
 			.add <- .add %+% paste(indent(.lv), '},\n', sep="")
 				
@@ -560,7 +560,7 @@ ExAccountability <- function(org_code, level){
 					.add <- indent(.lv) %+% '{\n'
 					up(.lv)
 					
-					.add <- .add %+% paste(indent(.lv), '"subgroup": ',checkna_str(.acct_sg$subgroup[i]),', \n', sep="")
+					.add <- .add %+% paste(indent(.lv), '"subgroup": ',checkna_str(.acct_sg$subgroup[i]),',\n', sep="")
 					
 					.add <- .add %+% paste(indent(.lv), '"read_size": ',checkna(.acct_sg$read_size[i]),',\n', sep="")
 					.add <- .add %+% paste(indent(.lv), '"read_score": ',checkna(round(.acct_sg$read_score[i],2)),',\n', sep="")
@@ -604,9 +604,9 @@ ExAccreditation <- function(org_code, level=0){
 			.add <- indent(level) %+% '{\n'
 			up(.lv)
 			
-			.add <- .add %+% sprintf(indent(.lv) %+% '"type": %s, \n', checkna_str(.accr$accreditation_type[i]))
-			.add <- .add %+% sprintf(indent(.lv) %+% '"level": %s, \n', checkna_str(.accr$accreditation_level[i]))
-			.add <- .add %+% sprintf(indent(.lv) %+% '"exp_date": %s \n', checkna_str(.accr$exp_date[i]))
+			.add <- .add %+% sprintf(indent(.lv) %+% '"type": %s,\n', checkna_str(.accr$accreditation_type[i]))
+			.add <- .add %+% sprintf(indent(.lv) %+% '"level": %s,\n', checkna_str(.accr$accreditation_level[i]))
+			.add <- .add %+% sprintf(indent(.lv) %+% '"exp_date": %s\n', checkna_str(.accr$exp_date[i]))
 
 			down(.lv)		
 			.add <- .add %+% indent(.lv) %+% '}'
@@ -677,7 +677,7 @@ WriteSPED <- function(.casdat_mr, level){
 
 				.add <- .add %+% paste(indent(.lv), '"subject": "',.subjects[a],'",\n', sep="")
 				.add <- .add %+% paste(indent(.lv), '"subgroup": "',soutput,'", \n', sep="")
-				.add <- .add %+% paste(indent(.lv), '"year": "',year,'" \n', sep="")
+				.add <- .add %+% paste(indent(.lv), '"year": "',year,'"\n', sep="")
 				
 				down(.lv)
 				
