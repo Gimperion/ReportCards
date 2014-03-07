@@ -1,31 +1,32 @@
-ReportCards
+#ReportCards
 ===========
-LearnDC ReportCard  Generation Code
+###LearnDC ReportCard Data Aggregator
 
 List of Elements:
-
 Report Card Sections
 - Accountability
 - Assessment
+- AMO Targets (upcoming)
 - Highly Qualified Teacher Status 
 - College Enrollment
 - PCSB PMF Rating (Optional)
 - Graduation
 
-School Profile Sections:
+###School Profile Sections:
 - Program Info
 - Enrollment
 - MGP Scores
 - College Readiness
 - Special Ed (CAS Scores)
 - Early Childhood
+- Equity Report Data
 
-School Overfiew Sections:
+###School Overview Sections:
 - External Report Card URLs
+- Equity Report URLs
 
-Future Additions:
-- DC Equity Report Data
 
-Milestones
+###Milestones
 - Completed Code for State/LEA/School level data files
 - Completed Code for school level Excel export
+- Data uploaded along with code to Github
