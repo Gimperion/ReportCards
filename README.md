@@ -1,9 +1,9 @@
 #ReportCards
 ===========
-###LearnDC ReportCard Data Aggregator
+##LearnDC ReportCard Data Aggregator
+Data featured on: http://learndc.org/schoolprofiles
 
-List of Elements:
-Report Card Sections
+###Report Card Sections
 - Accountability
 - Assessment
 - AMO Targets (upcoming)
