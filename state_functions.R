@@ -1,3 +1,63 @@
+ExStateAMOs <- function(.lv){
+	.qry <- "SELECT * 
+		FROM [dbo].[amo_state_targets]"
+		
+	.amo_dat <- sqlQuery(dbrepcard, .qry)
+	.ret <- c()
+	
+	if(nrow(.amo_dat) > 0){
+		for(i in 1:nrow(.amo_dat)){
+			## math chunk
+			.add <- indent(.lv) %+% '{\n'
+			up(.lv)
+			.add <- .add %+% paste(indent(.lv), '"key": {\n', sep="")
+			up(.lv)			
+			.add <- .add %+% paste(indent(.lv), '"subject": "Math",\n', sep="")
+			.add <- .add %+% paste(indent(.lv), '"grade": "all",\n', sep="")
+			.add <- .add %+% paste(indent(.lv), '"enrollment_status": "full_year",\n', sep="")
+			.add <- .add %+% paste(indent(.lv), '"subgroup": "',.amo_dat$subgroup[i],'",\n', sep="")
+			.add <- .add %+% paste(indent(.lv), '"year": "',.amo_dat$year[i],'"\n', sep="")
+			down(.lv)
+			.add <- .add %+% paste(indent(.lv), '},\n', sep="")
+		
+			.add <- .add %+% paste(indent(.lv), '"val": {\n', sep="")
+			up(.lv)
+			.add <- .add %+% paste(indent(.lv), '"baseline": ',checkna(.amo_dat$math_baseline[i]),',\n', sep="")
+			.add <- .add %+% paste(indent(.lv), '"target": ', checkna(.amo_dat$math_target[i]),'\n', sep="")
+			down(.lv)
+			.add <- .add %+% paste(indent(.lv), '}\n', sep="")
+			down(.lv)
+			.add <- .add %+% paste(indent(.lv), '}', sep="")
+			.ret <- c(.ret, .add)		
+		
+			## read chunk
+			.add <- indent(.lv) %+% '{\n'
+			up(.lv)
+			.add <- .add %+% paste(indent(.lv), '"key": {\n', sep="")
+			up(.lv)			
+			.add <- .add %+% paste(indent(.lv), '"subject": "Reading",\n', sep="")
+			.add <- .add %+% paste(indent(.lv), '"grade": "all",\n', sep="")
+			.add <- .add %+% paste(indent(.lv), '"enrollment_status": "full_year",\n', sep="")
+			.add <- .add %+% paste(indent(.lv), '"subgroup": "',.amo_dat$subgroup[i],'",\n', sep="")
+			.add <- .add %+% paste(indent(.lv), '"year": "',.amo_dat$year[i],'"\n', sep="")
+			down(.lv)
+			.add <- .add %+% paste(indent(.lv), '},\n', sep="")
+		
+			.add <- .add %+% paste(indent(.lv), '"val": {\n', sep="")
+			up(.lv)
+			.add <- .add %+% paste(indent(.lv), '"baseline": ', checkna(.amo_dat$read_baseline[i]),',\n', sep="")
+			.add <- .add %+% paste(indent(.lv), '"target": ', checkna(.amo_dat$read_target[i]),'\n', sep="")
+			down(.lv)
+			.add <- .add %+% paste(indent(.lv), '}\n', sep="")
+			down(.lv)
+			.add <- .add %+% paste(indent(.lv), '}', sep="")
+			.ret <- c(.ret, .add)	
+		}
+		return(paste(.ret, collapse=',\n'))		
+	}
+}
+
+
 ## 
 ExStatePreKCAS <- function(level){
 	.qry <- "SELECT A.*,
