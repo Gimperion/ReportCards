@@ -123,10 +123,23 @@ up(level)
 }
 
 {
+	## Diploma Count
+	cat(indent(level),'{', sep="", fill=TRUE)
+	up(level)
+	cat(indent(level), '"id": "diploma_count",', sep="", fill=TRUE)
+	cat(indent(level), '"data": [', sep="", fill=TRUE)
+	cat(ExDiplCount(level+1), fill=TRUE)
+	cat('\n',indent(level), ']', sep="", fill=TRUE)
+	down(level)
+	cat(indent(level),'},', sep="", fill=TRUE)
+
+}
+
+{
 	## Graduation targets
 	cat(indent(level),'{', sep="", fill=TRUE)
 	up(level)
-	cat(indent(level), '"id": "graduatioN_targets",', sep="", fill=TRUE)
+	cat(indent(level), '"id": "graduation_targets",', sep="", fill=TRUE)
 	cat(indent(level), '"data": [', sep="", fill=TRUE)
 	cat(ExGradTargets(level+1), fill=TRUE)
 	cat('\n',indent(level), ']', sep="", fill=TRUE)
