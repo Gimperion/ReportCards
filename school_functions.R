@@ -7,57 +7,37 @@ WriteJSONChunk <- function(elem_list){
 }
 
 ExAMOs <- function(orgcode, .lv){
-	.qry <- sprintf("SELECT * 
-		FROM [dbo].[amo_status_export]
-		WHERE [current_entity_code] = %s", leadgr(orgcode, 4))
-		
-	.amo_dat <- sqlQuery(dbrepcard, .qry)
-	.ret <- c()
-	
-	if(nrow(.amo_dat) > 0){
+    .qry <- sprintf("SELECT * 
+        FROM [dbo].[amo_status_export]
+        WHERE [current_entity_code] = %s", leadgr(orgcode, 4))
+    .amo_dat <- sqlQuery(dbrepcard, .qry)
+    .ret <- c()
+    
+    if(nrow(.amo_dat) > 0){
         for(i in 1:nrow(.amo_dat)){
-            ## math chunk
-            .add <- indent(.lv) %+% '{\n'
-            up(.lv)
-            .add <- .add %+% indent(.lv) %+% '"key": '
-            .add <- .add %+% WriteJSONChunk(c(subject='"Math"', 
-                grade='"all"',
-                enrollment_status='"full_year"',
-                subgroup=sprintf('"%s"', .amo_dat$subgroup[i]),
-                year=sprintf('"%s"', .amo_dat$year[i]))) %+% ', \n'
+            for(j in c("math", "read")){
+                .add <- indent(.lv) %+% '{\n'
+                up(.lv)
+                .add <- .add %+% indent(.lv) %+% '"key": '
+                .add <- .add %+% WriteJSONChunk(c(subject=ifelse(j=='math', '"Math"', '"Reading"'), 
+                    grade='"all"',
+                    enrollment_status='"full_year"',
+                    subgroup=sprintf('"%s"', .amo_dat$subgroup[i]),
+                    year=sprintf('"%s"', .amo_dat$year[i]))) %+% ', \n'
+                .add <- .add %+% indent(.lv) %+% '"val": '
+                .add <- .add %+% WriteJSONChunk(c(basline=checkna(.amo_dat[i, j %+% '_baseline']),
+                    target=checkna(.amo_dat[i, j %+% '_target']))) %+% '\n'
                 
-            .add <- .add %+% indent(.lv) %+% '"val":'
-            .add <- .add %+% WriteJSONChunk(c(basline=checkna(.amo_dat$math_baseline[i]),
-                target=checkna(.amo_dat$math_target[i]))) %+% '\n'
-                
-            down(.lv)
-            .add <- .add %+% paste(indent(.lv), '}', sep="")
-            .ret <- c(.ret, .add)
-
-            ## Read chunk
-            .add <- indent(.lv) %+% '{\n'
-            up(.lv)            
-            .add <- .add %+% indent(.lv) %+% '"key": '
-            .add <- .add %+% WriteJSONChunk(c(subject='"Reading"', 
-                grade='"all"',
-                enrollment_status='"full_year"',
-                subgroup=sprintf('"%s"', .amo_dat$subgroup[i]),
-                year=sprintf('"%s"', .amo_dat$year[i]))) %+% ', \n'
-                
-            .add <- .add %+% indent(.lv) %+% '"val":'
-            .add <- .add %+% WriteJSONChunk(c(basline=checkna(.amo_dat$read_baseline[i]),
-                target=checkna(.amo_dat$read_target[i]))) %+% '\n'
-                
-            down(.lv)
-            .add <- .add %+% paste(indent(.lv), '}', sep="")
-            .ret <- c(.ret, .add)
+                down(.lv)
+                .add <- .add %+% paste(indent(.lv), '}', sep="")
+                .ret <- c(.ret, .add)
+            }
         }
         return(paste(.ret, collapse=',\n'))
     }
 }
 
 ## cat(ExAMOs(210, 1), fill=TRUE)
-
 ExHQTStatus <- function(org_code){
 	.qry <- "SELECT * FROM [dbo].[hqt_status_sy1112]
 		WHERE [school_code] = '" %+% org_code %+% "'"
@@ -159,7 +139,7 @@ ExCollegeReadiness <- function(org_code, level){
 	.lv <- level
 	
 	.qry <- "SELECT * FROM [dbo].[college_readiness]
-		WHERE [fy13_entity_code] = '" %+% org_code %+% "'"		
+		WHERE [fy13_entity_code] = '" %+% org_code %+% "'"
 		
 	.cready <- sqlQuery(dbrepcard, .qry)
 	##print(.cready)
@@ -169,9 +149,9 @@ ExCollegeReadiness <- function(org_code, level){
 	.ret <- c()
 
 	for(i in years){
-		.tmp <- subset(.cready, year == i)		
+		.tmp <- subset(.cready, year == i)
 		.ret <- c(.ret, EncodeCReady(.tmp, level))
-	}	
+	}
 	
 	return(paste(.ret, collapse=',\n'))
 }
@@ -290,7 +270,7 @@ WriteGraduation <- function(gdata, level){
 			
 			.add <- .add %+% paste(indent(.lv), '"subgroup": "', soutput,'",\n', sep="")
 			.add <- .add %+% paste(indent(.lv), '"year": "',year,'"\n', sep="")
-			down(.lv)				
+			down(.lv)
 			.add <- .add %+% paste(indent(.lv), '},\n', sep="")
 				
 			.add <- .add %+% paste(indent(.lv), '"val": {\n', sep="")
@@ -310,108 +290,61 @@ WriteGraduation <- function(gdata, level){
 	return(paste(.ret, collapse=',\n'))
 }
 
+## What are we trying to do?
+## 1) print profile url
+## 2) print pmf by year. 
+
+
+ExTest <- function(org_code){
+    pull_tables <- c('pmf_sy1011', 'pmf_sy1112', 'pmf_sy1213')
+    .pmf_dat <- lapply(sprintf("SELECT * FROM [dbo].[%s]
+    WHERE [school_code] = '%s'", pull_tables, as.character(org_code)), sqlQuery, channel=dbrepcard)
+    .pmf_dat
+}
 
 ExPMF <- function(org_code, level){
-	.lv <- level
-	
-	.qry <- "SELECT * FROM [dbo].[pmf_sy1011]
-		WHERE [school_code] = '" %+% org_code %+% "'"
-	.pmf11 <- sqlQuery(dbrepcard, .qry)
-	.ret <- c()
+    .lv <- level
+    pull_tables <- c('pmf_sy1011', 'pmf_sy1112', 'pmf_sy1213')
+    
+    .pmf_dat <- lapply(sprintf("SELECT * FROM [dbo].[%s]
+        WHERE [school_code] = '%s'", pull_tables, as.character(org_code)), sqlQuery, channel=dbrepcard)
 
-	.qry_profile <- "SELECT * FROM [dbo].[profile_urls_13]
-		WHERE [school_code] = '" %+% org_code %+% "'"
-	.prog_profile <- sqlQuery(dbrepcard, .qry_profile)
-
-	if(nrow(.prog_profile)>0){ 
-		.profile <- indent(.lv+2) %+% '"profile_url": "' %+% .prog_profile$url %+% '"\n'
-	}
-	else{
-		.profile <- indent(.lv+2) %+% '"profile_url": null\n'
-	}
-
-	if(nrow(.pmf11)>0){
-		for(i in 1:nrow(.pmf11)){
-			.add <- indent(.lv) %+% '{\n'
-			up(.lv)
-			.add <- .add %+% indent(.lv) %+% '"key": {\n'
-			up(.lv)
-			.add <- .add %+% indent(.lv) %+% '"year": "2011",\n'
-			.add <- .add %+% indent(.lv) %+% '"category": "'%+% .pmf11$framework[i]%+%'"\n'
-			down(.lv)
-			.add <- .add %+% indent(.lv) %+% '},\n'
-			.add <- .add %+% indent(.lv) %+% '"val": {\n'
-			up(.lv)
-			.add <- .add %+% indent(.lv) %+% '"score": '%+% .pmf11$score[i]%+%',\n'
-			.add <- .add %+% indent(.lv) %+% '"tier": '%+% checkna_str(.pmf11$tier[i]) %+%',\n'
-			.add <- .add %+% .profile
-			down(.lv)
-			.add <- .add %+% indent(.lv) %+% '}\n'
-			down(.lv)
-			.add <- .add %+% indent(.lv) %+% '}'
-			.ret <- c(.ret, .add)
-		}
-	}
-
-	.qry <- "SELECT * FROM [dbo].[pmf_sy1112]
-		WHERE [school_code] = '" %+% org_code %+% "'"
-	.pmf12 <- sqlQuery(dbrepcard, .qry)
-	
-	if(nrow(.pmf11)>0){
-		for(i in 1:nrow(.pmf12)){
-			.add <- indent(.lv) %+% '{\n'
-			up(.lv)
-			.add <- .add %+% indent(.lv) %+% '"key": {\n'
-			up(.lv)
-			.add <- .add %+% indent(.lv) %+% '"year": "2012",\n'
-			.add <- .add %+% indent(.lv) %+% '"category": "'%+% .pmf12$framework[i]%+%'"\n'
-			down(.lv)
-			.add <- .add %+% indent(.lv) %+% '},\n'
-			.add <- .add %+% indent(.lv) %+% '"val": {\n'
-			up(.lv)
-			.add <- .add %+% indent(.lv) %+% '"score": '%+% .pmf12$score[i]%+%',\n'
-			.add <- .add %+% indent(.lv) %+% '"tier": "'%+% .pmf12$tier[i]%+%'",\n'
-			.add <- .add %+% .profile
-			down(.lv)
-			.add <- .add %+% indent(.lv) %+% '}\n'
-			down(.lv)
-			.add <- .add %+% indent(.lv) %+% '}'
-			.ret <- c(.ret, .add)
-		}
-	}
-
-	.qry <- "SELECT * FROM [dbo].[pmf_sy1213]
-		WHERE [school_code] = '" %+% org_code %+% "'"
-	.pmf13 <- sqlQuery(dbrepcard, .qry)
-
-	if(nrow(.pmf13)>0){
-		for(i in 1:nrow(.pmf13)){
-			.add <- indent(.lv) %+% '{\n'
-			up(.lv)
-			.add <- .add %+% indent(.lv) %+% '"key": {\n'
-			up(.lv)
-			.add <- .add %+% indent(.lv) %+% '"year": "2013",\n'
-			.add <- .add %+% indent(.lv) %+% '"category": "'%+% .pmf13$framework[i]%+%'"\n'
-			down(.lv)
-			.add <- .add %+% indent(.lv) %+% '},\n'
-			.add <- .add %+% indent(.lv) %+% '"val": {\n'
-			up(.lv)
-			.add <- .add %+% indent(.lv) %+% '"score": '%+% .pmf13$score[i]%+%',\n'
-			.add <- .add %+% indent(.lv) %+% '"tier": "'%+% .pmf13$tier[i]%+%'",\n'
-			.add <- .add %+% .profile
-			down(.lv)
-			.add <- .add %+% indent(.lv) %+% '}\n'
-			down(.lv)
-			.add <- .add %+% indent(.lv) %+% '}'
-			.ret <- c(.ret, .add)
-		}
-	}
-
-	return(paste(.ret, collapse=',\n'))
+    names(.pmf_dat) <- c("2011", "2012", "2013")
+    .pmf_dat <- .pmf_dat[sapply(.pmf_dat, nrow) > 0]
+    
+    if(length(.pmf_dat) >0){    
+        .qry_profile <- "SELECT * FROM [dbo].[profile_urls_13]
+            WHERE [school_code] = '" %+% org_code %+% "'"
+        .prog_profile <- sqlQuery(dbrepcard, .qry_profile)
+        
+        if(nrow(.prog_profile)>0){ 
+            .profile <- '"' %+% .prog_profile$url %+% '"'
+        }
+        else{
+            .profile <- 'null'
+        }
+        .ret <- mapply(function(x,pmf_yr){
+            .ret <- c()
+            for(i in 1:nrow(x)){
+                .add <- indent(.lv) %+% '{\n'
+                up(.lv)
+                .add <- .add %+% indent(.lv) %+% '"key": '
+                .add <- .add %+% WriteJSONChunk(c(year= sprintf('"%s"', pmf_yr), 
+                    category=sprintf('"%s"', x$framework[i]))) %+% ', \n'
+                .add <- .add %+% indent(.lv) %+% '"val": '
+                .add <- .add %+% WriteJSONChunk(c(score=checkna(x$score[i]),
+                    target=checkna_str(x$tier[i]))) %+% '\n'                
+                down(.lv)
+                .add <- .add %+% paste(indent(.lv), '}', sep="")
+                .ret <- c(.ret, .add)
+            }
+            return(.ret)
+        }, .pmf_dat, names(.pmf_dat))
+        return(paste(.ret, collapse=',\n'))
+    }
 }
 
 ## .subgroups <- c("African American","White","Hispanic","Asian","American Indian", "Pacific Islander", "Multi Racial","Special Education","English Learner","Economically Disadvantaged","Male", "Female")
-
 SubCEnroll <- function(subgroup){
 	if(subgroup == 'Total high school graduates'){
 		return('All')
@@ -434,7 +367,6 @@ SubCEnroll <- function(subgroup){
 	} else if(subgroup=='Disability=N'){
 		return('Not Special Education')
 	}
-	
 	return(subgroup)
 }
 
@@ -481,41 +413,30 @@ ExCollegeEnroll <- function(org_code, level){
 	if(length(.ret)>0){
 		return(paste(.ret, collapse=',\n'))
 	}else{
-		return('')	
+		return('')
 	}
 }
 
 WriteCEnroll <- function(.cenr, level, year){
-	.ret <- c()
-	.lv <- level
-	for(i in 1:nrow(.cenr)){
-		.add <- indent(.lv) %+% '{\n'
-		
-		up(.lv)
-		.add <- .add %+% paste(indent(.lv), '"key": {\n', sep="")
-		up(.lv)
-
-		.add <- .add %+% paste(indent(.lv), '"cohort_year": "',year,'",\n', sep="")
-		.add <- .add %+% paste(indent(.lv), '"subgroup": "', SubCEnroll(.cenr$Group[i]),'"\n', sep="")
-		
-		down(.lv)
-		.add <- .add %+% paste(indent(.lv), '},\n', sep="")
-			
-		.add <- .add %+% paste(indent(.lv), '"val": {\n', sep="")
-		up(.lv)
-		.add <- .add %+% paste(indent(.lv), '"hs_graduates": ',.cenr$Graduates[i],',\n', sep="")
-		.add <- .add %+% paste(indent(.lv), '"enroll_within_16mo": ',.cenr$Initial_Enroll_16mo[i],',\n', sep="")
-		.add <- .add %+% paste(indent(.lv), '"enroll_within_16mo_instate": ',.cenr$Initial_Enroll_InState_16mo[i],',\n', sep="")
-		.add <- .add %+% paste(indent(.lv), '"complete_1yr_instate": ',.cenr$Complete_1Yr_in_State[i],' \n', sep="")
-
-		down(.lv)
-		.add <- .add %+% paste(indent(.lv), '}\n', sep="")
-
-		down(.lv)
-		.add <- .add %+% paste(indent(.lv), '}', sep="")
-		.ret <- c(.ret, .add)
-	}
-	return(.ret)
+    .ret <- c()
+    .lv <- level
+    for(i in 1:nrow(.cenr)){
+        .add <- indent(.lv) %+% '{\n'
+        up(.lv)
+        .add <- .add %+% indent(.lv) %+% '"key": '
+        .add <- .add %+% WriteJSONChunk(c(cohort_year=sprintf('"%s"', year), 
+            subgroup=sprintf('"%s"', SubCEnroll(.cenr$Group[i])))) %+% '\n'
+        .add <- .add %+% indent(.lv) %+% '"val": '
+        .add <- .add %+% WriteJSONChunk(c(hs_graduates=checkna(.cenr$Graduates[i]),
+            enroll_within_16mo=checkna(.cenr$Initial_Enroll_16mo[i]),
+            enroll_within_16mo_instate=checkna(.cenr$Initial_Enroll_InState_16mo[i]),
+            complete_1yr_instate=checkna(.cenr$Complete_1Yr_in_State[i]))
+            ) %+% '\n'
+        down(.lv)
+        .add <- .add %+% paste(indent(.lv), '}', sep="")
+        .ret <- c(.ret, .add)
+    }
+    return(.ret)
 }
 
 ExAccountability <- function(org_code, level){
@@ -574,7 +495,7 @@ ExAccountability <- function(org_code, level){
 		.ret <- .ret %+% paste(indent(.lv), ']\n', sep="")
 		down(.lv)
 		.ret <- .ret %+% paste(indent(.lv), '}', sep="")
-		return(.ret)		
+		return(.ret)
 	} else{
 		return('null')
 	}
@@ -621,10 +542,10 @@ ExSPEDChunk <- function(scode, level){
 	WHERE A.[special_ed] = 'YES'", leadgr(scode,4))
 	
 	.dat_mr <- sqlQuery(dbrepcard, .qry_sped_cas)
-	.ret <- do(group_by(.dat_mr, ea_year), WriteSPED, level)	
+	.ret <- do(group_by(.dat_mr, ea_year), WriteSPED, level)
 	
 	.ret <- subset(.ret, .ret != '')
-	return(paste(.ret, collapse=',\n'))	
+	return(paste(.ret, collapse=',\n'))
 }
 
 WriteSPED <- function(.casdat_mr, level){
