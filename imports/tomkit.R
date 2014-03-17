@@ -105,7 +105,7 @@ checkna <- function(x){
 	if(is.na(x)){
 		return('null')
 	}
-	return(x)
+	return(as.character(x))
 }
 
 checkna_str <- function(x){
@@ -124,3 +124,6 @@ make_null <- function(x){
 	else if (is.na(x) | is.null(x)){x <- 'null'}
 	else return(x)
 }
+
+
+## DO NOT USE ## 

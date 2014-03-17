@@ -1,3 +1,11 @@
+WriteJSONChunk <- function(elem_list){
+    json_elems <- mapply(function(elem_name, elem_str_value){
+        sprintf('"%s": %s',elem_name, elem_str_value)
+    }, names(elem_list), elem_list)
+    
+    return('{' %+% paste(json_elems, collapse=", ") %+% '}')
+}
+
 ExAMOs <- function(orgcode, .lv){
 	.qry <- sprintf("SELECT * 
 		FROM [dbo].[amo_status_export]
@@ -7,57 +15,48 @@ ExAMOs <- function(orgcode, .lv){
 	.ret <- c()
 	
 	if(nrow(.amo_dat) > 0){
-		for(i in 1:nrow(.amo_dat)){
-			## math chunk
-			.add <- indent(.lv) %+% '{\n'
-			up(.lv)
-			.add <- .add %+% paste(indent(.lv), '"key": {\n', sep="")
-			up(.lv)			
-			.add <- .add %+% paste(indent(.lv), '"subject": "Math",\n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"grade": "all",\n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"enrollment_status": "full_year",\n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"subgroup": "',.amo_dat$subgroup[i],'",\n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"year": "',.amo_dat$year[i],'"\n', sep="")
-			down(.lv)
-			.add <- .add %+% paste(indent(.lv), '},\n', sep="")
-		
-			.add <- .add %+% paste(indent(.lv), '"val": {\n', sep="")
-			up(.lv)
-			.add <- .add %+% paste(indent(.lv), '"baseline": ',checkna(.amo_dat$math_baseline[i]),',\n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"target": ', checkna(.amo_dat$math_target[i]),'\n', sep="")
-			down(.lv)
-			.add <- .add %+% paste(indent(.lv), '}\n', sep="")
-			down(.lv)
-			.add <- .add %+% paste(indent(.lv), '}', sep="")
-			.ret <- c(.ret, .add)		
-		
-			## read chunk
-			.add <- indent(.lv) %+% '{\n'
-			up(.lv)
-			.add <- .add %+% paste(indent(.lv), '"key": {\n', sep="")
-			up(.lv)			
-			.add <- .add %+% paste(indent(.lv), '"subject": "Reading",\n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"grade": "all",\n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"enrollment_status": "full_year",\n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"subgroup": "',.amo_dat$subgroup[i],'",\n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"year": "',.amo_dat$year[i],'"\n', sep="")
-			down(.lv)
-			.add <- .add %+% paste(indent(.lv), '},\n', sep="")
-		
-			.add <- .add %+% paste(indent(.lv), '"val": {\n', sep="")
-			up(.lv)
-			.add <- .add %+% paste(indent(.lv), '"baseline": ', checkna(.amo_dat$read_baseline[i]),',\n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"target": ', checkna(.amo_dat$read_target[i]),'\n', sep="")
-			down(.lv)
-			.add <- .add %+% paste(indent(.lv), '}\n', sep="")
-			down(.lv)
-			.add <- .add %+% paste(indent(.lv), '}', sep="")
-			.ret <- c(.ret, .add)	
-		}
-		return(paste(.ret, collapse=',\n'))		
-	}
+        for(i in 1:nrow(.amo_dat)){
+            ## math chunk
+            .add <- indent(.lv) %+% '{\n'
+            up(.lv)
+            .add <- .add %+% indent(.lv) %+% '"key": '
+            .add <- .add %+% WriteJSONChunk(c(subject='"Math"', 
+                grade='"all"',
+                enrollment_status='"full_year"',
+                subgroup=sprintf('"%s"', .amo_dat$subgroup[i]),
+                year=sprintf('"%s"', .amo_dat$year[i]))) %+% ', \n'
+                
+            .add <- .add %+% indent(.lv) %+% '"val":'
+            .add <- .add %+% WriteJSONChunk(c(basline=checkna(.amo_dat$math_baseline[i]),
+                target=checkna(.amo_dat$math_target[i]))) %+% '\n'
+                
+            down(.lv)
+            .add <- .add %+% paste(indent(.lv), '}', sep="")
+            .ret <- c(.ret, .add)
+
+            ## Read chunk
+            .add <- indent(.lv) %+% '{\n'
+            up(.lv)            
+            .add <- .add %+% indent(.lv) %+% '"key": '
+            .add <- .add %+% WriteJSONChunk(c(subject='"Reading"', 
+                grade='"all"',
+                enrollment_status='"full_year"',
+                subgroup=sprintf('"%s"', .amo_dat$subgroup[i]),
+                year=sprintf('"%s"', .amo_dat$year[i]))) %+% ', \n'
+                
+            .add <- .add %+% indent(.lv) %+% '"val":'
+            .add <- .add %+% WriteJSONChunk(c(basline=checkna(.amo_dat$read_baseline[i]),
+                target=checkna(.amo_dat$read_target[i]))) %+% '\n'
+                
+            down(.lv)
+            .add <- .add %+% paste(indent(.lv), '}', sep="")
+            .ret <- c(.ret, .add)
+        }
+        return(paste(.ret, collapse=',\n'))
+    }
 }
 
+## cat(ExAMOs(210, 1), fill=TRUE)
 
 ExHQTStatus <- function(org_code){
 	.qry <- "SELECT * FROM [dbo].[hqt_status_sy1112]
@@ -131,37 +130,29 @@ RetMGPGroup <- function(.ingrp){
 ExMGPResult <- function(org_code, level){
 	.lv <- level
 	.qry <- "SELECT * FROM [dbo].[mgp_summary]
-		WHERE [fy13_entity_code] = '" %+% org_code %+% "'"
+		WHERE [fy13_entity_code] = '" %+% leadgr(org_code,4) %+% "'"
 	.mgp <- sqlQuery(dbrepcard, .qry)	
 	.ret <- c()	
 	if(nrow(.mgp)>0){
 		for(i in 1:nrow(.mgp)){
 			if(.mgp$group_fay_size[i] >= 10 ){
-				.add <- indent(.lv) %+% '{\n'
-				up(.lv)
-				.add <- .add %+% paste(indent(.lv), '"key": {\n', sep="")
-				up(.lv)			
-				.add <- .add %+% paste(indent(.lv), '"subject": "',.mgp$subject[i] ,'",\n', sep="")
-				.add <- .add %+% paste(indent(.lv), '"subgroup": "',RetMGPGroup(.mgp$group[i]),'",\n', sep="")
-				.add <- .add %+% paste(indent(.lv), '"year": "',.mgp$year[i],'"\n', sep="")
-				down(.lv)
-				.add <- .add %+% paste(indent(.lv), '},\n', sep="")
-			
-				.add <- .add %+% paste(indent(.lv), '"val": {\n', sep="")
-				up(.lv)
-				.add <- .add %+% paste(indent(.lv), '"group_size": ', checkna(.mgp$group_fay_size[i]),',\n', sep="")
-				.add <- .add %+% paste(indent(.lv), '"mgp_1yr": ', checkna(.mgp$mgp_1yr[i]),',\n', sep="")
-				.add <- .add %+% paste(indent(.lv), '"mgp_2yr": ', checkna(.mgp$mgp_2yr[i]),'\n', sep="")
-
-				down(.lv)
-				.add <- .add %+% paste(indent(.lv), '}\n', sep="")
-				down(.lv)
-				.add <- .add %+% paste(indent(.lv), '}', sep="")
-				.ret <- c(.ret, .add)
-			}	
-		}
-	}
-	return(paste(.ret, collapse=',\n'))
+                .add <- indent(.lv) %+% '{\n'
+                up(.lv)
+                .add <- .add %+% indent(.lv) %+% '"key": '
+                .add <- .add %+% WriteJSONChunk(c(subject=sprintf('"%s"', .mgp$subject[i]), 
+                    subgroup=sprintf('"%s"', RetMGPGroup(.mgp$group[i])),
+                    year=sprintf('"%s"', .mgp$year[i]))) %+% '\n'
+                .add <- .add %+% indent(.lv) %+% '"val": '
+                .add <- .add %+% WriteJSONChunk(c(group_size=checkna(.mgp$group_fay_size[i]),
+                    mgp_1yr=checkna(.mgp$mgp_1yr[i]),                    
+                    mgp_2yr=checkna(.mgp$mgp_2yr[i]))) %+% '\n'
+                down(.lv)
+                .add <- .add %+% paste(indent(.lv), '}', sep="")
+                .ret <- c(.ret, .add)
+            }
+        }
+    }
+    return(paste(.ret, collapse=',\n'))
 }
 
 ExCollegeReadiness <- function(org_code, level){
