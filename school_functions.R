@@ -19,7 +19,8 @@ ExAMOs <- function(orgcode, .lv){
                 .add <- indent(.lv) %+% '{\n'
                 up(.lv)
                 .add <- .add %+% indent(.lv) %+% '"key": '
-                .add <- .add %+% WriteJSONChunk(c(subject=ifelse(j=='math', '"Math"', '"Reading"'), 
+                .add <- .add %+% WriteJSONChunk(
+                    c(subject=ifelse(j=='math', '"Math"', '"Reading"'), 
                     grade='"all"',
                     enrollment_status='"full_year"',
                     subgroup=sprintf('"%s"', .amo_dat$subgroup[i]),
@@ -537,86 +538,64 @@ ExSPEDChunk <- function(scode, level){
 		FROM [dbo].[fy14_mapping]
 		WHERE [fy14_entity_code] = '%s') B
 	ON A.[ea_year] = B.[ea_year] 
-		AND A.[school_grade] = B.[grade] 
+		AND A.[school_grade] = B.[grade]
 		AND A.[school_code] = B.[school_code]
 	WHERE A.[special_ed] = 'YES'", leadgr(scode,4))
 	
 	.dat_mr <- sqlQuery(dbrepcard, .qry_sped_cas)
-	.ret <- do(group_by(.dat_mr, ea_year), WriteSPED, level)
+    .ret <- do(group_by(.dat_mr, ea_year), WriteSPED, level)
 	
 	.ret <- subset(.ret, .ret != '')
 	return(paste(.ret, collapse=',\n'))
 }
 
 WriteSPED <- function(.casdat_mr, level){
-	year <- .casdat_mr$year[1]
-	.subjects <- c("Math", "Reading")
-	.lv <- level
-	
-	.ret <- c()
-	.plevels <- c("Below Basic", "Basic", "Proficient", "Advanced")
-	
-	## A = Subject, 1 for Math, 2 for Reading
-	for(a in 1:2){
-		for(b in 1:4){
-			soutput <- "All SPED Students"
-			.tmp <- .casdat_mr
-			if(b == 2){
-				.tmp <- subset(.casdat_mr, sped_acc == 'YES')
-				soutput <- "With Accommodations"
-			} else if(b == 3){
-				.tmp <- subset(.casdat_mr, sped_acc != 'YES')
-				soutput <- "No Accommodations"
-			} else if(b==4){
-				.tmp <- subset(.casdat_mr, alt_tested=='YES')
-				soutput <- "ALT Test Takers"
-			}
-			
-			if(a ==1){
-				.profs <- .tmp$math_level
-			} else if(a == 2){
-				.profs <- .tmp$read_level
-			}
-			
-			## START WRITE ##
-			if(length(.profs[.profs %in% .plevels]) >= 10){
-			
-				.add <- indent(.lv) %+% '{\n'
-				
-				up(.lv)
-				.add <- .add %+% paste(indent(.lv), '"key": {\n', sep="")
-				up(.lv)				
+    year <- .casdat_mr$year[1]
+    .subjects <- c("Math", "Reading")
+    .lv <- level
 
-				.add <- .add %+% paste(indent(.lv), '"subject": "',.subjects[a],'",\n', sep="")
-				.add <- .add %+% paste(indent(.lv), '"subgroup": "',soutput,'", \n', sep="")
-				.add <- .add %+% paste(indent(.lv), '"year": "',year,'"\n', sep="")
-				
-				down(.lv)
-				
-				.add <- .add %+% paste(indent(.lv), '},\n', sep="")
-					
-				.add <- .add %+% paste(indent(.lv), '"val": {\n', sep="")
-				up(.lv)
-				
-				.add <- .add %+% paste(indent(.lv), '"n_eligible":',length(.profs),',\n', sep="")
-				.add <- .add %+% paste(indent(.lv), '"n_test_takers":',length(.profs[.profs %in% .plevels]),',\n', sep="")
-				.add <- .add %+% paste(indent(.lv), '"advanced_or_proficient":', length(.profs[.profs %in% c("Proficient", "Advanced")]),',\n', sep="")
-				
-				.add <- .add %+% paste(indent(.lv), '"advanced":',length(.profs[.profs %in% "Advanced"]),',\n', sep="")
-				.add <- .add %+% paste(indent(.lv), '"proficient":',length(.profs[.profs %in% "Proficient"]),',\n', sep="")
-				.add <- .add %+% paste(indent(.lv), '"basic":',length(.profs[.profs %in% "Basic"]),',\n', sep="")
-				.add <- .add %+% paste(indent(.lv), '"below_basic":',length(.profs[.profs %in% "Below Basic"]),'\n', sep="")
-				
-				down(.lv)
-				.add <- .add %+% paste(indent(.lv), '}\n', sep="")
-				down(.lv)
-				.add <- .add %+% paste(indent(.lv), '}', sep="")
-				
-				.ret[length(.ret)+1] <- .add
-			}
-		}
-	}
-	return(paste(.ret, collapse=',\n'))	
+    .ret <- c()
+    .plevels <- c("Below Basic", "Basic", "Proficient", "Advanced")
+
+    ## A = Subject, 1 for Math, 2 for Reading
+    for(a in 1:2){
+        for(b in 1:4){
+            soutput <- c("All SPED Students", "With Accommodations", "No Accommodations", "ALT Test Takers")
+            .tmp <- .casdat_mr
+            if(b == 2){
+                .tmp <- subset(.casdat_mr, sped_acc == 'YES')
+            } else if(b == 3){
+                .tmp <- subset(.casdat_mr, sped_acc != 'YES')
+            } else if(b==4){
+                .tmp <- subset(.casdat_mr, alt_tested=='YES')
+            }
+            
+            bleh <- ifelse(a==1, .profs<- .tmp$math_level, .profs<- .tmp$read_level)
+            ## START WRITE ##
+            if(length(.profs[.profs %in% .plevels]) >= 10){
+                .add <- indent(.lv) %+% '{\n'
+                up(.lv)
+                .add <- .add %+% indent(.lv) %+% '"key": '
+                .add <- .add %+% WriteJSONChunk(c(subject=sprintf('"%s"', .subjects[a]), 
+                    subgroup=sprintf('"%s"', soutput[b]),
+                    year=sprintf('"%s"', year))) %+% '\n'
+
+                .add <- .add %+% indent(.lv) %+% '"val": '
+                .add <- .add %+% WriteJSONChunk(c(n_eligible=checkna(length(.profs)),
+                    n_test_takers=length(.profs[.profs %in% .plevels]),
+                    advanced_or_proficient=checkna(length(.profs[.profs %in% c("Proficient", "Advanced")])),
+                    advanced=checkna(length(.profs[.profs %in% "Advanced"])),
+                    proficient=checkna(length(.profs[.profs %in% "Proficient"])),
+                    basic=checkna(length(.profs[.profs %in% "Basic"])),
+                    below_basic=checkna(length(.profs[.profs %in% "Below Basic"]))
+                    )) %+% '\n'
+                down(.lv)
+                .add <- .add %+% paste(indent(.lv), '}', sep="")
+                .ret <- c(.ret, .add)
+            }
+        }
+    }
+    return(paste(.ret, collapse=',\n'))
 }
 
 ExEnrollChunk <- function(scode, level){
