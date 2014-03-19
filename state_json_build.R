@@ -142,7 +142,7 @@ up(level)
 	cat(indent(level), '"id": "graduation_targets",', sep="", fill=TRUE)
 	cat(indent(level), '"data": [', sep="", fill=TRUE)
 	cat(ExGradTargets(level+1), fill=TRUE)
-	cat('\n',indent(level), ']', sep="", fill=TRUE)
+	cat(indent(level), ']', sep="", fill=TRUE)
 	down(level)
 	cat(indent(level),'},', sep="", fill=TRUE)
 	
@@ -162,13 +162,10 @@ up(level)
 	cat(indent(level),'}', sep="", fill=TRUE)
 }
 
-
-
 down(level)
 cat(indent(level),']', sep="", fill=TRUE)
 down(level)
 cat(indent(level), '},', fill=TRUE)
-
 
 cat(indent(level),'"profile": {', sep="", fill=TRUE)
 up(level)

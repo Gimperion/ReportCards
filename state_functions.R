@@ -59,20 +59,18 @@ ExStateAMOs <- function(.lv){
 
 
 ExDiplCount <- function(.lv){
-	.qry <- "SELECT * 
-	FROM [dbo].[state_reg_dipl_count]"
-		
-	.dipl_data <- sqlQuery(dbrepcard, .qry)
-	.ret <- c()
-
-	if(nrow(.dipl_data) > 0){
-		for(i in 1:nrow(.dipl_data)){
-			.add <- indent(.lv+1) %+% sprintf('"%d": %d', .dipl_data$grad_year[i], .dipl_data$diplomas_issued[i])
-			
-			.ret <- c(.ret, .add)	
-		}
-		return(paste(.ret, collapse=',\n'))		
-	}	
+    .qry <- "SELECT * 
+    FROM [dbo].[state_reg_dipl_count]"
+        
+    .dipl_data <- sqlQuery(dbrepcard, .qry)
+    .ret <- c()
+    if(nrow(.dipl_data) > 0){
+        for(i in 1:nrow(.dipl_data)){
+            .add <- indent(.lv) %+% sprintf('{"key":{"year":"%d"}, "value": "%d"}', .dipl_data$grad_year[i], .dipl_data$diplomas_issued[i])
+            .ret <- c(.ret, .add)
+        }
+        return(paste(.ret, collapse=',\n'))
+    }
 }
 
 ## 

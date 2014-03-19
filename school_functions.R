@@ -291,10 +291,6 @@ WriteGraduation <- function(gdata, level){
 	return(paste(.ret, collapse=',\n'))
 }
 
-## What are we trying to do?
-## 1) print profile url
-## 2) print pmf by year. 
-
 
 ExTest <- function(org_code){
     pull_tables <- c('pmf_sy1011', 'pmf_sy1112', 'pmf_sy1213')
@@ -426,7 +422,7 @@ WriteCEnroll <- function(.cenr, level, year){
         up(.lv)
         .add <- .add %+% indent(.lv) %+% '"key": '
         .add <- .add %+% WriteJSONChunk(c(cohort_year=sprintf('"%s"', year), 
-            subgroup=sprintf('"%s"', SubCEnroll(.cenr$Group[i])))) %+% '\n'
+            subgroup=sprintf('"%s"', SubCEnroll(.cenr$Group[i])))) %+% ',\n'
         .add <- .add %+% indent(.lv) %+% '"val": '
         .add <- .add %+% WriteJSONChunk(c(hs_graduates=checkna(.cenr$Graduates[i]),
             enroll_within_16mo=checkna(.cenr$Initial_Enroll_16mo[i]),
@@ -578,7 +574,7 @@ WriteSPED <- function(.casdat_mr, level){
                 .add <- .add %+% indent(.lv) %+% '"key": '
                 .add <- .add %+% WriteJSONChunk(c(subject=sprintf('"%s"', .subjects[a]), 
                     subgroup=sprintf('"%s"', soutput[b]),
-                    year=sprintf('"%s"', year))) %+% '\n'
+                    year=sprintf('"%s"', year))) %+% ',\n'
 
                 .add <- .add %+% indent(.lv) %+% '"val": '
                 .add <- .add %+% WriteJSONChunk(c(n_eligible=checkna(length(.profs)),
@@ -651,63 +647,55 @@ SubProcEnr <- function(.dat, lv){
 }
 
 WriteEnroll <- function(.edat, level){
+    .ret <- c()
 
-	.ret <- c()
-	
-	if(nrow(.edat) < 10){
-		return(NULL)	
-	}
-	
-	year <- .edat$ea_year[1]
-	.lv <- level
-	.edat$grade <- sapply(.edat$grade, leadgr, 2)
-	
-	.glist <- unique(.edat$grade)
-	
-	.subgroups <- c("African American","White","Hispanic","Asian","American Indian", "Pacific Islander", "Multi Racial","Special Education","English Learner","Economically Disadvantaged","Male", "Female")
-	
-	for(g in 0:length(.glist)){
-		.tmp <- .edat
-		goutput <- "All"
-		if(g>0){
-			.tmp <- subset(.tmp, grade==.glist[g])
-			goutput <- .glist[g]
-		}
-		
-		for(s in 0:length(.subgroups)){
-			
-			soutput <- "All"
-			.tmps <- .tmp
-			if(s > 0){
-				soutput <- .subgroups[s]
-				.tmps <- SubProcEnr(.tmp, s)
-			}
-			
-			if(nrow(.tmps)>=10){
-				.add <- indent(.lv) %+% '{\n'
-				
-				up(.lv)
-				.add <- .add %+% paste(indent(.lv), '"key": {\n', sep="")
-				up(.lv)
-				
-				.add <- .add %+% paste(indent(.lv), '"grade": "',goutput,'", \n', sep="")
-				.add <- .add %+% paste(indent(.lv), '"subgroup": "', soutput,'", \n', sep="")
-				.add <- .add %+% paste(indent(.lv), '"year": "',year,'" \n', sep="")
-				down(.lv)				
-				.add <- .add %+% paste(indent(.lv), '},\n', sep="")
-					
-				.add <- .add %+% paste(indent(.lv), '"val": ',nrow(.tmps),'\n', sep="")
-				down(.lv)
-				.add <- .add %+% paste(indent(.lv), '}', sep="")
-				
-				.ret[length(.ret)+1] <- .add		
-			}
-		}
-	}
-	
-	## grade/subgroup, etc.	
-	
-	return(paste(.ret, collapse=',\n'))
+    if(nrow(.edat) < 10){
+        return(NULL)	
+    }
+
+    year <- .edat$ea_year[1]
+    .lv <- level
+    .edat$grade <- sapply(.edat$grade, leadgr, 2)
+
+    .glist <- unique(.edat$grade)
+
+    .subgroups <- c("African American","White","Hispanic","Asian","American Indian", "Pacific Islander", "Multi Racial","Special Education","English Learner","Economically Disadvantaged","Male", "Female")
+
+    for(g in 0:length(.glist)){
+        .tmp <- .edat
+        goutput <- "All"
+        if(g>0){
+            .tmp <- subset(.tmp, grade==.glist[g])
+            goutput <- .glist[g]
+        }
+        
+        for(s in 0:length(.subgroups)){
+            
+            soutput <- "All"
+            .tmps <- .tmp
+            if(s > 0){
+                soutput <- .subgroups[s]
+                .tmps <- SubProcEnr(.tmp, s)
+            }
+            
+            if(nrow(.tmps)>=10){
+                .add <- indent(.lv) %+% '{\n'
+                up(.lv)
+                .add <- .add %+% indent(.lv) %+% '"key": '
+                .add <- .add %+% WriteJSONChunk(c(grade=sprintf('"%s"', goutput), 
+                    subgroup=sprintf('"%s"', soutput),
+                    year=sprintf('"%s"', year))) %+% ',\n'
+                .add <- .add %+% paste(indent(.lv), '"val": ',nrow(.tmps),'\n', sep="")
+                down(.lv)
+                .add <- .add %+% paste(indent(.lv), '}', sep="")
+                .ret <- c(.ret, .add)
+            }
+        }
+    }
+
+    ## grade/subgroup, etc.	
+
+    return(paste(.ret, collapse=',\n'))
 }
 
 ##"African American","White","Hispanic","Asian","Special Education","English Learner","Economically Disadvantaged","Male", "Female")
