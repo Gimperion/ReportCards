@@ -1,60 +1,33 @@
 ExStateAMOs <- function(.lv){
-	.qry <- "SELECT * 
-		FROM [dbo].[amo_state_targets]"
-		
-	.amo_dat <- sqlQuery(dbrepcard, .qry)
-	.ret <- c()
-	
-	if(nrow(.amo_dat) > 0){
-		for(i in 1:nrow(.amo_dat)){
-			## math chunk
-			.add <- indent(.lv) %+% '{\n'
-			up(.lv)
-			.add <- .add %+% paste(indent(.lv), '"key": {\n', sep="")
-			up(.lv)			
-			.add <- .add %+% paste(indent(.lv), '"subject": "Math",\n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"grade": "all",\n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"enrollment_status": "full_year",\n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"subgroup": "',.amo_dat$subgroup[i],'",\n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"year": "',.amo_dat$year[i],'"\n', sep="")
-			down(.lv)
-			.add <- .add %+% paste(indent(.lv), '},\n', sep="")
-		
-			.add <- .add %+% paste(indent(.lv), '"val": {\n', sep="")
-			up(.lv)
-			.add <- .add %+% paste(indent(.lv), '"baseline": ',checkna(.amo_dat$math_baseline[i]),',\n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"target": ', checkna(.amo_dat$math_target[i]),'\n', sep="")
-			down(.lv)
-			.add <- .add %+% paste(indent(.lv), '}\n', sep="")
-			down(.lv)
-			.add <- .add %+% paste(indent(.lv), '}', sep="")
-			.ret <- c(.ret, .add)		
-		
-			## read chunk
-			.add <- indent(.lv) %+% '{\n'
-			up(.lv)
-			.add <- .add %+% paste(indent(.lv), '"key": {\n', sep="")
-			up(.lv)			
-			.add <- .add %+% paste(indent(.lv), '"subject": "Reading",\n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"grade": "all",\n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"enrollment_status": "full_year",\n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"subgroup": "',.amo_dat$subgroup[i],'",\n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"year": "',.amo_dat$year[i],'"\n', sep="")
-			down(.lv)
-			.add <- .add %+% paste(indent(.lv), '},\n', sep="")
-		
-			.add <- .add %+% paste(indent(.lv), '"val": {\n', sep="")
-			up(.lv)
-			.add <- .add %+% paste(indent(.lv), '"baseline": ', checkna(.amo_dat$read_baseline[i]),',\n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"target": ', checkna(.amo_dat$read_target[i]),'\n', sep="")
-			down(.lv)
-			.add <- .add %+% paste(indent(.lv), '}\n', sep="")
-			down(.lv)
-			.add <- .add %+% paste(indent(.lv), '}', sep="")
-			.ret <- c(.ret, .add)	
-		}
-		return(paste(.ret, collapse=',\n'))		
-	}
+    .qry <- "SELECT * 
+        FROM [dbo].[amo_state_targets]"
+        
+    .amo_dat <- sqlQuery(dbrepcard, .qry)
+    .ret <- c()
+
+    if(nrow(.amo_dat) > 0){
+        for(i in 1:nrow(.amo_dat)){
+            for(j in c("math", "read")){
+                .add <- indent(.lv) %+% '{\n'
+                up(.lv)
+                .add <- .add %+% indent(.lv) %+% '"key": '
+                .add <- .add %+% WriteJSONChunk(
+                    c(subject=ifelse(j=='math', '"Math"', '"Reading"'), 
+                    grade='"all"',
+                    enrollment_status='"full_year"',
+                    subgroup=sprintf('"%s"', .amo_dat$subgroup[i]),
+                    year=sprintf('"%s"', .amo_dat$year[i]))) %+% ', \n'
+                .add <- .add %+% indent(.lv) %+% '"val": '
+                .add <- .add %+% WriteJSONChunk(c(basline=checkna(.amo_dat[i, j %+% '_baseline']),
+                    target=checkna(.amo_dat[i, j %+% '_target']))) %+% '\n'
+                
+                down(.lv)
+                .add <- .add %+% paste(indent(.lv), '}', sep="")
+                .ret <- c(.ret, .add)
+            }
+        }
+        return(paste(.ret, collapse=',\n'))
+    }
 }
 
 
@@ -73,131 +46,119 @@ ExDiplCount <- function(.lv){
     }
 }
 
-## 
-ExStatePreKCAS <- function(level){
-	.qry <- "SELECT A.*,
-				CASE
-					WHEN A.[usi] in (SELECT [usi] from [dbo].[historical_prek_static]) THEN 1
-					ELSE 0
-				END as [prek_participant]		
-			FROM [dbo].[assessment_sy1213] A
-			WHERE A.[tested_grade] = '3'"
-	
-	.prekcas13 <- sqlQuery(dbrepcard, .qry)
-	.ret <- c()
-	
-	.ret <- c(.ret, WritePreKCAS(.prekcas13, level))
-	
-	.qry <- "SELECT A.*,
-			CASE
-				WHEN A.[usi] in (SELECT [usi] from [dbo].[historical_prek_static]) THEN 1
-				ELSE 0
-			END as [prek_participant]		
-		FROM [dbo].[assessment_sy1112] A
-		WHERE A.[tested_grade] = '3'"
-	
-	.prekcas12 <- sqlQuery(dbrepcard, .qry)
-	
-	.ret <- c(.ret, WritePreKCAS(.prekcas12, level))
-	return(paste(.ret, collapse=',\n'))	
+ExGradTargets <- function(level){
+    .ret <- sapply(2012:2017, function(x, lv){
+        sprintf('%s{"key": %d, "value": %f}', indent(lv), x, 0.59 +(x-2011)*(0.78-0.59)/6)}, level 
+    )
+    return(paste(.ret, collapse=',\n'))
 }
 
-ExGradTargets <- function(level){	
-	.ret <- sapply(2012:2017, function(x, lv){
-		sprintf('%s{"key": %d, "value": %f}', indent(lv), x, 0.59 +(x-2011)*(0.78-0.59)/6)}, level 
-	)
-	return(paste(.ret, collapse=',\n'))		
+
+## 
+ExStatePreKCAS <- function(level){
+    .qry <- "SELECT A.*,
+                CASE
+                    WHEN A.[usi] in (SELECT [usi] from [dbo].[historical_prek_static]) THEN 1
+                    ELSE 0
+                END as [prek_participant]
+            FROM [dbo].[assessment] A
+            WHERE A.[tested_grade] = '03' AND A.[year] = '2013'"
+
+    .prekcas13 <- sqlQuery(dbrepcard, .qry)
+    .ret <- c()
+
+    .ret <- c(.ret, WritePreKCAS(.prekcas13, level))
+
+    .qry <- "SELECT A.*,
+            CASE
+                WHEN A.[usi] in (SELECT [usi] from [dbo].[historical_prek_static]) THEN 1
+                ELSE 0
+            END as [prek_participant]
+        FROM [dbo].[assessment] A
+        WHERE A.[tested_grade] = '03' AND A.[year] = '2012'"
+
+    .prekcas12 <- sqlQuery(dbrepcard, .qry)
+
+    .ret <- c(.ret, WritePreKCAS(.prekcas12, level))
+    return(paste(.ret, collapse=',\n'))
 }
 
 WritePreKCAS <- function(.prekcas, level){
-	.lv <- level
-	.ret <- c()
-	
-	.group <- c("PreK Participant", "Non-PreK Participant")
-	.year <- .prekcas$year[1]
-	.subject <- c("Math", "Reading")
-	.plevels <- c("Below Basic", "Basic", "Proficient", "Advanced")
-	
-	for(i in 1:2){
-		if(i == 1){
-			.tmp <- subset(.prekcas, prek_participant==1)
-		} else{
-			.tmp <- subset(.prekcas, prek_participant!=1)
-		}
-		for(a in 1:2){
-			if(a ==1){
-				.profs <- .tmp$math_level
-			} else if(a == 2){
-				.profs <- .tmp$read_level
-			}
-		
-			.add <- indent(.lv) %+% '{\n'
-			up(.lv)
-			.add <- .add %+% paste(indent(.lv), '"key": {\n', sep="")
-			up(.lv)
-			.add <- .add %+% paste(indent(.lv), '"year": "', .year, '",\n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"grade": "grade 3",\n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"subject": "',.subject[a], '",\n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"subgroup": "', .group[i], '"\n', sep="")
-			
-			down(.lv)
-			.add <- .add %+% paste(indent(.lv), '},\n', sep="")
-			down(.lv)
-			
-			up(.lv)
-			.add <- .add %+% paste(indent(.lv), '"val": {\n', sep="")
+    .lv <- level
+    .ret <- c()
 
-			up(.lv)
-			.add <- .add %+% paste(indent(.lv), '"test_takers": ', checkna(length(.profs[.profs %in% .plevels])), ',\n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"below_basic": ', checkna(length(.profs[.profs %in% c("Below Basic")])), ',\n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"basic": ', checkna(length(.profs[.profs %in% c("Basic")])), ',\n', sep="")			
-			.add <- .add %+% paste(indent(.lv), '"proficient": ', checkna(length(.profs[.profs %in% c("Proficient")])), ',\n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"advanced": ', checkna(length(.profs[.profs %in% c("Advanced")])), '\n', sep="")
-			
-			down(.lv)
-			.add <- .add %+% paste(indent(.lv), '}\n', sep="")
-			down(.lv)
-			.add <- .add %+% paste(indent(.lv), '}', sep="")
-			
-			.ret <- c(.ret, .add)
-		}
-	}
-	##print(.naepdat)
-	return(paste(.ret, collapse=',\n'))
+    .group <- c("PreK Participant", "Non-PreK Participant")
+    .year <- .prekcas$year[1]
+    .subject <- c("Math", "Reading")
+    .plevels <- c("Below Basic", "Basic", "Proficient", "Advanced")
+
+    for(i in 1:2){
+        if(i == 1){
+            .tmp <- subset(.prekcas, prek_participant==1)
+        } else{
+            .tmp <- subset(.prekcas, prek_participant!=1)
+        }
+        for(a in 1:2){
+            invisible(ifelse(a==1, .profs <- c(table(.tmp$math_level)), .profs <- c(table(.tmp$read_level))))
+            
+            .add <- indent(.lv) %+% '{\n'
+            up(.lv)
+            
+            .add <- .add %+% indent(.lv) %+% '"key": '
+            .add <- .add %+% WriteJSONChunk(
+                c(year=checkna(.year),
+                grade='"grade 3"',
+                subject=sprintf('"%s"', .subject[a]),
+                subgroup=sprintf('"%s"', .group[i])
+                )) %+% ', \n'
+            .add <- .add %+% indent(.lv) %+% '"val": '
+            .add <- .add %+% WriteJSONChunk(
+                c(test_takers=checkna(sum(.profs)),
+                below_basic=checkna(.profs["Below Basic"]),
+                basic=checkna(.profs["Basic"]),
+                proficient=checkna(.profs["Proficient"]),
+                advanced=checkna(.profs["Advanced"]))) %+% '\n'
+            down(.lv)
+            .add <- .add %+% paste(indent(.lv), '}', sep="")
+            
+            .ret <- c(.ret, .add)
+        }
+    }
+    return(paste(.ret, collapse=',\n'))
 }
 
 ExStateCReady <- function(level){
-	.lv <- level
-	
-	.qry <- "SELECT * FROM [dbo].[college_readiness]"	
-		
-	.cready <- sqlQuery(dbrepcard, .qry)
-	##print(.cready)
-	
-	years <- unique(.cready$year)
-	
-	.ret <- c()
+    .lv <- level
 
-	for(i in years){
-		.tmp <- subset(.cready, year == i)		
-		.ret <- c(.ret, EncodeCReady(.tmp, level))
-	}	
-	
-	return(paste(.ret, collapse=',\n'))
+    .qry <- "SELECT * FROM [dbo].[college_readiness]"	
+        
+    .cready <- sqlQuery(dbrepcard, .qry)
+    ##print(.cready)
+
+    years <- unique(.cready$year)
+
+    .ret <- c()
+
+    for(i in years){
+        .tmp <- subset(.cready, year == i)		
+        .ret <- c(.ret, EncodeCReady(.tmp, level))
+    }	
+
+    return(paste(.ret, collapse=',\n'))
 }
 
 ExStateSPEDChunk <- function(level){
-	.lv <- level
-	
-	.qry <- "SELECT * FROM [dbo].[assessment]
-		WHERE [special_ed] = 'YES';"
-		
-	.dat_mr <- sqlQuery(dbrepcard, .qry)
-	
-	.ret <- do(group_by(.dat_mr, ea_year), WriteSPED, level)	
-		
-	.ret <- subset(.ret, .ret != '')
-	return(paste(.ret, collapse=',\n'))
+    .lv <- level
+
+    .qry <- "SELECT * FROM [dbo].[assessment]
+        WHERE [special_ed] = 'YES';"
+        
+    .dat_mr <- sqlQuery(dbrepcard, .qry)
+
+    .ret <- do(group_by(.dat_mr, ea_year), WriteSPED, level)
+        
+    .ret <- subset(.ret, .ret != '')
+    return(paste(.ret, collapse=',\n'))
 }
 
 ExStateAcct <- function(level){
@@ -236,7 +197,7 @@ ExStateAcct <- function(level){
 			.add <- .add %+% paste(indent(.lv), '"comp_size": ',checkna(.acct_st$comp_size[i]),',\n', sep="")
 			.add <- .add %+% paste(indent(.lv), '"comp_score": ',checkna(round(.acct_st$comp_score[i],2)),'\n', sep="")
 			
-			down(.lv)		
+			down(.lv)
 			.add <- .add %+% paste(indent(.lv), '}', sep="")
 			.sgstrings <- c(.sgstrings, .add)
 		}
@@ -333,7 +294,7 @@ ExNaepResult <- function(level){
 			up(.lv)
 			.add <- .add %+% paste(indent(.lv), '"average_scale_score": ', checkna(.naepdat$avg_scale_score[i]), ',\n', sep="")
 			.add <- .add %+% paste(indent(.lv), '"at_below_basic": ', checkna(.naepdat$below_basic[i]), ',\n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"at_or_above_basic": ', checkna(.naepdat$at_or_above_basic[i]), ',\n', sep="")			
+			.add <- .add %+% paste(indent(.lv), '"at_or_above_basic": ', checkna(.naepdat$at_or_above_basic[i]), ',\n', sep="")
 			.add <- .add %+% paste(indent(.lv), '"at_or_above_proficient": ', checkna(.naepdat$at_or_above_proficient[i]), ',\n', sep="")
 			.add <- .add %+% paste(indent(.lv), '"at_advanced": ', checkna(.naepdat$at_advanced[i]), ',\n', sep="")
 			.add <- .add %+% paste(indent(.lv), '"national_avg_scale_score": ', checkna(.naepdat$national_avg_scale_score[i]), ',\n', sep="")
@@ -368,108 +329,6 @@ ExStateGrad <- function(level){
 		
 	.ret <- do(group_by(.grad, cohort_year), WriteGraduation, level)
 	
-	return(paste(.ret, collapse=',\n'))
-}
-
-
-## Deprecated function. 
-## Temporarily kept here for debugging reasons.
-## Will be moved in future versions.
-WriteCASST <- function(.casdat_mr, level){
-	year <- .casdat_mr$year[1]
-	.subjects <- c("Math", "Reading")
-	.fay <- c("all", "full_year")
-	
-	.lv <- level
-	
-	.ret <- c()
-	.plevels <- c("Below Basic", "Basic", "Proficient", "Advanced")
-	
-	.casdat_mr$math_level[.casdat_mr$exclude %in% c('I','M', 'A', 'Y')] <- NA
-	.casdat_mr$read_level[.casdat_mr$exclude %in% c('I','M', 'A', 'Y')] <- NA
-	
-	## A = Subject, 1 for Math, 2 for Reading
-	for(a in 1:2){
-		## b = full year or not
-		for(b in 1:2){
-			## d = each grade 
-			.glevels <- sort(unique(.casdat_mr$tested_grade))
-			for(g in 0:length(.glevels)){
-				goutput <- ''
-				.tmp <- .casdat_mr
-				
-				if(g == 0){
-					goutput <- 'all'
-				} else{
-					goutput <- paste('grade', .glevels[g], sep=" ")
-					.tmp <- subset(.tmp, tested_grade==.glevels[g])
-				}
-				.flevels <- c("N", "S", "D", "C")
-				
-				if(b==2){
-					.flevels <- c("S", "C", "D")
-					.tmp <- subset(.tmp, new_to_us =='NO')
-					.tmp <- subset(.tmp, school_grade==tested_grade | alt_tested=="YES")
-				}
-				
-				.subgroups <- c("African American","White","Hispanic","Asian", "Pacific Islander", "Multiracial","Special Education","English Learner","Economically Disadvantaged","Male", "Female")
-				
-				for(h in 0:11){
-					.tmps <- SubProc(.tmp, h, b)
-					
-					if(h == 0){
-						soutput <- 'All'
-					} else{
-						soutput <- .subgroups[h]
-					}
-					
-					if((nrow(.tmps)>=10 & b==1) | (nrow(.tmps)>=25 & b==2)){
-						.add <- indent(.lv) %+% '{\n'
-						
-						up(.lv)
-						.add <- .add %+% paste(indent(.lv), '"key": {\n', sep="")
-						up(.lv)
-						
-						if(a ==1){
-							.profs <- .tmps$math_level[.tmps$full_academic_year %in% .flevels]
-						} else if(a == 2){
-							.profs <- .tmps$read_level[.tmps$full_academic_year %in% .flevels]
-						}
-						
-						.add <- .add %+% paste(indent(.lv), '"subject": "',.subjects[a],'",\n', sep="")					
-						
-						.add <- .add %+% paste(indent(.lv), '"grade": "',goutput,'", \n', sep="")
-						.add <- .add %+% paste(indent(.lv), '"enrollment_status": "',.fay[b],'", \n', sep="")
-						.add <- .add %+% paste(indent(.lv), '"subgroup": "',soutput,'", \n', sep="")
-						.add <- .add %+% paste(indent(.lv), '"year": "',year,'" \n', sep="")
-						
-						down(.lv)
-						
-						.add <- .add %+% paste(indent(.lv), '},\n', sep="")
-							
-						.add <- .add %+% paste(indent(.lv), '"val": {\n', sep="")
-						up(.lv)
-						
-						.add <- .add %+% paste(indent(.lv), '"n_eligible":',length(.profs),',\n', sep="")
-						.add <- .add %+% paste(indent(.lv), '"n_test_takers":',length(.profs[.profs %in% .plevels]),',\n', sep="")
-						.add <- .add %+% paste(indent(.lv), '"advanced_or_proficient":', length(.profs[.profs %in% c("Proficient", "Advanced")]),',\n', sep="")
-						
-						.add <- .add %+% paste(indent(.lv), '"advanced":',length(.profs[.profs %in% "Advanced"]),',\n', sep="")
-						.add <- .add %+% paste(indent(.lv), '"proficient":',length(.profs[.profs %in% "Proficient"]),',\n', sep="")
-						.add <- .add %+% paste(indent(.lv), '"basic":',length(.profs[.profs %in% "Basic"]),',\n', sep="")
-						.add <- .add %+% paste(indent(.lv), '"below_basic":',length(.profs[.profs %in% "Below Basic"]),'\n', sep="")
-						
-						down(.lv)
-						.add <- .add %+% paste(indent(.lv), '}\n', sep="")
-						down(.lv)
-						.add <- .add %+% paste(indent(.lv), '}', sep="")
-						
-						.ret[length(.ret)+1] <- .add
-					}
-				}
-			}
-		}
-	}
 	return(paste(.ret, collapse=',\n'))
 }
 
