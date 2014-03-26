@@ -1,9 +1,11 @@
-WriteJSONChunk <- function(elem_list){
+WriteJSONChunk <- function(elem_list, wrapper=0){
+    wrap_map <- c('"key": ', '"val": ')
+    
     json_elems <- mapply(function(elem_name, elem_str_value){
         sprintf('"%s": %s',elem_name, elem_str_value)
     }, names(elem_list), elem_list)
-    
-    return('{' %+% paste(json_elems, collapse=", ") %+% '}')
+
+    return(wrap_map[wrapper] %+% '{' %+% paste(json_elems, collapse=", ") %+% '}')
 }
 
 ExAMOs <- function(orgcode, .lv){
@@ -18,16 +20,15 @@ ExAMOs <- function(orgcode, .lv){
             for(j in c("math", "read")){
                 .add <- indent(.lv) %+% '{\n'
                 up(.lv)
-                .add <- .add %+% indent(.lv) %+% '"key": '
-                .add <- .add %+% WriteJSONChunk(
-                    c(subject=ifelse(j=='math', '"Math"', '"Reading"'), 
+                .add <- .add %+% indent(.lv) %+% WriteJSONChunk(c(
+                    subject=ifelse(j=='math', '"Math"', '"Reading"'), 
                     grade='"all"',
                     enrollment_status='"full_year"',
                     subgroup=sprintf('"%s"', .amo_dat$subgroup[i]),
-                    year=sprintf('"%s"', .amo_dat$year[i]))) %+% ', \n'
-                .add <- .add %+% indent(.lv) %+% '"val": '
-                .add <- .add %+% WriteJSONChunk(c(basline=checkna(.amo_dat[i, j %+% '_baseline']),
-                    target=checkna(.amo_dat[i, j %+% '_target']))) %+% '\n'
+                    year=sprintf('"%s"', .amo_dat$year[i])),1) %+% ', \n'
+                .add <- .add %+% indent(.lv) %+% WriteJSONChunk(c(
+                    basline=checkna(.amo_dat[i, j %+% '_baseline']),
+                    target=checkna(.amo_dat[i, j %+% '_target'])),2) %+% '\n'
                 
                 down(.lv)
                 .add <- .add %+% paste(indent(.lv), '}', sep="")
@@ -746,156 +747,130 @@ SubProc <- function(.dat, lv, b=0){
 	return(0)
 }
 
+qstr <- function(x) sprintf('"%s"', x)
+
 ## rewrite
 WriteCAS <- function(.casdat_mr, spaces, entity='state'){
-	year <- .casdat_mr$year[1]
-	
-	.casdat_mr$math_level[.casdat_mr$exclude %in% c('I','M', 'A', 'Y')] <- NA
-	.casdat_mr$read_level[.casdat_mr$exclude %in% c('I','M', 'A', 'Y')] <- NA
+    year <- .casdat_mr$year[1]    
+    .casdat_mr <- subset(.casdat_mr, exclude %notin% c("M", "A"))
+    
+    .casdat_mr$math_level[.casdat_mr$exclude %in% c('I','Y')] <- NA
+    .casdat_mr$read_level[.casdat_mr$exclude %in% c('I','Y')] <- NA
 
-	.subjects <- c("Math", "Reading")
-	.fay <- c("all", "full_year")
-	
-	.lv <- spaces
-	
-	.ret <- c()
-	.plevels <- c("Below Basic", "Basic", "Proficient", "Advanced")
-	
-	.entity_fay <- list('state'=c("S", "C", "D"), 'lea'=c("S", "C"), 'school'=c("S"))
+    .subjects <- c("Math", "Reading")
+    .fay <- c("all", "full_year")
 
-	## A = Subject, 1 for Math, 2 for Reading
-	for(a in 1:2){
-		## b = full year or not
-		for(b in 1:2){
-			## d = each grade 
-			.glevels <- sort(unique(.casdat_mr$tested_grade))
-			for(g in 0:length(.glevels)){
-				goutput <- ''
-				.tmp <- .casdat_mr
-				
-				if(g == 0){
-					goutput <- 'all'
-				} else{
-					goutput <- paste('grade', .glevels[g], sep=" ")
-					.tmp <- subset(.tmp, tested_grade==.glevels[g])
-				}
-				.flevels <- c("N", "S", "D", "C")
-				
-				if(b==2){
-					.flevels <- .entity_fay[entity][[1]]
-					.tmp <- subset(.tmp, new_to_us =='NO')
-					.tmp <- subset(.tmp, school_grade==tested_grade | alt_tested=="YES")
-					.tmp <- subset(.tmp, school_code %notin% c("0948", "0958"))
-				}
-				
-				.subgroups <- c("African American","White","Hispanic","Asian", "Pacific Islander", "Multiracial","Special Education","English Learner","Economically Disadvantaged","Male", "Female")
-				
-				for(h in 0:9){
-					.tmps <- SubProc(.tmp, h, b)
-					
-					if(h == 0){
-						soutput <- 'All'
-					} else{
-						soutput <- .subgroups[h]
-					}
-					
-					if((nrow(.tmps)>=10 & b==1) | (nrow(.tmps)>=25 & b==2)){
-						.add <- indent(.lv) %+% '{\n'
-						
-						up(.lv)
-						.add <- .add %+% paste(indent(.lv), '"key": {\n', sep="")
-						up(.lv)
-						
-						if(a ==1){
-							.profs <- .tmps$math_level[.tmps$full_academic_year %in% .flevels]
-						} else if(a == 2){
-							.profs <- .tmps$read_level[.tmps$full_academic_year %in% .flevels]
-						}
-						
-						.add <- .add %+% paste(indent(.lv), '"subject": "',.subjects[a],'",\n', sep="")					
-						
-						.add <- .add %+% paste(indent(.lv), '"grade": "',goutput,'", \n', sep="")
-						.add <- .add %+% paste(indent(.lv), '"enrollment_status": "',.fay[b],'", \n', sep="")
-						.add <- .add %+% paste(indent(.lv), '"subgroup": "',soutput,'", \n', sep="")
-						.add <- .add %+% paste(indent(.lv), '"year": "',year,'" \n', sep="")
-						
-						down(.lv)
-						
-						.add <- .add %+% paste(indent(.lv), '},\n', sep="")
-						.add <- .add %+% paste(indent(.lv), '"val": {\n', sep="")
-						up(.lv)
-						
-						.add <- .add %+% paste(indent(.lv), '"n_eligible":',length(.profs),',\n', sep="")
-						.add <- .add %+% paste(indent(.lv), '"n_test_takers":',length(.profs[.profs %in% .plevels]),',\n', sep="")
-						.add <- .add %+% paste(indent(.lv), '"advanced_or_proficient":', length(.profs[.profs %in% c("Proficient", "Advanced")]),',\n', sep="")
-						
-						.add <- .add %+% paste(indent(.lv), '"advanced":',length(.profs[.profs %in% "Advanced"]),',\n', sep="")
-						.add <- .add %+% paste(indent(.lv), '"proficient":',length(.profs[.profs %in% "Proficient"]),',\n', sep="")
-						.add <- .add %+% paste(indent(.lv), '"basic":',length(.profs[.profs %in% "Basic"]),',\n', sep="")
-						.add <- .add %+% paste(indent(.lv), '"below_basic":',length(.profs[.profs %in% "Below Basic"]),'\n', sep="")
-						
-						down(.lv)
-						.add <- .add %+% paste(indent(.lv), '}\n', sep="")
-						down(.lv)
-						.add <- .add %+% paste(indent(.lv), '}', sep="")
-						
-						.ret <- c(.ret, .add)
-					}
-				}
-			}
-		}
-	}
-	
-	for(z in .fay){		
-		.tmp <- subset(.casdat_mr, new_to_us=='YES')
-		.add <- indent(.lv) %+% '{\n'
-		
-		up(.lv)
-		.add <- .add %+% paste(indent(.lv), '"key": {\n', sep="")
-		up(.lv)
-		
-		if(z == "full_year"){
-			.tmp <- subset(.tmp, full_academic_year %in% .entity_fay[entity][[1]])
-			.tmp <- subset(.tmp, school_grade==tested_grade | alt_tested=="YES")
-			.tmp <- subset(.tmp, school_code %notin% c("0948", "0958"))
-		}
-		
-		.profs <- .tmp$read_level
-		
-		.add <- .add %+% paste(indent(.lv), '"subject": "Reading",\n', sep="")					
-		
-		.add <- .add %+% paste(indent(.lv), '"grade": "all", \n', sep="")
-		.add <- .add %+% paste(indent(.lv), '"enrollment_status": "',z,'", \n', sep="")
-		.add <- .add %+% paste(indent(.lv), '"subgroup": "New to the US (ELL)", \n', sep="")
-		.add <- .add %+% paste(indent(.lv), '"year": "',year,'" \n', sep="")
-		
-		down(.lv)
-		
-		.add <- .add %+% paste(indent(.lv), '},\n', sep="")
-		.add <- .add %+% paste(indent(.lv), '"val": {\n', sep="")
-		up(.lv)
-		
-		.add <- .add %+% paste(indent(.lv), '"n_eligible":',length(.profs),',\n', sep="")
-		.add <- .add %+% paste(indent(.lv), '"n_test_takers":',length(.profs[.profs %in% .plevels]),',\n', sep="")
-		.add <- .add %+% paste(indent(.lv), '"advanced_or_proficient":null,\n', sep="")
-		
-		.add <- .add %+% paste(indent(.lv), '"advanced":null,\n', sep="")
-		.add <- .add %+% paste(indent(.lv), '"proficient":null,\n', sep="")
-		.add <- .add %+% paste(indent(.lv), '"basic":null,\n', sep="")
-		.add <- .add %+% paste(indent(.lv), '"below_basic":null\n', sep="")
-		
-		down(.lv)
-		.add <- .add %+% paste(indent(.lv), '}\n', sep="")
-		down(.lv)
-		.add <- .add %+% paste(indent(.lv), '}', sep="")
-		
-		.ret <- c(.ret, .add)
-	
-	}
-	return(paste(.ret, collapse=',\n'))
+    .lv <- spaces
+
+    .ret <- c()
+    .plevels <- c("Below Basic", "Basic", "Proficient", "Advanced")
+
+    .entity_fay <- list('state'=c("S", "C", "D"), 'lea'=c("S", "C"), 'school'=c("S"))
+
+    ## A = Subject, 1 for Math, 2 for Reading
+    for(a in 1:2){
+        ## b = full year or not
+        for(b in 1:2){
+            ## d = each grade 
+            .glevels <- sort(unique(.casdat_mr$tested_grade))
+            for(g in 0:length(.glevels)){
+                goutput <- ''
+                .tmp <- .casdat_mr
+                
+                if(g == 0){
+                    goutput <- 'all'
+                } else{
+                    goutput <- paste('grade', .glevels[g], sep=" ")
+                    .tmp <- subset(.tmp, tested_grade==.glevels[g])
+                }
+                .flevels <- c("N", "S", "D", "C")
+                
+                if(b==2){
+                    .flevels <- .entity_fay[entity][[1]]
+                    .tmp <- subset(.tmp, new_to_us =='NO')
+                    .tmp <- subset(.tmp, school_grade==tested_grade | alt_tested=="YES")
+                    .tmp <- subset(.tmp, school_code %notin% c("0948", "0958"))
+                }
+                
+                .subgroups <- c("African American","White","Hispanic","Asian", "Pacific Islander", "Multiracial","Special Education","English Learner","Economically Disadvantaged","Male", "Female")
+                
+                for(h in 0:9){
+                    .tmps <- SubProc(.tmp, h, b)
+                    
+                    if(h == 0){
+                        soutput <- 'All'
+                    } else{
+                        soutput <- .subgroups[h]
+                    }
+                    
+                    if((nrow(.tmps)>=10 & b==1) | (nrow(.tmps)>=25 & b==2)){
+                        invisible(ifelse(a==1, 
+                            .profs <- .tmps$math_level[.tmps$full_academic_year %in% .flevels], 
+                            .profs <- .tmps$read_level[.tmps$full_academic_year %in% .flevels]))
+                        
+                        prof_tab <- c(table(.profs))
+                        
+                        .add <- indent(.lv) %+% '{\n'
+                        up(.lv)
+                        .add <- .add %+% indent(.lv) %+% WriteJSONChunk(c(
+                            grade= qstr(goutput),
+                            enrollment_status=qstr(.fay[b]),
+                            subgroup = qstr(soutput),
+                            year = qstr(year)), 1) %+% ',\n'
+                        
+                        .add <- .add %+% indent(.lv) %+% WriteJSONChunk(c(
+                            n_eligible=checkna(length(.profs)),
+                            n_test_takers=length(.profs[.profs %in% .plevels]),
+                            advanced_or_proficient=checkna(length(.profs[.profs %in% c("Proficient", "Advanced")])),
+                            advanced=checkna(length(.profs[.profs %in% "Advanced"])),
+                            proficient=checkna(length(.profs[.profs %in% "Proficient"])),
+                            basic=checkna(length(.profs[.profs %in% "Basic"])),
+                            below_basic=checkna(length(.profs[.profs %in% "Below Basic"]))
+                            ),2) %+% '\n'
+                        down(.lv)
+                        .add <- .add %+% paste(indent(.lv), '}', sep="")
+                        .ret <- c(.ret, .add)
+                    }
+                }
+            }
+        }
+    }
+
+    for(z in .fay){
+        .tmp <- subset(.casdat_mr, new_to_us=='YES')
+        if(z == "full_year"){
+            .tmp <- subset(.tmp, full_academic_year %in% .entity_fay[entity][[1]])
+            .tmp <- subset(.tmp, school_grade==tested_grade | alt_tested=="YES")
+            .tmp <- subset(.tmp, school_code %notin% c("0948", "0958"))
+        }
+        
+        .profs <- .tmp$read_level
+        
+        prof_tab <- c(table(.profs))
+        
+        .add <- indent(.lv) %+% '{\n'
+        up(.lv)
+        .add <- .add %+% indent(.lv) %+% WriteJSONChunk(c(
+            grade= '"all"',
+            enrollment_status=qstr(z),
+            subgroup = '"New to the US (ELL)"',
+            year = qstr(year)), 1) %+% ',\n'
+        
+        .add <- .add %+% indent(.lv) %+% WriteJSONChunk(c(
+                n_eligible=checkna(length(.profs)),
+                n_test_takers=length(.profs[.profs %in% .plevels]),
+                advanced_or_proficient=checkna(length(.profs[.profs %in% c("Proficient", "Advanced")])),
+                advanced=checkna(length(.profs[.profs %in% "Advanced"])),
+                proficient=checkna(length(.profs[.profs %in% "Proficient"])),
+                basic=checkna(length(.profs[.profs %in% "Basic"])),
+                below_basic=checkna(length(.profs[.profs %in% "Below Basic"]))
+            ),2) %+% '\n'
+        down(.lv)
+        .add <- .add %+% paste(indent(.lv), '}', sep="")
+        .ret <- c(.ret, .add)
+    }
+    return(paste(.ret, collapse=',\n'))
 }
-
-
 
 WriteComp <- function(.casdat_comp, level){
 ## Composition 
@@ -965,7 +940,6 @@ WriteComp <- function(.casdat_comp, level){
 
 ExCasChunk <- function(scode, level){
 
-	
 	## MATH/READING
 	.qry_mr <- sprintf("SELECT A.* FROM [dbo].[assessment] A
 		INNER JOIN (SELECT 
