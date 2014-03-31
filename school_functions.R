@@ -41,37 +41,37 @@ ExAMOs <- function(orgcode, .lv){
 
 ## cat(ExAMOs(210, 1), fill=TRUE)
 ExHQTStatus <- function(org_code){
-	.qry <- "SELECT * FROM [dbo].[hqt_status_sy1112]
-		WHERE [school_code] = '" %+% org_code %+% "'"
-	.prog <- sqlQuery(dbrepcard, .qry)
+    .qry <- "SELECT * FROM [dbo].[hqt_status_sy1112]
+        WHERE [school_code] = '" %+% org_code %+% "'"
+    .prog <- sqlQuery(dbrepcard, .qry)
 
-	if(nrow(.prog)>0){
-		.ret <- .prog$percent_hqt_classes
-		return(.ret)
-		}
-	else{
-		return('null')
-		}
+    if(nrow(.prog)>0){
+        .ret <- .prog$percent_hqt_classes
+        return(.ret)
+        }
+    else{
+        return('null')
+        }
 }
 
 ##"subgroup": ("All","African American","White","Hispanic","Asian","Special Education","English Learner","Economically Disadvantaged","Homeless Students"),
 AppendProgramInfo <- function(org_code){
-	.qry <- "SELECT DISTINCT * FROM [dbo].[school_programs]
-		WHERE [school_code] = '" %+% leadgr(org_code,4) %+% "'"
-	.prog <- sqlQuery(dbrepcard, .qry)
-	
-	.ret <- c()	
-	if(nrow(.prog)>0){
-	
-		.prog$program_string <- gsub('\n', "", .prog$program_string)
-		.prog$program_string <- gsub('\r', "", .prog$program_string)
-		.prog$program_string <- gsub('"', "'", .prog$program_string)
-		.prog$program_string <- paste0('"',.prog$program_string,'"')
-		
-		return(paste(.prog$program_string, collapse=',\n'))
-	} else{
-		return('')
-	}
+    .qry <- "SELECT DISTINCT * FROM [dbo].[school_programs]
+        WHERE [school_code] = '" %+% leadgr(org_code,4) %+% "'"
+    .prog <- sqlQuery(dbrepcard, .qry)
+
+    .ret <- c()
+    if(nrow(.prog)>0){
+
+        .prog$program_string <- gsub('\n', "", .prog$program_string)
+        .prog$program_string <- gsub('\r', "", .prog$program_string)
+        .prog$program_string <- gsub('"', "'", .prog$program_string)
+        .prog$program_string <- paste0('"',.prog$program_string,'"')
+        
+        return(paste(.prog$program_string, collapse=',\n'))
+    } else{
+        return('')
+    }
 }
 
 ##"subgroup": ("All","African American","White","Hispanic","Asian","Special Education","English Learner","Economically Disadvantaged","Homeless Students"),
@@ -110,14 +110,14 @@ RetMGPGroup <- function(.ingrp){
 }
 
 ExMGPResult <- function(org_code, level){
-	.lv <- level
-	.qry <- "SELECT * FROM [dbo].[mgp_summary]
-		WHERE [fy13_entity_code] = '" %+% leadgr(org_code,4) %+% "'"
-	.mgp <- sqlQuery(dbrepcard, .qry)	
-	.ret <- c()	
-	if(nrow(.mgp)>0){
-		for(i in 1:nrow(.mgp)){
-			if(.mgp$group_fay_size[i] >= 10 ){
+    .lv <- level
+    .qry <- "SELECT * FROM [dbo].[mgp_summary]
+        WHERE [fy13_entity_code] = '" %+% leadgr(org_code,4) %+% "'"
+    .mgp <- sqlQuery(dbrepcard, .qry)
+    .ret <- c()
+    if(nrow(.mgp)>0){
+        for(i in 1:nrow(.mgp)){
+            if(.mgp$group_fay_size[i] >= 10 ){
                 .add <- indent(.lv) %+% '{\n'
                 up(.lv)
                 .add <- .add %+% indent(.lv) %+% '"key": '
@@ -138,158 +138,157 @@ ExMGPResult <- function(org_code, level){
 }
 
 ExCollegeReadiness <- function(org_code, level){
-	.lv <- level
-	
-	.qry <- "SELECT * FROM [dbo].[college_readiness]
-		WHERE [fy13_entity_code] = '" %+% org_code %+% "'"
-		
-	.cready <- sqlQuery(dbrepcard, .qry)
-	##print(.cready)
-	
-	years <- unique(.cready$year)
-	
-	.ret <- c()
+    .lv <- level
 
-	for(i in years){
-		.tmp <- subset(.cready, year == i)
-		.ret <- c(.ret, EncodeCReady(.tmp, level))
-	}
-	
-	return(paste(.ret, collapse=',\n'))
+    .qry <- "SELECT * FROM [dbo].[college_readiness]
+        WHERE [fy13_entity_code] = '" %+% org_code %+% "'"
+        
+    .cready <- sqlQuery(dbrepcard, .qry)
+    ##print(.cready)
+
+    years <- unique(.cready$year)
+
+    .ret <- c()
+
+    for(i in years){
+        .tmp <- subset(.cready, year == i)
+        .ret <- c(.ret, EncodeCReady(.tmp, level))
+    }
+
+    return(paste(.ret, collapse=',\n'))
 }
 
 EncodeCReady <- function(.dat, level){
-	.lv <- level
-	.subgroups <- c("African American","White","Hispanic","Asian","American Indian", "Pacific Islander", "Multi Racial","Special Education","English Learner","Economically Disadvantaged","Male", "Female")
+    .lv <- level
+    .subgroups <- c("African American","White","Hispanic","Asian","American Indian", "Pacific Islander", "Multi Racial","Special Education","English Learner","Economically Disadvantaged","Male", "Female")
 
-	.ret <- c()
-	for(j in 0:12){
-		.tmp <- .dat
-		.slice <- 'All'
-		if(j > 0){
-			.tmp <- SubProcGrad(.tmp, j)
-			.slice <- .subgroups[j]
-		}
-		
-		if(nrow(.tmp)>=10){
-			.add <- indent(.lv) %+% '{\n'
-			
-			up(.lv)
-			.add <- .add %+% paste(indent(.lv), '"key": {\n', sep="")
-			up(.lv)			
-			.add <- .add %+% paste(indent(.lv), '"subgroup": "', .slice,'", \n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"year": "',.tmp$year[1],'" \n', sep="")
-			down(.lv)
-			.add <- .add %+% paste(indent(.lv), '},\n', sep="")
-				
-			.add <- .add %+% paste(indent(.lv), '"val": {\n', sep="")
-			up(.lv)
-			.add <- .add %+% paste(indent(.lv), '"graduates": ', nrow(.tmp),',\n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"act_taker": ', nrow(subset(.tmp, act_taker=='YES')),',\n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"sat_taker": ', nrow(subset(.tmp, sat_taker=='YES')),',\n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"ap_taker": ', nrow(subset(.tmp, ap_taker=='YES')),',\n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"psat_taker": ', nrow(subset(.tmp, psat_taker=='YES')),'\n', sep="")
-			down(.lv)
-			.add <- .add %+% paste(indent(.lv), '}\n', sep="")
-			down(.lv)
-			.add <- .add %+% paste(indent(.lv), '}', sep="")
-			
-			.ret <- c(.ret, .add)
-		}	
-	}
-	return(paste(.ret, collapse=',\n'))
+    .ret <- c()
+    for(j in 0:12){
+        .tmp <- .dat
+        .slice <- 'All'
+        if(j > 0){
+            .tmp <- SubProcGrad(.tmp, j)
+            .slice <- .subgroups[j]
+        }
+        
+        if(nrow(.tmp)>=10){
+            .add <- indent(.lv) %+% '{\n'
+            
+            up(.lv)
+            .add <- .add %+% paste(indent(.lv), '"key": {\n', sep="")
+            up(.lv)
+            .add <- .add %+% paste(indent(.lv), '"subgroup": "', .slice,'", \n', sep="")
+            .add <- .add %+% paste(indent(.lv), '"year": "',.tmp$year[1],'" \n', sep="")
+            down(.lv)
+            .add <- .add %+% paste(indent(.lv), '},\n', sep="")
+                
+            .add <- .add %+% paste(indent(.lv), '"val": {\n', sep="")
+            up(.lv)
+            .add <- .add %+% paste(indent(.lv), '"graduates": ', nrow(.tmp),',\n', sep="")
+            .add <- .add %+% paste(indent(.lv), '"act_taker": ', nrow(subset(.tmp, act_taker=='YES')),',\n', sep="")
+            .add <- .add %+% paste(indent(.lv), '"sat_taker": ', nrow(subset(.tmp, sat_taker=='YES')),',\n', sep="")
+            .add <- .add %+% paste(indent(.lv), '"ap_taker": ', nrow(subset(.tmp, ap_taker=='YES')),',\n', sep="")
+            .add <- .add %+% paste(indent(.lv), '"psat_taker": ', nrow(subset(.tmp, psat_taker=='YES')),'\n', sep="")
+            down(.lv)
+            .add <- .add %+% paste(indent(.lv), '}\n', sep="")
+            down(.lv)
+            .add <- .add %+% paste(indent(.lv), '}', sep="")
+            
+            .ret <- c(.ret, .add)
+        }	
+    }
+    return(paste(.ret, collapse=',\n'))
 }
 
 ExGraduation <- function(org_code, level=1){
-	.qry <- sprintf("SELECT A.*, B.[fy14_entity_code], B.[fy14_entity_name]
-		FROM [dbo].[graduation] A
-		LEFT JOIN [dbo].[fy14_mapping] B
-		ON A.[school_code] = B.[school_code] 
-			AND B.[grade] = '09'
-			AND (A.[cohort_year]+2) = B.[ea_year]
-		WHERE [cohort_status] = 1 AND 
-			[fy14_entity_code] = '%s'", leadgr(org_code,4))
+    .qry <- sprintf("SELECT A.*, B.[fy14_entity_code], B.[fy14_entity_name]
+        FROM [dbo].[graduation] A
+        LEFT JOIN [dbo].[fy14_mapping] B
+        ON A.[school_code] = B.[school_code] 
+            AND B.[grade] = '09'
+            AND (A.[cohort_year]+2) = B.[ea_year]
+        WHERE [cohort_status] = 1 AND 
+            [fy14_entity_code] = '%s'", leadgr(org_code,4))
 
-	.grad <- sqlQuery(dbrepcard, .qry)
-	
-	.ret <- do(group_by(.grad, cohort_year), WriteGraduation, level)
-	.ret <- unlist(.ret)
-	.ret <- sort(subset(.ret, .ret!=''))
-	return(paste(.ret, collapse=',\n'))
+    .grad <- sqlQuery(dbrepcard, .qry)
+
+    .ret <- do(group_by(.grad, cohort_year), WriteGraduation, level)
+    .ret <- unlist(.ret)
+    .ret <- sort(subset(.ret, .ret!=''))
+    return(paste(.ret, collapse=',\n'))
 }
 
 
 SubProcGrad <- function(.dat, lv){
-	if(lv==1){
-		return(subset(.dat, race=="BL7"))
-	} else if(lv==2){
-		return(subset(.dat, race=="WH7"))
-	} else if(lv==3){
-		return(subset(.dat, race=="HI7"))
-	} else if(lv==4){
-		return(subset(.dat, race=="AS7"))
-	} else if(lv==5){
-		return(subset(.dat, race=="AM7"))
-	} else if(lv==6){
-		return(subset(.dat, race=="PI7"))
-	} else if(lv==7){
-		return(subset(.dat, race=="MU7"))
-	} else if(lv==8){
-		return(subset(.dat, special_ed=="YES"))
-	} else if(lv==9){
-		return(subset(.dat, ell_prog=="YES"))
-	} else if(lv==10){
-		return(subset(.dat, economy == "YES"))
-	} else if(lv==11){
-		return(subset(.dat, gender %in% c("M", "MALE")))
-	} else if(lv==12){
-		return(subset(.dat, gender %in% c("F", "FEMALE")))
-	}	
-	return(.dat[NULL,])
+    if(lv==1){
+        return(subset(.dat, race=="BL7"))
+    } else if(lv==2){
+        return(subset(.dat, race=="WH7"))
+    } else if(lv==3){
+        return(subset(.dat, race=="HI7"))
+    } else if(lv==4){
+        return(subset(.dat, race=="AS7"))
+    } else if(lv==5){
+        return(subset(.dat, race=="AM7"))
+    } else if(lv==6){
+        return(subset(.dat, race=="PI7"))
+    } else if(lv==7){
+        return(subset(.dat, race=="MU7"))
+    } else if(lv==8){
+        return(subset(.dat, special_ed=="YES"))
+    } else if(lv==9){
+        return(subset(.dat, ell_prog=="YES"))
+    } else if(lv==10){
+        return(subset(.dat, economy == "YES"))
+    } else if(lv==11){
+        return(subset(.dat, gender %in% c("M", "MALE")))
+    } else if(lv==12){
+        return(subset(.dat, gender %in% c("F", "FEMALE")))
+    }	
+    return(.dat[NULL,])
 }
 
 WriteGraduation <- function(gdata, level){
+    .lv <- level
+    .ret <- c()
+    year <- gdata$cohort_year[1] +4
+    .subgroups <- c("African American","White","Hispanic","Asian","American Indian", "Pacific Islander", "Multi Racial","Special Education","English Learner","Economically Disadvantaged","Male", "Female")
 
-	.lv <- level
-	.ret <- c()
-	year <- gdata$cohort_year[1] +4
-	.subgroups <- c("African American","White","Hispanic","Asian","American Indian", "Pacific Islander", "Multi Racial","Special Education","English Learner","Economically Disadvantaged","Male", "Female")
-	
-	for(s in 0:length(.subgroups)){
-		soutput <- "All"
-		.tmps <- gdata
-		if(s > 0){
-			soutput <- .subgroups[s]
-			.tmps <- SubProcGrad(gdata, s)
-		}
-		
-		if(nrow(.tmps)>=10){
-			.add <- indent(.lv) %+% '{\n'
-			
-			up(.lv)
-			.add <- .add %+% paste(indent(.lv), '"key": {\n', sep="")
-			up(.lv)
-			
-			.add <- .add %+% paste(indent(.lv), '"subgroup": "', soutput,'",\n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"year": "',year,'"\n', sep="")
-			down(.lv)
-			.add <- .add %+% paste(indent(.lv), '},\n', sep="")
-				
-			.add <- .add %+% paste(indent(.lv), '"val": {\n', sep="")
-			up(.lv)
-			.add <- .add %+% paste(indent(.lv), '"graduates": ', nrow(subset(.tmps, graduated==1)),',\n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"cohort_size": ', nrow(.tmps),'\n', sep="")
-			
-			down(.lv)
-			.add <- .add %+% paste(indent(.lv), '}\n', sep="")
-			down(.lv)
-			.add <- .add %+% paste(indent(.lv), '}', sep="")
-			
-			.ret <- c(.ret, .add)
-		}		
-	}
-	
-	return(paste(.ret, collapse=',\n'))
+    for(s in 0:length(.subgroups)){
+        soutput <- "All"
+        .tmps <- gdata
+        if(s > 0){
+            soutput <- .subgroups[s]
+            .tmps <- SubProcGrad(gdata, s)
+        }
+        
+        if(nrow(.tmps)>=10){
+            .add <- indent(.lv) %+% '{\n'
+            
+            up(.lv)
+            .add <- .add %+% paste(indent(.lv), '"key": {\n', sep="")
+            up(.lv)
+            
+            .add <- .add %+% paste(indent(.lv), '"subgroup": "', soutput,'",\n', sep="")
+            .add <- .add %+% paste(indent(.lv), '"year": "',year,'"\n', sep="")
+            down(.lv)
+            .add <- .add %+% paste(indent(.lv), '},\n', sep="")
+                
+            .add <- .add %+% paste(indent(.lv), '"val": {\n', sep="")
+            up(.lv)
+            .add <- .add %+% paste(indent(.lv), '"graduates": ', nrow(subset(.tmps, graduated==1)),',\n', sep="")
+            .add <- .add %+% paste(indent(.lv), '"cohort_size": ', nrow(.tmps),'\n', sep="")
+            
+            down(.lv)
+            .add <- .add %+% paste(indent(.lv), '}\n', sep="")
+            down(.lv)
+            .add <- .add %+% paste(indent(.lv), '}', sep="")
+            
+            .ret <- c(.ret, .add)
+        }
+    }
+
+    return(paste(.ret, collapse=',\n'))
 }
 
 
@@ -438,66 +437,66 @@ WriteCEnroll <- function(.cenr, level, year){
 }
 
 ExAccountability <- function(org_code, level){
-	## MATH/READING
-	.lv <- level
-	
-	.qry <- "SELECT * FROM [dbo].[accountability_sy1213]
-		WHERE [school_code] = '" %+% org_code %+% "';"
-	.acct <- sqlQuery(dbrepcard, .qry)
-	
-	##print(.acct)
-	.ret <- c()
-	if(nrow(.acct)>0){
-		.qry <- "SELECT * FROM [dbo].[accountability_sy1213_sg]
-		WHERE [school_code] = '" %+% org_code %+% "';"
-		.acct_sg <- sqlQuery(dbrepcard, .qry)
-	
-		.ret <- '{\n'
-		up(.lv)
-		
-		.ret <- .ret %+% paste(indent(.lv), '"year": "2013", \n', sep="")
-		.ret <- .ret %+% paste(indent(.lv), '"score": ',checkna(round(.acct$acct_score[1],2)),', \n', sep="")
-		.ret <- .ret %+% paste(indent(.lv), '"classification": ',checkna_str(.acct$classification[1]),', \n', sep="")
-		.ret <- .ret %+% paste(indent(.lv), '"growth": ',checkna(round(.acct$growth[1],2)),', \n', sep="")
-		
-		.ret <- .ret %+% paste(indent(.lv), '"subgroups": [\n', sep="")
-		up(.lv)
-		.sgstrings <- c()
-		if(nrow(.acct_sg)>0){
-			for(i in 1:nrow(.acct_sg)){
-				.add <- ''
-				if(.acct_sg$read_size[i] >= 25 | .acct_sg$math_size[i] >= 25 | .acct_sg$comp_size[i] >= 25){
-					.add <- indent(.lv) %+% '{\n'
-					up(.lv)
-					
-					.add <- .add %+% paste(indent(.lv), '"subgroup": ',checkna_str(.acct_sg$subgroup[i]),',\n', sep="")
-					
-					.add <- .add %+% paste(indent(.lv), '"read_size": ',checkna(.acct_sg$read_size[i]),',\n', sep="")
-					.add <- .add %+% paste(indent(.lv), '"read_score": ',checkna(round(.acct_sg$read_score[i],2)),',\n', sep="")
-					
-					.add <- .add %+% paste(indent(.lv), '"math_size": ',checkna(.acct_sg$math_size[i]),',\n', sep="")
-					.add <- .add %+% paste(indent(.lv), '"math_score": ',checkna(round(.acct_sg$math_score[i],2)),',\n', sep="")
-					
-					.add <- .add %+% paste(indent(.lv), '"comp_size": ',checkna(.acct_sg$comp_size[i]),',\n', sep="")
-					.add <- .add %+% paste(indent(.lv), '"comp_score": ',checkna(round(.acct_sg$comp_score[i],2)),'\n', sep="")
-					
-					
-					down(.lv)		
-					.add <- .add %+% paste(indent(.lv), '}', sep="")
-					.sgstrings <- c(.sgstrings, .add)
-				}
-			}
-			.ret <- .ret %+% paste(.sgstrings, collapse=',\n') %+% '\n'
-		}
-		down(.lv)
-		.ret <- .ret %+% paste(indent(.lv), ']\n', sep="")
-		down(.lv)
-		.ret <- .ret %+% paste(indent(.lv), '}', sep="")
-		return(.ret)
-	} else{
-		return('null')
-	}
-	return('null')
+    ## MATH/READING
+    .lv <- level
+
+    .qry <- "SELECT * FROM [dbo].[accountability_sy1213]
+        WHERE [school_code] = '" %+% org_code %+% "';"
+    .acct <- sqlQuery(dbrepcard, .qry)
+
+    ##print(.acct)
+    .ret <- c()
+    if(nrow(.acct)>0){
+        .qry <- "SELECT * FROM [dbo].[accountability_sy1213_sg]
+        WHERE [school_code] = '" %+% org_code %+% "';"
+        .acct_sg <- sqlQuery(dbrepcard, .qry)
+
+        .ret <- '{\n'
+        up(.lv)
+        
+        .ret <- .ret %+% paste(indent(.lv), '"year": "2013", \n', sep="")
+        .ret <- .ret %+% paste(indent(.lv), '"score": ',checkna(round(.acct$acct_score[1],2)),', \n', sep="")
+        .ret <- .ret %+% paste(indent(.lv), '"classification": ',checkna_str(.acct$classification[1]),', \n', sep="")
+        .ret <- .ret %+% paste(indent(.lv), '"growth": ',checkna(round(.acct$growth[1],2)),', \n', sep="")
+        
+        .ret <- .ret %+% paste(indent(.lv), '"subgroups": [\n', sep="")
+        up(.lv)
+        .sgstrings <- c()
+        if(nrow(.acct_sg)>0){
+            for(i in 1:nrow(.acct_sg)){
+                .add <- ''
+                if(.acct_sg$read_size[i] >= 25 | .acct_sg$math_size[i] >= 25 | .acct_sg$comp_size[i] >= 25){
+                    .add <- indent(.lv) %+% '{\n'
+                    up(.lv)
+                    
+                    .add <- .add %+% paste(indent(.lv), '"subgroup": ',checkna_str(.acct_sg$subgroup[i]),',\n', sep="")
+                    
+                    .add <- .add %+% paste(indent(.lv), '"read_size": ',checkna(.acct_sg$read_size[i]),',\n', sep="")
+                    .add <- .add %+% paste(indent(.lv), '"read_score": ',checkna(round(.acct_sg$read_score[i],2)),',\n', sep="")
+                    
+                    .add <- .add %+% paste(indent(.lv), '"math_size": ',checkna(.acct_sg$math_size[i]),',\n', sep="")
+                    .add <- .add %+% paste(indent(.lv), '"math_score": ',checkna(round(.acct_sg$math_score[i],2)),',\n', sep="")
+                    
+                    .add <- .add %+% paste(indent(.lv), '"comp_size": ',checkna(.acct_sg$comp_size[i]),',\n', sep="")
+                    .add <- .add %+% paste(indent(.lv), '"comp_score": ',checkna(round(.acct_sg$comp_score[i],2)),'\n', sep="")
+                    
+                    
+                    down(.lv)		
+                    .add <- .add %+% paste(indent(.lv), '}', sep="")
+                    .sgstrings <- c(.sgstrings, .add)
+                }
+            }
+            .ret <- .ret %+% paste(.sgstrings, collapse=',\n') %+% '\n'
+        }
+        down(.lv)
+        .ret <- .ret %+% paste(indent(.lv), ']\n', sep="")
+        down(.lv)
+        .ret <- .ret %+% paste(indent(.lv), '}', sep="")
+        return(.ret)
+    } else{
+        return('null')
+    }
+    return('null')
 }
 
 ExAccreditation <- function(org_code, level=0){
@@ -939,7 +938,6 @@ WriteComp <- function(.casdat_comp, level){
 }
 
 ExCasChunk <- function(scode, level){
-
 	## MATH/READING
 	.qry_mr <- sprintf("SELECT A.* FROM [dbo].[assessment] A
 		INNER JOIN (SELECT 
