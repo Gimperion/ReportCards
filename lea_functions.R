@@ -21,7 +21,12 @@ LeaCasChunk <- function(lea_code, level){
         WHERE [lea_code] = '%s'", leadgr(lea_code,4))
     
     .dat_mr <- sqlQuery(dbrepcard, .qry_mr)
-    .ret <- do(group_by(.dat_mr, ea_year), WriteCAS, level, "lea")
+    
+    if(nrow(.dat_mr) >= 10){
+        .ret <- do(group_by(.dat_mr, ea_year), WriteCAS, level, "lea")
+    } else{
+        .ret <- ''
+    }
     
     .qry13c <- "SELECT * FROM [dbo].[assessment_sy1213_comp]
         WHERE [fy13_entity_code] in (
@@ -255,37 +260,6 @@ WriteComp <- function(.casdat_comp, year, level){
 }
 
 
-
-
-LeaGraduation <- function(lea_code, level){
-	.lv <- level
-	
-	.qry11 <- "SELECT * FROM [dbo].[graduation_sy1011]
-		WHERE [fy13_entity_code] in (
-			SELECT DISTINCT [fy13_entity_code] FROM [dbo].[enrollment_sy1213] WHERE [lea_code] = '" %+% lea_code %+% "')
-		AND [cohort_status] = 'TRUE'"
-	.grad11 <- sqlQuery(dbrepcard, .qry11)
-	
-	.qry12 <- "SELECT * FROM [dbo].[graduation_sy1112]
-		WHERE [fy13_entity_code] in (
-			SELECT DISTINCT [fy13_entity_code] FROM [dbo].[enrollment_sy1213] WHERE [lea_code] = '" %+% lea_code %+% "')
-		AND [cohort_status] = 'TRUE'"
-	.grad12 <- sqlQuery(dbrepcard, .qry12)
-	
-	.ret <- c()
-
-	if(nrow(.grad11) > 10){
-		.ret <- c(.ret, WriteGraduation(.grad11, .lv, 2011))
-	}
-	
-	if(nrow(.grad12) > 10){
-		.ret <- c(.ret, WriteGraduation(.grad12, .lv, 2012))
-	}
-	
-	return(paste(.ret, collapse=',\n'))
-}
-
-
 SubProcGrad <- function(.dat, lv){
 	if(lv==1){
 		return(subset(.dat, race=="BL7"))
@@ -313,53 +287,6 @@ SubProcGrad <- function(.dat, lv){
 		return(subset(.dat, gender %in% c("F", "FEMALE")))
 	}	
 	return(.dat[NULL,])
-}
-
-
-
-WriteGraduation <- function(gdata, level, year){
-	.lv <- level
-	.ret <- c()
-	
-	.subgroups <- c("African American","White","Hispanic","Asian","American Indian", "Pacific Islander", "Multi Racial","Special Education","English Learner","Economically Disadvantaged","Male", "Female")
-	
-	for(s in 0:length(.subgroups)){
-		soutput <- "All"
-		.tmps <- gdata
-		if(s > 0){
-			soutput <- .subgroups[s]
-			.tmps <- SubProcGrad(gdata, s)
-		}
-		
-		if(nrow(.tmps)>=10){
-			.add <- indent(.lv) %+% '{\n'
-			
-			up(.lv)
-			.add <- .add %+% paste(indent(.lv), '"key": {\n', sep="")
-			up(.lv)
-			
-			.profs <- .tmps$comp_level
-			.add <- .add %+% paste(indent(.lv), '"subgroup": "', soutput,'", \n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"year": "',year,'" \n', sep="")
-			down(.lv)				
-			.add <- .add %+% paste(indent(.lv), '},\n', sep="")
-				
-			.add <- .add %+% paste(indent(.lv), '"val": {\n', sep="")
-			up(.lv)
-			.add <- .add %+% paste(indent(.lv), '"graduates": ', nrow(subset(.tmps, graduated==1)),',\n', sep="")
-			.add <- .add %+% paste(indent(.lv), '"cohort_size": ', nrow(.tmps),'\n', sep="")
-			
-			down(.lv)
-			.add <- .add %+% paste(indent(.lv), '}\n', sep="")
-			down(.lv)
-			.add <- .add %+% paste(indent(.lv), '}', sep="")
-			
-			.ret <- c(.ret, .add)
-		}		
-	}
-	
-
-	return(paste(.ret, collapse=',\n'))
 }
 
 
@@ -425,163 +352,6 @@ EncodeCReady <- function(.dat, level){
         }              
     }
     return(paste(.ret, collapse=',\n'))
-}
-
-LeaEnrollChunk <- function(lea_code, level){
-	.lv <- level
-	
-	## MATH/READING
-	.qry13 <- "SELECT * FROM [dbo].[enrollment_sy1213]
-		WHERE [fy13_entity_code] in (
-SELECT DISTINCT [fy13_entity_code] FROM [dbo].[enrollment_sy1213] WHERE [lea_code] = '" %+% lea_code %+% "')"
-	.dat13 <- sqlQuery(dbrepcard, .qry13)
-	
-	.qry12 <- "SELECT * FROM [dbo].[enrollment_sy1112]
-		WHERE [fy13_entity_code] in (
-SELECT DISTINCT [fy13_entity_code] FROM [dbo].[enrollment_sy1213] WHERE [lea_code] = '" %+% lea_code %+% "')"
-	.dat12 <- sqlQuery(dbrepcard, .qry12)
-	
-	.qry11 <- "SELECT * FROM [dbo].[enrollment_sy1011]
-		WHERE [fy13_entity_code] in (
-SELECT DISTINCT [fy13_entity_code] FROM [dbo].[enrollment_sy1213] WHERE [lea_code] = '" %+% lea_code %+% "')"
-	.dat11 <- sqlQuery(dbrepcard, .qry11)
-	
-	.qry10 <- "SELECT * FROM [dbo].[enrollment_sy0910]
-		WHERE [fy13_entity_code] in (
-SELECT DISTINCT [fy13_entity_code] FROM [dbo].[enrollment_sy1213] WHERE [lea_code] = '" %+% lea_code %+% "')"
-	.dat10 <- sqlQuery(dbrepcard, .qry10)
-	
-	.qry09 <- "SELECT * FROM [dbo].[enrollment_sy0809]
-		WHERE [fy13_entity_code] in (
-SELECT DISTINCT [fy13_entity_code] FROM [dbo].[enrollment_sy1213] WHERE [lea_code] = '" %+% lea_code %+% "')"
-	.dat09 <- sqlQuery(dbrepcard, .qry09)
-	
-	.qry08 <- "SELECT * FROM [dbo].[enrollment_sy0708]
-		WHERE [fy13_entity_code] in (
-SELECT DISTINCT [fy13_entity_code] FROM [dbo].[enrollment_sy1213] WHERE [lea_code] = '" %+% lea_code %+% "')"
-	.dat08 <- sqlQuery(dbrepcard, .qry08)
-	
-	.qry07 <- "SELECT * FROM [dbo].[enrollment_sy0607]
-		WHERE [fy13_entity_code] in (
-SELECT DISTINCT [fy13_entity_code] FROM [dbo].[enrollment_sy1213] WHERE [lea_code] = '" %+% lea_code %+% "')"
-	.dat07 <- sqlQuery(dbrepcard, .qry07)
-	.ret <- c()
-		
-	if(nrow(.dat13)>=10 & !is.null(.dat13)){
-		.ret[length(.ret)+1] <- WriteEnroll(.dat13, 2012, .lv)
-	}
-	
-	if(nrow(.dat12)>=10 & !is.null(.dat12)){
-		.ret[length(.ret)+1] <- WriteEnroll(.dat12, 2011, .lv)
-	}
-	
-	if(nrow(.dat11)>=10 & !is.null(.dat11)){
-		.ret[length(.ret)+1] <- WriteEnroll(.dat11, 2010, .lv)
-	}
-	
-	if(nrow(.dat10)>=10 & !is.null(.dat10)){
-		.ret[length(.ret)+1] <- WriteEnroll(.dat10, 2009, .lv)
-	}
-	
-	if(nrow(.dat09)>=10 & !is.null(.dat09)){
-		.ret[length(.ret)+1] <- WriteEnroll(.dat09, 2008, .lv)
-	}
-	
-	if(nrow(.dat08)>=10 & !is.null(.dat08)){
-		.ret[length(.ret)+1] <- WriteEnroll(.dat08, 2007, .lv)
-	}
-	
-	if(nrow(.dat07)>=10 & !is.null(.dat07)){
-		.ret[length(.ret)+1] <- WriteEnroll(.dat07, 2006, .lv)
-	}
-
-	return(paste(.ret, collapse=',\n'))	
-}
-
-
-##"African American","White","Hispanic","Asian","American Indian", "Pacific Islander", "Multi Racial","Special Education","English Learner","Economically Disadvantaged","Male", "Female"
-
-SubProcEnr <- function(.dat, lv){
-	if(lv==1){
-		return(subset(.dat, race=="BL7" & ethnicity=='NO'))
-	} else if(lv==2){
-		return(subset(.dat, race=="WH7" & ethnicity=='NO'))
-	} else if(lv==3){
-		return(subset(.dat, ethnicity =='YES'))
-	} else if(lv==4){
-		return(subset(.dat, race=="AS7" & ethnicity=='NO'))
-	} else if(lv==5){
-		return(subset(.dat, race=="AM7" & ethnicity=='NO'))
-	} else if(lv==6){
-		return(subset(.dat, race=="PI7" & ethnicity=='NO'))
-	} else if(lv==7){
-		return(subset(.dat, race=="MU7" & ethnicity=='NO'))
-	} else if(lv==8){
-		return(subset(.dat, !is.na(sped_level)))
-	} else if(lv==9){
-		return(subset(.dat, ell_prog=='YES'))
-	} else if(lv==10){
-		return(subset(.dat, economy %in% c("FREE", "REDUCED", "DCERT", "CEO")))
-	} else if(lv==11){
-		return(subset(.dat, gender %in% c("M", "MALE")))
-	} else if(lv==12){
-		return(subset(.dat, gender %in% c("F", "FEMALE")))
-	}	
-	return(.dat[NULL,])
-}
-
-WriteEnroll <- function(.edat, year, level){
-	.ret <- c()
-	.lv <- level
-	
-	.glist <- unique(.edat$grade)
-	
-	.subgroups <- c("African American","White","Hispanic","Asian","American Indian", "Pacific Islander", "Multi Racial","Special Education","English Learner","Economically Disadvantaged","Male", "Female")
-	
-	for(g in 0:length(.glist)){
-		.tmp <- .edat
-		goutput <- "All"
-		if(g>0){
-			.tmp <- subset(.tmp, grade==.glist[g])
-			goutput <- .glist[g]
-		}
-		
-		for(s in 0:length(.subgroups)){
-			
-			soutput <- "All"
-			.tmps <- .tmp
-			if(s > 0){
-				soutput <- .subgroups[s]
-				.tmps <- SubProcEnr(.tmp, s)
-			}
-			
-			if(nrow(.tmps)>=10){
-				.add <- indent(.lv) %+% '{\n'
-				
-				up(.lv)
-				.add <- .add %+% paste(indent(.lv), '"key": {\n', sep="")
-				up(.lv)
-				
-				.profs <- .tmp$comp_level
-						
-				.add <- .add %+% paste(indent(.lv), '"grade": "',goutput,'", \n', sep="")
-				.add <- .add %+% paste(indent(.lv), '"subgroup": "', soutput,'", \n', sep="")
-				.add <- .add %+% paste(indent(.lv), '"year": "',year,'" \n', sep="")
-				down(.lv)				
-				.add <- .add %+% paste(indent(.lv), '},\n', sep="")
-					
-				.add <- .add %+% paste(indent(.lv), '"val": ',nrow(.tmps),'\n', sep="")
-				down(.lv)
-				.add <- .add %+% paste(indent(.lv), '}', sep="")
-				
-				.ret[length(.ret)+1] <- .add		
-			}
-		}
-	}
-	
-	## grade/subgroup, etc.	
-	
-	return(paste(.ret, collapse=',\n'))
 }
 
 LeaSPEDChunk <- function(scode, level){

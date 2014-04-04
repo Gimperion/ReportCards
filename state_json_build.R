@@ -9,31 +9,32 @@ library(dplyr)
 source("./imports/tomkit.R")
 source("./imports/ODBC.R")
 source("./school_functions.R")
+source("./generalized.R")
 source("./state_functions.R")
 
 checkna <- function(x){
-	if(is.na(x)){
-		return('null')
-	}
-	return(x)
+    if(is.na(x)){
+        return('null')
+    }
+    return(x)
 }
 
 checkna_str <- function(x){
-	if(is.na(x)){
-		return('null')
-	}
-	return('"' %+% x %+%'"')
+    if(is.na(x)){
+        return('null')
+    }
+    return('"' %+% x %+%'"')
 }
 
 org_type <- "state"
 org_code <- "STATE"
 
 state_version <- sqlQuery(dbrepcard, "SELECT TOP 1 
-			[version_number],
-			[timestamp]
-		FROM [dbo].[ver_control_statefile]
-		ORDER BY [version_number] DESC")
-		
+        [version_number],
+        [timestamp]
+    FROM [dbo].[ver_control_statefile]
+    ORDER BY [version_number] DESC")
+
 next_version <- state_version$version_number + 0.1
 
 newfile <- file("state_lv.JSON", encoding="UTF-8")
@@ -116,7 +117,7 @@ up(level)
 	up(level)
 	cat(indent(level), '"id": "graduation",', sep="", fill=TRUE)
 	cat(indent(level), '"data": [', sep="", fill=TRUE)
-	cat(ExStateGrad(level+1), fill=TRUE)
+	cat(ExGraduation(level=level+1), fill=TRUE)
 	cat('\n',indent(level), ']', sep="", fill=TRUE)
 	down(level)
 	cat(indent(level),'},', sep="", fill=TRUE)
@@ -145,20 +146,19 @@ up(level)
 	cat(indent(level), ']', sep="", fill=TRUE)
 	down(level)
 	cat(indent(level),'},', sep="", fill=TRUE)
-	
 }
 
 {
-	## NAEP Stuff
-	cat(indent(level),'{', sep="", fill=TRUE)
-	up(level)
-	cat(indent(level), '"id": "naep_results",', sep="", fill=TRUE)
-	
-	cat(indent(level), '"data": [', sep="", fill=TRUE)
-	cat(ExNaepResult(level), fill=TRUE)
-	
-	cat(indent(level), ']', sep="", fill=TRUE)
-	down(level)
+    ## NAEP Stuff
+    cat(indent(level),'{', sep="", fill=TRUE)
+    up(level)
+    cat(indent(level), '"id": "naep_results",', sep="", fill=TRUE)
+
+    cat(indent(level), '"data": [', sep="", fill=TRUE)
+    cat(ExNaepResult(level), fill=TRUE)
+
+    cat(indent(level), ']', sep="", fill=TRUE)
+    down(level)
 	cat(indent(level),'}', sep="", fill=TRUE)
 }
 
@@ -173,73 +173,73 @@ cat(indent(level), '"sections": [', sep="", fill=TRUE)
 up(level)
 
 {
-	#Enrollment
-	cat(indent(level),'{', sep="", fill=TRUE)
-	up(level)
-	cat(indent(level), '"id": "enrollment",', sep="", fill=TRUE)
-	cat(indent(level), '"data": [', sep="", fill=TRUE)
-	cat(ExStateEnroll(level+1), fill=TRUE)
-	cat(indent(level), ']', sep="", fill=TRUE)
-	down(level)
-	cat(indent(level),'},', sep="", fill=TRUE)
+    #Enrollment
+    cat(indent(level),'{', sep="", fill=TRUE)
+    up(level)
+    cat(indent(level), '"id": "enrollment",', sep="", fill=TRUE)
+    cat(indent(level), '"data": [', sep="", fill=TRUE)
+    cat(ExEnrollChunk(level = level+1), fill=TRUE)
+    cat(indent(level), ']', sep="", fill=TRUE)
+    down(level)
+    cat(indent(level),'},', sep="", fill=TRUE)
 }
 
 {
-	## College Readiness##
-	cat(indent(level),'{', sep="", fill=TRUE)
-	up(level)
-	cat(indent(level), '"id": "college_readiness",', sep="", fill=TRUE)
-	cat(indent(level), '"data": [', sep="", fill=TRUE)
-	cat(ExStateCReady(level+1), fill=TRUE)
-	cat(indent(level), ']', sep="", fill=TRUE)
-	down(level)
-	cat(indent(level),'},', sep="", fill=TRUE)
+    ## College Readiness##
+    cat(indent(level),'{', sep="", fill=TRUE)
+    up(level)
+    cat(indent(level), '"id": "college_readiness",', sep="", fill=TRUE)
+    cat(indent(level), '"data": [', sep="", fill=TRUE)
+    cat(ExStateCReady(level+1), fill=TRUE)
+    cat(indent(level), ']', sep="", fill=TRUE)
+    down(level)
+    cat(indent(level),'},', sep="", fill=TRUE)
 }
 
 {
-	## SPED Testing##
-	cat(indent(level),'{', sep="", fill=TRUE)
-	up(level)
-	cat(indent(level), '"id": "special_ed",', sep="", fill=TRUE)
-	cat(indent(level), '"data": [', sep="", fill=TRUE)
-	cat(ExStateSPEDChunk(level+1), fill=TRUE)
-	cat(indent(level), ']', sep="", fill=TRUE)
-	down(level)
-	cat(indent(level),'},', sep="", fill=TRUE)
+    ## SPED Testing##
+    cat(indent(level),'{', sep="", fill=TRUE)
+    up(level)
+    cat(indent(level), '"id": "special_ed",', sep="", fill=TRUE)
+    cat(indent(level), '"data": [', sep="", fill=TRUE)
+    cat(ExStateSPEDChunk(level+1), fill=TRUE)
+    cat(indent(level), ']', sep="", fill=TRUE)
+    down(level)
+    cat(indent(level),'},', sep="", fill=TRUE)
 }
 
 {
-	## PreK Testing##
-	cat(indent(level),'{', sep="", fill=TRUE)
-	up(level)
-	cat(indent(level), '"id": "prek_cas_results",', sep="", fill=TRUE)
-	cat(indent(level), '"data": [', sep="", fill=TRUE)
-	cat(ExStatePreKCAS(level+1), fill=TRUE)
-	cat(indent(level), ']', sep="", fill=TRUE)
-	down(level)
-	cat(indent(level),'},', sep="", fill=TRUE)
+    ## PreK Testing##
+    cat(indent(level),'{', sep="", fill=TRUE)
+    up(level)
+    cat(indent(level), '"id": "prek_cas_results",', sep="", fill=TRUE)
+    cat(indent(level), '"data": [', sep="", fill=TRUE)
+    cat(ExStatePreKCAS(level+1), fill=TRUE)
+    cat(indent(level), ']', sep="", fill=TRUE)
+    down(level)
+    cat(indent(level),'},', sep="", fill=TRUE)
 }
 
 {
-	cat(indent(level),hard_code_apr, fill=TRUE)
+    cat(indent(level),hard_code_apr, fill=TRUE)
 }
 
 {
-	#AMAO
-	cat(indent(level),'{', sep="", fill=TRUE)
-	up(level)
-	cat(indent(level), '"id": "ell",', sep="", fill=TRUE)
-	cat(indent(level), '"data": {', sep="", fill=TRUE)
-	up(level)
-	cat(indent(level), '"amao_1": {"val":0.54, "target": 0.60},', sep="", fill=TRUE)
-	cat(indent(level), '"amao_2": {"val":0.23, "target": 0.15},', sep="", fill=TRUE)
-	cat(indent(level), '"amao_3m": {"val":0.33, "target": 0.53},', sep="", fill=TRUE)
-	cat(indent(level), '"amao_3r": {"val":0.22, "target": 0.44}', sep="", fill=TRUE)
-	down(level)
-	
-	cat(indent(level), '}', sep="", fill=TRUE)
-	down(level)
-	cat(indent(level),'},', sep="", fill=TRUE)
+    #AMAO
+    cat(indent(level),'{', sep="", fill=TRUE)
+    up(level)
+    cat(indent(level), '"id": "ell",', sep="", fill=TRUE)
+    cat(indent(level), '"data": {', sep="", fill=TRUE)
+    up(level)
+    cat(indent(level), '"amao_1": {"val":0.54, "target": 0.60},', sep="", fill=TRUE)
+    cat(indent(level), '"amao_2": {"val":0.23, "target": 0.15},', sep="", fill=TRUE)
+    cat(indent(level), '"amao_3m": {"val":0.33, "target": 0.53},', sep="", fill=TRUE)
+    cat(indent(level), '"amao_3r": {"val":0.22, "target": 0.44}', sep="", fill=TRUE)
+    down(level)
+
+    cat(indent(level), '}', sep="", fill=TRUE)
+    down(level)
+    cat(indent(level),'},', sep="", fill=TRUE)
 }
 
 {

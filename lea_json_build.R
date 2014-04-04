@@ -5,6 +5,7 @@ setwd(paste0(active, 'ReportCards'))
 source("./imports/tomkit.R")
 source("./imports/ODBC.R")
 source("./school_functions.R")
+source("./generalized.R")
 source("./lea_functions.R")
 
 library(dplyr)
@@ -17,11 +18,17 @@ lea_dir <- unique(school_dir[c("lea_code","lea_name")])
 # lea codes need to be four digits and in quotes
 lea_dir$lea_code <- sprintf("%04d", lea_dir$lea_code)
 
+subDir <- "lea_report"
+mainDir <- "./data/"
+
+dir.create(file.path(mainDir, subDir), showWarnings = FALSE)
+setwd(file.path(mainDir, subDir))
+
 for(i in 1:nrow(lea_dir)){
     org_type <- "lea"
     lea_name <- lea_dir$lea_name[i]
     lea_code <- lea_dir$lea_code[i]
-
+    cat(lea_name, lea_code, sep=" ", fill=TRUE)
     newfile <- file(paste(org_type, '_', lea_code, '.JSON', sep=""), , encoding="UTF-8")
 
     sink(newfile)
@@ -46,7 +53,7 @@ for(i in 1:nrow(lea_dir)){
         cat('\n',indent(level), ']', sep="", fill=TRUE)
         down(level)
         cat(indent(level),'},', sep="", fill=TRUE)
-    }	
+    }
     {
         ## Highly Qualified Teacher Status
         cat(indent(level),'{', sep="", fill=TRUE)
@@ -63,7 +70,7 @@ for(i in 1:nrow(lea_dir)){
         up(level)
         cat(indent(level), '"id": "graduation",', sep="", fill=TRUE)
         cat(indent(level), '"data": [', sep="", fill=TRUE)
-        cat(LeaGraduation(lea_code, level+1), fill=TRUE)
+        cat(ExGraduation(lea_code, level+1, "lea"), fill=TRUE)
         cat('\n',indent(level), ']', sep="", fill=TRUE)
         down(level)
         cat(indent(level),'},', sep="", fill=TRUE)
@@ -74,7 +81,7 @@ for(i in 1:nrow(lea_dir)){
         up(level)
         cat(indent(level), '"id": "college_enroll",', sep="", fill=TRUE)
         cat(indent(level), '"data": [', sep="", fill=TRUE)
-        cat(LeaCollegeEnroll(lea_code, level+1), fill=TRUE)		
+        cat(LeaCollegeEnroll(lea_code, level+1), fill=TRUE)
         cat(indent(level), ']', sep="", fill=TRUE)
         down(level)
         cat(indent(level),'}', sep="", fill=TRUE)
@@ -98,7 +105,7 @@ for(i in 1:nrow(lea_dir)){
         up(level)
         cat(indent(level), '"id": "enrollment",', sep="", fill=TRUE)
         cat(indent(level), '"data": [', sep="", fill=TRUE)
-        cat(LeaEnrollChunk(lea_code, level+1), fill=TRUE)
+        cat(ExEnrollChunk(lea_code, level+1, "lea"), fill=TRUE)
         cat(indent(level), ']', sep="", fill=TRUE)
         down(level)
         cat(indent(level),'},', sep="", fill=TRUE)
@@ -145,4 +152,5 @@ for(i in 1:nrow(lea_dir)){
 
     sink()
     close(newfile)
+    
 }

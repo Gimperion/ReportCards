@@ -1,13 +1,3 @@
-WriteJSONChunk <- function(elem_list, wrapper=0){
-    wrap_map <- c('"key": ', '"val": ')
-    
-    json_elems <- mapply(function(elem_name, elem_str_value){
-        sprintf('"%s": %s',elem_name, elem_str_value)
-    }, names(elem_list), elem_list)
-
-    return(wrap_map[wrapper] %+% '{' %+% paste(json_elems, collapse=", ") %+% '}')
-}
-
 ExAMOs <- function(orgcode, .lv){
     .qry <- sprintf("SELECT * 
         FROM [dbo].[amo_status_export]
@@ -181,7 +171,7 @@ EncodeCReady <- function(.dat, level){
             .add <- .add %+% paste(indent(.lv), '"year": "',.tmp$year[1],'" \n', sep="")
             down(.lv)
             .add <- .add %+% paste(indent(.lv), '},\n', sep="")
-                
+            
             .add <- .add %+% paste(indent(.lv), '"val": {\n', sep="")
             up(.lv)
             .add <- .add %+% paste(indent(.lv), '"graduates": ', nrow(.tmp),',\n', sep="")
@@ -195,29 +185,10 @@ EncodeCReady <- function(.dat, level){
             .add <- .add %+% paste(indent(.lv), '}', sep="")
             
             .ret <- c(.ret, .add)
-        }	
+        }
     }
     return(paste(.ret, collapse=',\n'))
 }
-
-ExGraduation <- function(org_code, level=1){
-    .qry <- sprintf("SELECT A.*, B.[fy14_entity_code], B.[fy14_entity_name]
-        FROM [dbo].[graduation] A
-        LEFT JOIN [dbo].[fy14_mapping] B
-        ON A.[school_code] = B.[school_code] 
-            AND B.[grade] = '09'
-            AND (A.[cohort_year]+2) = B.[ea_year]
-        WHERE [cohort_status] = 1 AND 
-            [fy14_entity_code] = '%s'", leadgr(org_code,4))
-
-    .grad <- sqlQuery(dbrepcard, .qry)
-
-    .ret <- do(group_by(.grad, cohort_year), WriteGraduation, level)
-    .ret <- unlist(.ret)
-    .ret <- sort(subset(.ret, .ret!=''))
-    return(paste(.ret, collapse=',\n'))
-}
-
 
 SubProcGrad <- function(.dat, lv){
     if(lv==1){
@@ -247,50 +218,6 @@ SubProcGrad <- function(.dat, lv){
     }	
     return(.dat[NULL,])
 }
-
-WriteGraduation <- function(gdata, level){
-    .lv <- level
-    .ret <- c()
-    year <- gdata$cohort_year[1] +4
-    .subgroups <- c("African American","White","Hispanic","Asian","American Indian", "Pacific Islander", "Multi Racial","Special Education","English Learner","Economically Disadvantaged","Male", "Female")
-
-    for(s in 0:length(.subgroups)){
-        soutput <- "All"
-        .tmps <- gdata
-        if(s > 0){
-            soutput <- .subgroups[s]
-            .tmps <- SubProcGrad(gdata, s)
-        }
-        
-        if(nrow(.tmps)>=10){
-            .add <- indent(.lv) %+% '{\n'
-            
-            up(.lv)
-            .add <- .add %+% paste(indent(.lv), '"key": {\n', sep="")
-            up(.lv)
-            
-            .add <- .add %+% paste(indent(.lv), '"subgroup": "', soutput,'",\n', sep="")
-            .add <- .add %+% paste(indent(.lv), '"year": "',year,'"\n', sep="")
-            down(.lv)
-            .add <- .add %+% paste(indent(.lv), '},\n', sep="")
-                
-            .add <- .add %+% paste(indent(.lv), '"val": {\n', sep="")
-            up(.lv)
-            .add <- .add %+% paste(indent(.lv), '"graduates": ', nrow(subset(.tmps, graduated==1)),',\n', sep="")
-            .add <- .add %+% paste(indent(.lv), '"cohort_size": ', nrow(.tmps),'\n', sep="")
-            
-            down(.lv)
-            .add <- .add %+% paste(indent(.lv), '}\n', sep="")
-            down(.lv)
-            .add <- .add %+% paste(indent(.lv), '}', sep="")
-            
-            .ret <- c(.ret, .add)
-        }
-    }
-
-    return(paste(.ret, collapse=',\n'))
-}
-
 
 ExTest <- function(org_code){
     pull_tables <- c('pmf_sy1011', 'pmf_sy1112', 'pmf_sy1213')
@@ -500,29 +427,29 @@ ExAccountability <- function(org_code, level){
 }
 
 ExAccreditation <- function(org_code, level=0){
-	## MATH/READING
-	.lv <- level
-	
-	.qry <- "SELECT * FROM [dbo].[ece_accr_sy1213]
-		WHERE [school_code] = '" %+% org_code %+% "';"
-	.accr <- sqlQuery(dbrepcard, .qry)
-	
-	.ret <- c()
-	if(nrow(.accr)>0){
-		for(i in 1:nrow(.accr)){
-			.add <- indent(level) %+% '{\n'
-			up(.lv)
-			
-			.add <- .add %+% sprintf(indent(.lv) %+% '"type": %s,\n', checkna_str(.accr$accreditation_type[i]))
-			.add <- .add %+% sprintf(indent(.lv) %+% '"level": %s,\n', checkna_str(.accr$accreditation_level[i]))
-			.add <- .add %+% sprintf(indent(.lv) %+% '"exp_date": %s\n', checkna_str(.accr$exp_date[i]))
+    ## MATH/READING
+    .lv <- level
 
-			down(.lv)		
-			.add <- .add %+% indent(.lv) %+% '}'
-			.ret <- c(.ret, .add)
-		}
-	} 
-	return(paste(.ret, collapse=',\n'))
+    .qry <- "SELECT * FROM [dbo].[ece_accr_sy1213]
+        WHERE [school_code] = '" %+% org_code %+% "';"
+    .accr <- sqlQuery(dbrepcard, .qry)
+
+    .ret <- c()
+    if(nrow(.accr)>0){
+        for(i in 1:nrow(.accr)){
+            .add <- indent(level) %+% '{\n'
+            up(.lv)
+            
+            .add <- .add %+% sprintf(indent(.lv) %+% '"type": %s,\n', checkna_str(.accr$accreditation_type[i]))
+            .add <- .add %+% sprintf(indent(.lv) %+% '"level": %s,\n', checkna_str(.accr$accreditation_level[i]))
+            .add <- .add %+% sprintf(indent(.lv) %+% '"exp_date": %s\n', checkna_str(.accr$exp_date[i]))
+
+            down(.lv)
+            .add <- .add %+% indent(.lv) %+% '}'
+            .ret <- c(.ret, .add)
+        }
+    } 
+    return(paste(.ret, collapse=',\n'))
 }
 
 ExSPEDChunk <- function(scode, level){
@@ -594,28 +521,6 @@ WriteSPED <- function(.casdat_mr, level){
     return(paste(.ret, collapse=',\n'))
 }
 
-ExEnrollChunk <- function(scode, level){
-	.lv <- level
-		
-	.qry_enr <- sprintf("SELECT A.*,
-			B.[fy14_entity_code],
-			B.[fy14_entity_name]
-		  FROM [dbo].[enrollment] A
-		INNER JOIN (SELECT *
-			FROM [dbo].[fy14_mapping]
-			WHERE [fy14_entity_code] = '%s') B
-		ON A.[school_code] = B.[school_code] 
-			AND A.[ea_year] = B.[ea_year] 
-			AND A.[grade] = B.[grade]
-		ORDER BY A.[ea_year]", leadgr(scode,4))
-	
-	.dat_enr <- sqlQuery(dbrepcard, .qry_enr)
-	
-	.ret <- do(group_by(.dat_enr, ea_year), WriteEnroll, level)	
-	
-	return(paste(unlist(.ret), collapse=',\n'))	
-}
-
 ##"African American","White","Hispanic","Asian","American Indian", "Pacific Islander", "Multi Racial","Special Education","English Learner","Economically Disadvantaged","Male", "Female"
 SubProcEnr <- function(.dat, lv){
 	if(lv==1){
@@ -644,58 +549,6 @@ SubProcEnr <- function(.dat, lv){
 		return(subset(.dat, gender %in% c("F", "FEMALE")))
 	}	
 	return(.dat[NULL,])
-}
-
-WriteEnroll <- function(.edat, level){
-    .ret <- c()
-
-    if(nrow(.edat) < 10){
-        return(NULL)	
-    }
-
-    year <- .edat$ea_year[1]
-    .lv <- level
-    .edat$grade <- sapply(.edat$grade, leadgr, 2)
-
-    .glist <- unique(.edat$grade)
-
-    .subgroups <- c("African American","White","Hispanic","Asian","American Indian", "Pacific Islander", "Multi Racial","Special Education","English Learner","Economically Disadvantaged","Male", "Female")
-
-    for(g in 0:length(.glist)){
-        .tmp <- .edat
-        goutput <- "All"
-        if(g>0){
-            .tmp <- subset(.tmp, grade==.glist[g])
-            goutput <- .glist[g]
-        }
-        
-        for(s in 0:length(.subgroups)){
-            
-            soutput <- "All"
-            .tmps <- .tmp
-            if(s > 0){
-                soutput <- .subgroups[s]
-                .tmps <- SubProcEnr(.tmp, s)
-            }
-            
-            if(nrow(.tmps)>=10){
-                .add <- indent(.lv) %+% '{\n'
-                up(.lv)
-                .add <- .add %+% indent(.lv) %+% '"key": '
-                .add <- .add %+% WriteJSONChunk(c(grade=sprintf('"%s"', goutput), 
-                    subgroup=sprintf('"%s"', soutput),
-                    year=sprintf('"%s"', year))) %+% ',\n'
-                .add <- .add %+% paste(indent(.lv), '"val": ',nrow(.tmps),'\n', sep="")
-                down(.lv)
-                .add <- .add %+% paste(indent(.lv), '}', sep="")
-                .ret <- c(.ret, .add)
-            }
-        }
-    }
-
-    ## grade/subgroup, etc.	
-
-    return(paste(.ret, collapse=',\n'))
 }
 
 ##"African American","White","Hispanic","Asian","Special Education","English Learner","Economically Disadvantaged","Male", "Female")
@@ -744,131 +597,6 @@ SubProc <- function(.dat, lv, b=0){
 		return(subset(.dat, gender %in% c("F", "FEMALE")))
 	}
 	return(0)
-}
-
-qstr <- function(x) sprintf('"%s"', x)
-
-## rewrite
-WriteCAS <- function(.casdat_mr, spaces, entity='state'){
-    year <- .casdat_mr$year[1]    
-    .casdat_mr <- subset(.casdat_mr, exclude %notin% c("M", "A"))
-    
-    .casdat_mr$math_level[.casdat_mr$exclude %in% c('I','Y')] <- NA
-    .casdat_mr$read_level[.casdat_mr$exclude %in% c('I','Y')] <- NA
-
-    .subjects <- c("Math", "Reading")
-    .fay <- c("all", "full_year")
-
-    .lv <- spaces
-
-    .ret <- c()
-    .plevels <- c("Below Basic", "Basic", "Proficient", "Advanced")
-
-    .entity_fay <- list('state'=c("S", "C", "D"), 'lea'=c("S", "C"), 'school'=c("S"))
-
-    ## A = Subject, 1 for Math, 2 for Reading
-    for(a in 1:2){
-        ## b = full year or not
-        for(b in 1:2){
-            ## d = each grade 
-            .glevels <- sort(unique(.casdat_mr$tested_grade))
-            for(g in 0:length(.glevels)){
-                goutput <- ''
-                .tmp <- .casdat_mr
-                
-                if(g == 0){
-                    goutput <- 'all'
-                } else{
-                    goutput <- paste('grade', .glevels[g], sep=" ")
-                    .tmp <- subset(.tmp, tested_grade==.glevels[g])
-                }
-                .flevels <- c("N", "S", "D", "C")
-                
-                if(b==2){
-                    .flevels <- .entity_fay[entity][[1]]
-                    .tmp <- subset(.tmp, new_to_us =='NO')
-                    .tmp <- subset(.tmp, school_grade==tested_grade | alt_tested=="YES")
-                    .tmp <- subset(.tmp, school_code %notin% c("0948", "0958"))
-                }
-                
-                .subgroups <- c("African American","White","Hispanic","Asian", "Pacific Islander", "Multiracial","Special Education","English Learner","Economically Disadvantaged","Male", "Female")
-                
-                for(h in 0:9){
-                    .tmps <- SubProc(.tmp, h, b)
-                    
-                    if(h == 0){
-                        soutput <- 'All'
-                    } else{
-                        soutput <- .subgroups[h]
-                    }
-                    
-                    if((nrow(.tmps)>=10 & b==1) | (nrow(.tmps)>=25 & b==2)){
-                        invisible(ifelse(a==1, 
-                            .profs <- .tmps$math_level[.tmps$full_academic_year %in% .flevels], 
-                            .profs <- .tmps$read_level[.tmps$full_academic_year %in% .flevels]))
-                        
-                        prof_tab <- c(table(.profs))
-                        
-                        .add <- indent(.lv) %+% '{\n'
-                        up(.lv)
-                        .add <- .add %+% indent(.lv) %+% WriteJSONChunk(c(
-                            grade= qstr(goutput),
-                            enrollment_status=qstr(.fay[b]),
-                            subgroup = qstr(soutput),
-                            year = qstr(year)), 1) %+% ',\n'
-                        
-                        .add <- .add %+% indent(.lv) %+% WriteJSONChunk(c(
-                            n_eligible=checkna(length(.profs)),
-                            n_test_takers=length(.profs[.profs %in% .plevels]),
-                            advanced_or_proficient=checkna(length(.profs[.profs %in% c("Proficient", "Advanced")])),
-                            advanced=checkna(length(.profs[.profs %in% "Advanced"])),
-                            proficient=checkna(length(.profs[.profs %in% "Proficient"])),
-                            basic=checkna(length(.profs[.profs %in% "Basic"])),
-                            below_basic=checkna(length(.profs[.profs %in% "Below Basic"]))
-                            ),2) %+% '\n'
-                        down(.lv)
-                        .add <- .add %+% paste(indent(.lv), '}', sep="")
-                        .ret <- c(.ret, .add)
-                    }
-                }
-            }
-        }
-    }
-
-    for(z in .fay){
-        .tmp <- subset(.casdat_mr, new_to_us=='YES')
-        if(z == "full_year"){
-            .tmp <- subset(.tmp, full_academic_year %in% .entity_fay[entity][[1]])
-            .tmp <- subset(.tmp, school_grade==tested_grade | alt_tested=="YES")
-            .tmp <- subset(.tmp, school_code %notin% c("0948", "0958"))
-        }
-        
-        .profs <- .tmp$read_level
-        
-        prof_tab <- c(table(.profs))
-        
-        .add <- indent(.lv) %+% '{\n'
-        up(.lv)
-        .add <- .add %+% indent(.lv) %+% WriteJSONChunk(c(
-            grade= '"all"',
-            enrollment_status=qstr(z),
-            subgroup = '"New to the US (ELL)"',
-            year = qstr(year)), 1) %+% ',\n'
-        
-        .add <- .add %+% indent(.lv) %+% WriteJSONChunk(c(
-                n_eligible=checkna(length(.profs)),
-                n_test_takers=length(.profs[.profs %in% .plevels]),
-                advanced_or_proficient=checkna(length(.profs[.profs %in% c("Proficient", "Advanced")])),
-                advanced=checkna(length(.profs[.profs %in% "Advanced"])),
-                proficient=checkna(length(.profs[.profs %in% "Proficient"])),
-                basic=checkna(length(.profs[.profs %in% "Basic"])),
-                below_basic=checkna(length(.profs[.profs %in% "Below Basic"]))
-            ),2) %+% '\n'
-        down(.lv)
-        .add <- .add %+% paste(indent(.lv), '}', sep="")
-        .ret <- c(.ret, .add)
-    }
-    return(paste(.ret, collapse=',\n'))
 }
 
 WriteComp <- function(.casdat_comp, level){

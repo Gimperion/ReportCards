@@ -30,7 +30,6 @@ ExStateAMOs <- function(.lv){
     }
 }
 
-
 ExDiplCount <- function(.lv){
     .qry <- "SELECT * 
     FROM [dbo].[state_reg_dipl_count]"
@@ -315,23 +314,6 @@ ExNaepResult <- function(level){
 	return(paste(.ret, collapse=',\n'))
 }
 
-ExStateGrad <- function(level){
-	.lv <- level
-	
-	.qry <- "SELECT A.*, B.[fy14_entity_code], B.[fy14_entity_name]
-		FROM [dbo].[graduation] A
-		LEFT JOIN [dbo].[fy14_mapping] B
-		ON A.[school_code] = B.[school_code] 
-			AND B.[grade] = '09'
-			AND (A.[cohort_year]+2) = B.[ea_year]
-		WHERE [cohort_status] = 1"
-	.grad <- sqlQuery(dbrepcard, .qry)
-		
-	.ret <- do(group_by(.grad, cohort_year), WriteGraduation, level)
-	
-	return(paste(.ret, collapse=',\n'))
-}
-
 ExStateCAS <- function(level){
 	.lv <- level
 	
@@ -346,25 +328,6 @@ ExStateCAS <- function(level){
 	.ret <- c(.ret, do(group_by(.dat_sci, ea_year), WriteScience, level))
 	
 	return(paste(.ret, collapse=',\n'))
-}
-
-ExStateEnroll <- function(level){
-	.lv <- level
-	
-	.qry <- "SELECT A.*,
-			B.[fy14_entity_code],
-			B.[fy14_entity_name]
-		  FROM [dbo].[enrollment] A
-		INNER JOIN [dbo].[fy14_mapping] B
-		ON A.[school_code] = B.[school_code] 
-			AND A.[ea_year] = B.[ea_year] 
-			AND A.[grade] = B.[grade]
-		ORDER BY A.[ea_year]"
-		
-	.dat_enr <- sqlQuery(dbrepcard, .qry)
-	.ret <- do(group_by(.dat_enr, ea_year), WriteEnroll, level)	
-	
-	return(paste(.ret, collapse=',\n'))	
 }
 
 hard_code_equity <- '			{

@@ -147,7 +147,7 @@ school_dir <- subset(school_dir, school_code %notin% c("7000", "0948", "0958", "
         up(level)
         cat(indent(level), '"id": "graduation",', sep="", fill=TRUE)
         cat(indent(level), '"data": [', sep="", fill=TRUE)
-        cat(ExGraduation(org_code, level+1), fill=TRUE)
+        cat(ExGraduation(org_code, level+1, "school"), fill=TRUE)
         cat('\n',indent(level), ']', sep="", fill=TRUE)
         down(level)
         cat(indent(level),'}', sep="", fill=TRUE)
