@@ -9,6 +9,7 @@ setwd(paste0(active, 'ReportCards'))
 source("./imports/tomkit.R")
 source("./imports/ODBC.R")
 source("./school_functions.R")
+source("./generalized.R")
 library(dplyr)
 
 ## setwd("U:/REPORT CARD/GIT Report Cards/ReportCards/JSON Output")
@@ -33,7 +34,7 @@ school_dir$school_code <- sapply(school_dir$school_code, leadgr, 4)
 school_dir <- subset(school_dir, school_code %notin% c("7000", "0948", "0958", "0480", "0472", "0465"))
 
 ## Start File Generation
-    for(i in 1:nrow(school_dir)){
+for(i in 1:nrow(school_dir)){
     org_type <- "school"
     org_code <- school_dir$school_code[i]
 
@@ -182,7 +183,7 @@ school_dir <- subset(school_dir, school_code %notin% c("7000", "0948", "0958", "
         up(level)
         cat(indent(level), '"id": "enrollment",', sep="", fill=TRUE)
         cat(indent(level), '"data": [', sep="", fill=TRUE)
-        cat(ExEnrollChunk(org_code, level+1), fill=TRUE)
+        cat(ExEnrollChunk(org_code, level+1, "school"), fill=TRUE)
         cat(indent(level), ']', sep="", fill=TRUE)
         down(level)
         cat(indent(level),'},', sep="", fill=TRUE)

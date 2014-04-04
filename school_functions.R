@@ -465,9 +465,9 @@ ExSPEDChunk <- function(scode, level){
 		AND A.[school_code] = B.[school_code]
 	WHERE A.[special_ed] = 'YES'", leadgr(scode,4))
 	
-	.dat_mr <- sqlQuery(dbrepcard, .qry_sped_cas)
-    .ret <- do(group_by(.dat_mr, ea_year), WriteSPED, level)
-	
+    .dat_mr <- sqlQuery(dbrepcard, .qry_sped_cas)
+    .ret <- ifelse(nrow(.dat_mr)>=10, do(group_by(.dat_mr, ea_year), WriteSPED, level), "")
+
 	.ret <- subset(.ret, .ret != '')
 	return(paste(.ret, collapse=',\n'))
 }
@@ -666,53 +666,57 @@ WriteComp <- function(.casdat_comp, level){
 }
 
 ExCasChunk <- function(scode, level){
-	## MATH/READING
-	.qry_mr <- sprintf("SELECT A.* FROM [dbo].[assessment] A
-		INNER JOIN (SELECT 
-			[ea_year]
-			,[school_code]
-			,[grade]
-		FROM [dbo].[fy14_mapping]
-		WHERE [fy14_entity_code] = '%s') B
-	ON A.[ea_year] = B.[ea_year] 
-		AND A.[school_grade] = B.[grade] 
-		AND A.[school_code] = B.[school_code]", leadgr(scode,4))
-	
-	.dat_mr <- sqlQuery(dbrepcard, .qry_mr)
-	.ret <- do(group_by(.dat_mr, ea_year), WriteCAS, level, "school")
-	
-	## Comp
-	.qry_comp <- sprintf("SELECT A.* FROM [dbo].[assm_comp] A
-		INNER JOIN (SELECT 
-			[ea_year]
-			,[school_code]
-			,[grade]
-		FROM [dbo].[fy14_mapping]
-		WHERE [fy14_entity_code] = '%s') B
-	ON A.[ea_year] = B.[ea_year] 
-		AND A.[tested_grade] = B.[grade] 
-		AND A.[school_code] = B.[school_code]", leadgr(scode,4))
+    ## MATH/READING
+    .qry_mr <- sprintf("SELECT A.* FROM [dbo].[assessment] A
+        INNER JOIN (SELECT 
+            [ea_year]
+            ,[school_code]
+            ,[grade]
+        FROM [dbo].[fy14_mapping]
+        WHERE [fy14_entity_code] = '%s') B
+    ON A.[ea_year] = B.[ea_year] 
+        AND A.[school_grade] = B.[grade] 
+        AND A.[school_code] = B.[school_code]", leadgr(scode,4))
 
-	.dat_comp <- sqlQuery(dbrepcard, .qry_comp)
-	.ret <- c(.ret, do(group_by(.dat_comp, ea_year), WriteComp, level))
-	
-	## Science
-	.qry_sci <- sprintf("SELECT A.* FROM [dbo].[assm_science] A
-		INNER JOIN (SELECT 
-			[ea_year]
-			,[school_code]
-			,[grade]
-		FROM [dbo].[fy14_mapping]
-		WHERE [fy14_entity_code] = '%s') B
-	ON A.[ea_year] = B.[ea_year] 
-		AND A.[tested_grade] = B.[grade] 
-		AND A.[school_code] = B.[school_code]", leadgr(scode,4))
+    .dat_mr <- sqlQuery(dbrepcard, .qry_mr)
+    .add <- ifelse(nrow(.dat_mr)>= 10, do(group_by(.dat_mr, ea_year), WriteCAS, level, "school"), "")
+    .ret <- .add
 
-	.dat_sci <- sqlQuery(dbrepcard, .qry_sci)
-	.ret <- c(.ret, do(group_by(.dat_sci, ea_year), WriteScience, level))
-	
-	.ret <- subset(.ret, .ret != '')
-	return(paste(.ret, collapse=',\n'))
+    ## Comp
+    .qry_comp <- sprintf("SELECT A.* FROM [dbo].[assm_comp] A
+        INNER JOIN (SELECT 
+            [ea_year]
+            ,[school_code]
+            ,[grade]
+        FROM [dbo].[fy14_mapping]
+        WHERE [fy14_entity_code] = '%s') B
+    ON A.[ea_year] = B.[ea_year] 
+        AND A.[tested_grade] = B.[grade] 
+        AND A.[school_code] = B.[school_code]", leadgr(scode,4))
+
+    .dat_comp <- sqlQuery(dbrepcard, .qry_comp)
+    .add <- ifelse(nrow(.dat_comp)>= 10, do(group_by(.dat_comp, ea_year), WriteComp, level), "")
+    .ret <- c(.ret, .add)
+
+    ## Science
+    .qry_sci <- sprintf("SELECT A.* FROM [dbo].[assm_science] A
+        INNER JOIN (SELECT 
+            [ea_year]
+            ,[school_code]
+            ,[grade]
+        FROM [dbo].[fy14_mapping]
+        WHERE [fy14_entity_code] = '%s') B
+    ON A.[ea_year] = B.[ea_year] 
+        AND A.[tested_grade] = B.[grade] 
+        AND A.[school_code] = B.[school_code]", leadgr(scode,4))
+
+    .dat_sci <- sqlQuery(dbrepcard, .qry_sci)
+    
+    .add <- ifelse(nrow(.dat_sci)>= 10, do(group_by(.dat_sci, ea_year), WriteScience, level), "")
+    .ret <- c(.ret, .add)
+
+    .ret <- subset(.ret, .ret != '')
+    return(paste(.ret, collapse=',\n'))
 }
 
 

@@ -217,7 +217,9 @@ ExEnrollChunk <- function(org_code=NA, level=1, entity="state"){
 
     .dat_enr <- sqlQuery(dbrepcard, .qry_enr)
     ##print(head(.dat_enr))
-    .ret <- do(group_by(.dat_enr, ea_year), WriteEnroll, level)
+    if(nrow(.dat_enr)>= 10){
+        .ret <- do(group_by(.dat_enr, ea_year), WriteEnroll, level)
+    } else{ .ret <- '' }
 
     return(paste(unlist(.ret), collapse=',\n'))
 }
