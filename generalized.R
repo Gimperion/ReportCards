@@ -273,3 +273,37 @@ WriteEnroll <- function(.edat, level){
 
     return(paste(.ret, collapse=',\n'))
 }
+
+### AMO Development
+ExAMOs <- function(org_code, level, entity="school"){
+    .qry <- sprintf("SELECT * 
+        FROM [dbo].[amo_status_export]
+        WHERE [current_entity_code] = '%s'
+            AND [entity_level] = '%s'", leadgr(org_code, 4), entity)
+    .amo_dat <- sqlQuery(dbrepcard, .qry)
+    .ret <- c()
+    
+    .lv <- level
+    if(nrow(.amo_dat) > 0){
+        for(i in 1:nrow(.amo_dat)){
+            for(j in c("math", "read")){
+                .add <- indent(.lv) %+% '{\n'
+                up(.lv)
+                .add <- .add %+% indent(.lv) %+% WriteJSONChunk(c(
+                    subject=ifelse(j=='math', '"Math"', '"Reading"'), 
+                    grade='"all"',
+                    enrollment_status='"full_year"',
+                    subgroup=sprintf('"%s"', .amo_dat$subgroup[i]),
+                    year=sprintf('"%s"', .amo_dat$year[i])),1) %+% ', \n'
+                .add <- .add %+% indent(.lv) %+% WriteJSONChunk(c(
+                    basline=checkna(.amo_dat[i, j %+% '_baseline']),
+                    target=checkna(.amo_dat[i, j %+% '_target'])),2) %+% '\n'
+                
+                down(.lv)
+                .add <- .add %+% paste(indent(.lv), '}', sep="")
+                .ret <- c(.ret, .add)
+            }
+        }
+        return(paste(.ret, collapse=',\n'))
+    }
+}
