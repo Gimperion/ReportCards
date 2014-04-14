@@ -113,7 +113,7 @@ ExMGPResult <- function(org_code, level){
                 .add <- .add %+% indent(.lv) %+% '"key": '
                 .add <- .add %+% WriteJSONChunk(c(subject=sprintf('"%s"', .mgp$subject[i]), 
                     subgroup=sprintf('"%s"', RetMGPGroup(.mgp$group[i])),
-                    year=sprintf('"%s"', .mgp$year[i]))) %+% '\n'
+                    year=sprintf('"%s"', .mgp$year[i]))) %+% ',\n'
                 .add <- .add %+% indent(.lv) %+% '"val": '
                 .add <- .add %+% WriteJSONChunk(c(group_size=checkna(.mgp$group_fay_size[i]),
                     mgp_1yr=checkna(.mgp$mgp_1yr[i]),                    

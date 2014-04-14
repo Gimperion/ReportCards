@@ -1,9 +1,6 @@
 ## Generate State File ## 
 ## Detail Data File Build ##
-active <- shell('echo %CODE_PATH%', intern=TRUE)
-active <- gsub('\\\\', '/', active)
-setwd(paste0(active, 'ReportCards'))
-
+setwd("U:/REPORT CARD/GIT Report Cards/ReportCards")
 library(dplyr)
 
 source("./imports/tomkit.R")

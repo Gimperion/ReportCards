@@ -1,6 +1,5 @@
-active <- shell('echo %CODE_PATH%', intern=TRUE)
-active <- gsub('\\\\', '/', active)
-setwd(paste0(active, 'ReportCards'))
+
+setwd("U:/REPORT CARD/GIT Report Cards/ReportCards")
 
 source("./imports/tomkit.R")
 source("./imports/ODBC.R")
@@ -10,7 +9,6 @@ source("./lea_functions.R")
 
 library(dplyr)
 
-dbrepcard <- odbcDriverConnect('driver={SQL Server};server=OSSEEDM1;database=reportcard_dev;trusted_connection=true')
 school_dir <- sqlFetch(dbrepcard, 'schooldir_sy1213')
 
 lea_dir <- unique(school_dir[c("lea_code","lea_name")])

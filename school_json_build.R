@@ -1,10 +1,10 @@
 ## Generate School File ## 
 ## Detail Data File Build ##
-##setwd("U:/REPORT CARD/GIT Report Cards/ReportCards")
+setwd("U:/REPORT CARD/GIT Report Cards/ReportCards")
 
-active <- shell('echo %CODE_PATH%', intern=TRUE)
-active <- gsub('\\\\', '/', active)
-setwd(paste0(active, 'ReportCards'))
+# active <- shell('echo %CODE_PATH%', intern=TRUE)
+# active <- gsub('\\\\', '/', active)
+# setwd(paste0(active, 'ReportCards'))
 
 source("./imports/tomkit.R")
 source("./imports/ODBC.R")
@@ -12,15 +12,13 @@ source("./school_functions.R")
 source("./generalized.R")
 library(dplyr)
 
-## setwd("U:/REPORT CARD/GIT Report Cards/ReportCards/JSON Output")
-
 sfile_version <- sqlQuery(dbrepcard, "SELECT TOP 1 
 			[version_number],
 			[timestamp]
 		FROM [dbo].[ver_control_schoolfile]
 		ORDER BY [version_number] DESC")
 
-next_version <- sfile_version$version_number + 0.1
+next_version <- as.numeric(sfile_version$version_number) + 0.1
 
 subDir <- "school_report"
 mainDir <- "./data/"

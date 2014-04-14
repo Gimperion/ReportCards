@@ -1,13 +1,9 @@
-active <- shell('echo %CODE_PATH%', intern=TRUE)
-active <- gsub('\\\\', '/', active)
-mainDir <- paste0(active, '/ReportCards')
-
-setwd(mainDir)
+setwd("U:/REPORT CARD/GIT Report Cards/ReportCards")
 
 source("./imports/tomkit.R")
 source("http://www.straydots.com/code/ODBC.R")
 source("./school_functions.R")
-##source("./state_functions.R")
+source("./generalized.R")
 
 
 overview_version <- sqlQuery(dbrepcard, "SELECT TOP 1 
