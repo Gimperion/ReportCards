@@ -1,34 +1,3 @@
-ExAMOs <- function(orgcode, .lv){
-    .qry <- sprintf("SELECT * 
-        FROM [dbo].[amo_status_export]
-        WHERE [current_entity_code] = %s", leadgr(orgcode, 4))
-    .amo_dat <- sqlQuery(dbrepcard, .qry)
-    .ret <- c()
-    
-    if(nrow(.amo_dat) > 0){
-        for(i in 1:nrow(.amo_dat)){
-            for(j in c("math", "read")){
-                .add <- indent(.lv) %+% '{\n'
-                up(.lv)
-                .add <- .add %+% indent(.lv) %+% WriteJSONChunk(c(
-                    subject=ifelse(j=='math', '"Math"', '"Reading"'), 
-                    grade='"all"',
-                    enrollment_status='"full_year"',
-                    subgroup=sprintf('"%s"', .amo_dat$subgroup[i]),
-                    year=sprintf('"%s"', .amo_dat$year[i])),1) %+% ', \n'
-                .add <- .add %+% indent(.lv) %+% WriteJSONChunk(c(
-                    basline=checkna(.amo_dat[i, j %+% '_baseline']),
-                    target=checkna(.amo_dat[i, j %+% '_target'])),2) %+% '\n'
-                
-                down(.lv)
-                .add <- .add %+% paste(indent(.lv), '}', sep="")
-                .ret <- c(.ret, .add)
-            }
-        }
-        return(paste(.ret, collapse=',\n'))
-    }
-}
-
 ## cat(ExAMOs(210, 1), fill=TRUE)
 ExHQTStatus <- function(org_code){
     .qry <- "SELECT * FROM [dbo].[hqt_status_sy1112]
