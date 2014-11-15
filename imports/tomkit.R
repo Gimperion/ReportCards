@@ -19,13 +19,9 @@ indent <- function(n){
 }
 
 ## ADD LEADING ZEROES to X Digits ## 
-leadgr <- function(x, y){
-	if(!is.na(x)){
-		while(nchar(x)<y){
-			x <- paste("0",x,sep="")
-		}
-	}
-	return(x)
+leadgr <- function(x, digits = 1){
+    formatter <- paste0('%0', digits, 'd')
+    return(sprintf(formatter, x))
 }
 
 trimall <- function(tstring){
